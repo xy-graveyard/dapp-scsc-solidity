@@ -17,6 +17,8 @@ contract XyoStaked is Ownable, XyoNodeMapping {
     uint time;
   }
 
+  mapping(address => address) public nodeOwners; //Lists the owners of the ndoes
+
   Request[] public stakeRequests; //List of Stake Requests
   Request[] public unstakeRequests; //List of Unstake Requests
 
@@ -36,6 +38,27 @@ contract XyoStaked is Ownable, XyoNodeMapping {
   {
     token = ERC20(_token);
     cooldown = _cooldown;
+  }
+
+  /**
+   * @dev Claim a Node to an Owner. Requires a signed datagram from the node containing the owner address
+   * @param node - The node's address.  The signature should be of this address concated with the owner's address sha256 hashed
+   * @param v - The v component of the signature
+   * @param r - The r component of the signature
+   * @param s - The s component of the signature
+   */
+  function claim(
+    address node,
+    uint8 v,
+    bytes32 r,
+    bytes32 s
+  )
+    public
+  {
+    bytes32 hashValue = sha256(abi.encodePacked(msg.sender, node));
+    address realAddress = ecrecover(hashValue, v, r, s);
+    require (realAddress == msg.sender);
+    nodeOwners[node] = msg.sender;
   }
 
   /**
