@@ -17,6 +17,11 @@ contract XyoStaked is Ownable, XyoNodeMapping {
     uint time;
   }
 
+  event Claim (
+    address owner,
+    address node
+  );
+
   mapping(address => address) public nodeOwners; //Lists the owners of the ndoes
 
   Request[] public stakeRequests; //List of Stake Requests
@@ -55,9 +60,11 @@ contract XyoStaked is Ownable, XyoNodeMapping {
   )
     public
   {
-    bytes32 hashValue = sha256(abi.encodePacked(msg.sender, node));
+    bytes32 hashValue = keccak256(abi.encodePacked(msg.sender, node));
+
     address realAddress = ecrecover(hashValue, v, r, s);
-    require (realAddress == msg.sender);
+    emit Claim(msg.sender, node);
+    require (realAddress == node);
     nodeOwners[node] = msg.sender;
   }
 

@@ -500,10 +500,10 @@
                       "name": "require",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        865,
-                        866
+                        876,
+                        877
                       ],
-                      "referencedDeclaration": 865,
+                      "referencedDeclaration": 876,
                       "src": "356:7:3",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_require_pure$_t_bool_$returns$__$",
@@ -1263,7 +1263,7 @@
                         "name": "msg",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 862,
+                        "referencedDeclaration": 873,
                         "src": "697:3:3",
                         "typeDescriptions": {
                           "typeIdentifier": "t_magic_message",
@@ -3067,10 +3067,10 @@
                       "name": "require",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        865,
-                        866
+                        876,
+                        877
                       ],
-                      "referencedDeclaration": 865,
+                      "referencedDeclaration": 876,
                       "src": "356:7:3",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_require_pure$_t_bool_$returns$__$",
@@ -3830,7 +3830,7 @@
                         "name": "msg",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 862,
+                        "referencedDeclaration": 873,
                         "src": "697:3:3",
                         "typeDescriptions": {
                           "typeIdentifier": "t_magic_message",
@@ -5274,5 +5274,5 @@
   },
   "networks": {},
   "schemaVersion": "2.0.1",
-  "updatedAt": "2018-08-28T21:16:07.946Z"
+  "updatedAt": "2018-08-30T20:15:47.164Z"
 }
