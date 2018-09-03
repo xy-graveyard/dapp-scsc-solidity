@@ -78,10 +78,15 @@ contract(`XyoStaked`, ([contractCreator, owner1]) => {
   let token = null
   let xyoStake = null
 
+  const nodeAddressNumber = BN(`0x${nodeAddress.toString(`hex`)}`)
+
   it(`create contracts`, async () => {
     token = await StandardToken.new(TW(10000000), { from: contractCreator, gasPrice: 0 })
     console.log(`StandardToken Created: `, token.address)
-    xyoStake = await XyoStaked.new(token.address, 30, { from: contractCreator, gasPrice: 0 })
+    await token.transfer(owner1, TW(100), { from: contractCreator })
+    const tokensForOwner1 = await token.balanceOf(owner1)
+    console.log(`Tokens for Owner1: `, tokensForOwner1.toString(10))
+    xyoStake = await XyoStaked.new(token.address, 1, { from: contractCreator, gasPrice: 0 })
     console.log(`XyoStaked Created: `, xyoStake.address)
   })
 
@@ -91,27 +96,55 @@ contract(`XyoStaked`, ([contractCreator, owner1]) => {
     const s = BN(`${signedDatagram.s}`)
     // console.log(`hashedAddresses: 0x${nodeAddress.toString(`hex`)}, 0x${v.toString(`16`)}, 0x${r.toString(`16`)}, 0x${s.toString(`16`)}`)
     // const { logs } =
-    await xyoStake.claim(BN(`0x${nodeAddress.toString(`hex`)}`), v, r, s, { from: owner1 })
+    await xyoStake.claim(nodeAddressNumber, v, r, s, { from: owner1 })
     // console.log(`logs: ${JSON.stringify(logs)}`)
   })
 
-  /* it(`should stake a new node`, async () => {
-    const { logs } = await xyoStake.stake(nodeAddress, TW(10), { from: owner1 })
-    console.log(logs)
-  }) */
+  it(`approve tokens for staking`, async () => {
+    const { logs } = await token.approve(xyoStake.address, TW(10), { from: owner1 })
+    console.log(`logs: ${JSON.stringify(logs)}`)
+    const allowance = await token.allowance(owner1, xyoStake.address)
+    console.log(`allowance: ${allowance}`)
+  })
 
-  /* it ('should be able to retrieve the hash after stored', async function _() {
-        let storedHash = 'QmfM2r8seH2GiRaC4esTjeraXEachRt8ZsSeGaWTPLyMoG'
-        await this.vault.storeInVault('TEST', storedHash, {from: dataOwner})
-        let hash = await this.vault.getVaultContents('TEST')
-        hash.should.be.equal(storedHash)
-    })
+  it(`should stake a new node`, async () => {
+    const { logs } = await xyoStake.stake(nodeAddressNumber, TW(10), { from: owner1 })
+    console.log(`logs: ${JSON.stringify(logs)}`)
+  })
 
-    it ('should be able to convert string to uint', async function _() {
-        let result = await this.vault.encodeShortString("Test Vault")
-        let result2 = await this.vault.encodeShortString("Test Vault2")
-        let result3 = await this.vault.encodeShortString("TEST Vault")
-        let result4 = await this.vault.encodeShortString("TESty Vault")
-        result.should.be.bignumber.not.equal(result2).not.equal(result3).not.equal(result4)
-    }) */
+  it(`length should be 1`, async () => {
+    const len = await xyoStake.length()
+    console.log(`len: ${len}`)
+    assert.equal(parseInt(len, 10), 1, `len(${len}) should be 1`)
+  })
+
+  it(`should have nothing available to withdraw`, async () => {
+    const result = await xyoStake.availableToWithdraw(owner1, { from: owner1 })
+    console.log(`result: ${result}`)
+    assert.equal(parseInt(result, 10), 0, `result(${parseInt(result, 10)}) should = 0`)
+  })
+
+  it(`should have stake request`, async () => {
+    const requestsLen = await xyoStake.getStakeRequestsLen()
+    console.log(`requestsLen: ${requestsLen}`)
+    const request = await xyoStake.stakeRequests(0)
+    console.log(`request: ${JSON.stringify(request)}`)
+    assert.equal(BN(request[0]).toString(16, 20), nodeAddress.toString(`hex`), `request.node(${BN(request[0]).toString(16, 20)}) should = nodeAddress(${nodeAddress.toString(`hex`)})`)
+    assert.equal(request[1].toString(10), TW(10).toString(10), `request.amount(${request[1].toString(10)}) should = TW(10)(${TW(10).toString(10)})`)
+  })
+
+  it(`should process one request`, async () => {
+    const result = await xyoStake.process({ from: owner1 })
+    console.log(`result: ${result}`)
+    assert.equal(parseInt(result, 10), 1, `result(${parseInt(result, 10)}) should = 1`)
+  })
+
+  it(`should have stake`, async () => {
+    const address0 = await xyoStake.get(0)
+    console.log(`address0: ${address0}`)
+    const node = await xyoStake.nodes(address0)
+    console.log(`node: ${node}`)
+    assert.equal(BN(node[1]).toString(16), nodeAddress.toString(`hex`), `node(${BN(node[1]).toString(16)}) should = nodeAddress(${nodeAddress.toString(`hex`)})`)
+    assert.equal(BN(node[0]).toString(16), BN(owner1).toString(16, 20), `owner(${BN(node[0]).toString(16)}) should = owner1(${BN(owner1).toString(16, 20)})`)
+  })
 })

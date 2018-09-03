@@ -7,8 +7,8 @@
     "test": "test"
   },
   "scripts": {
-    "build": "truffle build",
-    "serve": "truffle serve",
+    "build": "bash scripts/build",
+    "serve": "bash scripts/serve",
     "compile": "truffle compile",
     "migrate": "truffle migrate",
     "test": "truffle test",

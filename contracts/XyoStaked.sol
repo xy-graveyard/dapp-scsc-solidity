@@ -22,10 +22,22 @@ contract XyoStaked is Ownable, XyoNodeMapping {
     address node
   );
 
+  event Stake (
+    address node,
+    uint amount
+  );
+
   mapping(address => address) public nodeOwners; //Lists the owners of the ndoes
 
   Request[] public stakeRequests; //List of Stake Requests
+  function getStakeRequestsLen() public view returns(uint) {
+    return stakeRequests.length;
+  }
+
   Request[] public unstakeRequests; //List of Unstake Requests
+  function getUnstakeRequestsLen() public view returns(uint) {
+    return unstakeRequests.length;
+  }
 
   ERC20 public token; //address of the ERC20 token used for staking
   uint public cooldown; //the amount of time required for withdrawn stake to be available to be withdrawn
@@ -66,6 +78,7 @@ contract XyoStaked is Ownable, XyoNodeMapping {
     emit Claim(msg.sender, node);
     require (realAddress == node);
     nodeOwners[node] = msg.sender;
+    add(node);
   }
 
   /**
@@ -74,15 +87,18 @@ contract XyoStaked is Ownable, XyoNodeMapping {
    * @param amount - The amount of XYO being added to the stake
    * @return The total XYO staked for this node
    */
-  function stake(address node, uint amount)
+  function stake(
+    address node,
+    uint amount
+  )
     public
   {
     require(nodes[node].owner == msg.sender);
 
     //we assume that the caller gave this contract permission to transfer tokens before this call
     token.transferFrom(msg.sender, this, amount);
-
     stakeRequests.push(Request(node, amount, now));
+    emit Stake(node, amount);
   }
 
   /**
@@ -92,18 +108,43 @@ contract XyoStaked is Ownable, XyoNodeMapping {
    * @param amount - The amount of XYO being added to the stake
    * @return The total XYO staked for this node
    */
-  function unstake(address node, uint amount)
+  function unstake(
+    address node,
+    uint amount
+  )
     public
   {
     require(nodes[node].owner == msg.sender);
+    require(nodes[node].stake >= amount);
+    nodes[node].stake = nodes[node].stake - amount;
     unstakeRequests.push(Request(node, amount, now));
+  }
+
+  function process(
+  )
+    public
+    returns (uint)
+  {
+    uint count = 0;
+    for (uint i = 0; i < stakeRequests.length; i++) {
+      if (nodes[stakeRequests[i].node].owner == owner) {
+        if ((stakeRequests[i].time + cooldown) < now) {
+          nodes[stakeRequests[i].node].stake = nodes[stakeRequests[i].node].stake + stakeRequests[i].amount;
+          stakeRequests[i].amount = 0;
+          count = count + 1;
+        }
+      }
+    }
+    purgeEmptyStakeRequests();
+    return count;
   }
 
   /**
    * @dev Withdraws Stake
    * @return The total XYO that may be withdrawn from this node after this transaction
    */
-  function withdraw()
+  function withdraw(
+  )
     public
     returns (uint)
   {
@@ -119,7 +160,8 @@ contract XyoStaked is Ownable, XyoNodeMapping {
     return total;
   }
 
-  function purgeEmptyStakeRequests()
+  function purgeEmptyStakeRequests(
+  )
     private
   {
     uint index = 0;
@@ -133,7 +175,8 @@ contract XyoStaked is Ownable, XyoNodeMapping {
     }
   }
 
-  function purgeEmptyUnstakeRequests()
+  function purgeEmptyUnstakeRequests(
+  )
     private
   {
     uint index = 0;
@@ -147,7 +190,9 @@ contract XyoStaked is Ownable, XyoNodeMapping {
     }
   }
 
-  function withdrawFromRequest(Request request)
+  function withdrawFromRequest(
+    Request request
+  )
     private
     returns (uint)
   {

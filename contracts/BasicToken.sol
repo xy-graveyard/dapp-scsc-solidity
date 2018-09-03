@@ -12,6 +12,10 @@ import "./SafeMath.sol";
 contract BasicToken is ERC20Basic {
   using SafeMath for uint256;
 
+  constructor(uint initialSupply) public {
+    balances[msg.sender] = initialSupply;
+  }
+
   mapping(address => uint256) internal balances;
 
   uint256 internal totalSupply_;

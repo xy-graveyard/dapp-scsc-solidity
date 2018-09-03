@@ -15,6 +15,8 @@ contract StandardToken is ERC20, BasicToken {
 
   mapping (address => mapping (address => uint256)) internal allowed;
 
+  constructor(uint initialSupply) BasicToken(initialSupply) public {
+  }
 
   /**
    * @dev Transfer tokens from one address to another
