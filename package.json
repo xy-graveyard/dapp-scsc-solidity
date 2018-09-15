@@ -2,7 +2,7 @@
   "name": "dapp-scsc-solidity",
   "version": "1.0.0",
   "description": "XYO Staked Consensus Smart Contract",
-  "main": "truffle-config.js",
+  "main": "index.js",
   "directories": {
     "test": "test"
   },
@@ -35,12 +35,12 @@
     "eslint-plugin-jsx-a11y": "^6.1.1",
     "eslint-plugin-node": "^7.0.1",
     "eslint-plugin-promise": "^3.6.0",
-    "eslint-plugin-standard": "^3.0.1",
     "eslint-plugin-react": "^7.11.0",
+    "eslint-plugin-standard": "^3.0.1",
     "ganache-cli": "^6.1.0",
     "js-sha3": "^0.8.0",
     "openzeppelin-solidity": "^1.11.0",
-    "truffle": "^4.1.3",
+    "truffle": "^4.1.14",
     "truffle-hdwallet-provider": "^0.0.5"
   }
 }

@@ -10,6 +10,7 @@ contract XyoStakedConsensus is XyoStaked {
 
   struct Block {
     uint previousBlock;
+    uint ipfsHash;
     address creator;
   }
 

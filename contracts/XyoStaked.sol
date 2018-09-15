@@ -27,7 +27,7 @@ contract XyoStaked is Ownable, XyoNodeMapping {
     uint amount
   );
 
-  mapping(address => address) public nodeOwners; //Lists the owners of the ndoes
+  mapping(address => address) public nodeOwners; //Lists the owners of the nodes
 
   Request[] public stakeRequests; //List of Stake Requests
   function getStakeRequestsLen() public view returns(uint) {
