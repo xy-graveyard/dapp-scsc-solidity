@@ -1,6 +1,3 @@
-// import assertRevert from 'openzeppelin-solidity/test/helpers/assertRevert'
-// import {advanceBlock} from 'openzeppelin-solidity/test/helpers/advanceToBlock'
-// import EVMRevert from 'openzeppelin-solidity/test/helpers/EVMRevert'
 import { ec } from 'elliptic'
 import { keccak256 } from 'js-sha3'
 
@@ -12,11 +9,7 @@ const StandardToken = artifacts.require(`StandardToken.sol`)
 
 const BN = _x_ => web3.toBigNumber(_x_)
 
-// const FW = _x_ => BN(web3.fromWei(BN(_x_)));
-
 const TW = _x_ => BN(web3.toWei(BN(_x_)))
-
-// const CMP = (_x_, _y_) => BN(_x_).eq(BN(_y_));
 
 const nodeAddressFromKey = (key) => {
   const publicKey = key.getPublic()
