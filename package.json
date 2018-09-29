@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "XYO Staked Consensus Smart Contract",
   "main": "index.js",
+  "types": "index.d.ts",
   "directories": {
     "test": "test"
   },
