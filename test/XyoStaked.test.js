@@ -126,11 +126,11 @@ contract(`XyoStaked`, ([contractCreator, owner1]) => {
     assert.equal(request[1].toString(10), TW(10).toString(10), `request.amount(${request[1].toString(10)}) should = TW(10)(${TW(10).toString(10)})`)
   })
 
-  it(`should process one request`, async () => {
+  /* it(`should process one request`, async () => {
     const result = await xyoStake.process({ from: owner1 })
     console.log(`result: ${result}`)
     assert.equal(parseInt(result, 10), 1, `result(${parseInt(result, 10)}) should = 1`)
-  })
+  }) */
 
   it(`should have stake`, async () => {
     const address0 = await xyoStake.get(0)

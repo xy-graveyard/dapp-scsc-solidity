@@ -9,7 +9,7 @@
   "scripts": {
     "compile": "truffle compile",
     "migrate": "truffle migrate",
-    "test": "truffle test",
+    "test": "bash scripts/test",
     "chain": "ganache-cli"
   },
   "author": "",
