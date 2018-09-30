@@ -240,7 +240,7 @@
   "deployedBytecode": "0x",
   "sourceMap": "",
   "deployedSourceMap": "",
-  "source": "pragma solidity ^0.4.24;\n\nimport \"./ERC20.sol\";\n\n\n/**\n * @title DetailedERC20 token\n * @dev The decimals are only for visualization purposes.\n * All the operations are done using the smallest and indivisible token unit,\n * just as on Ethereum all the operations are done in wei.\n */\ncontract DetailedERC20 is ERC20 {\n  string public name;\n  string public symbol;\n  uint8 public decimals;\n\n  constructor(string _name, string _symbol, uint8 _decimals) public {\n    name = _name;\n    symbol = _symbol;\n    decimals = _decimals;\n  }\n}\n",
+  "source": "pragma solidity ^0.4.24;\n\nimport \"./ERC20.sol\";\n\n\n/**\n * @title DetailedERC20 token\n * @dev The decimals are only for visualization purposes.\n * All the operations are done using the smallest and indivisible token unit,\n * just as on Ethereum all the operations are done in wei.\n */\ncontract DetailedERC20 is ERC20 {\n    string public name;\n    string public symbol;\n    uint8 public decimals;\n\n    constructor(string _name, string _symbol, uint8 _decimals) public {\n        name = _name;\n        symbol = _symbol;\n        decimals = _decimals;\n    }\n}\n",
   "sourcePath": "/Users/arietrouw/GitHub/dapp-scsc-solidity/contracts/DetailedERC20.sol",
   "ast": {
     "absolutePath": "/Users/arietrouw/GitHub/dapp-scsc-solidity/contracts/DetailedERC20.sol",
@@ -317,7 +317,7 @@
             "name": "name",
             "nodeType": "VariableDeclaration",
             "scope": 142,
-            "src": "319:18:1",
+            "src": "321:18:1",
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -328,7 +328,7 @@
               "id": 114,
               "name": "string",
               "nodeType": "ElementaryTypeName",
-              "src": "319:6:1",
+              "src": "321:6:1",
               "typeDescriptions": {
                 "typeIdentifier": "t_string_storage_ptr",
                 "typeString": "string"
@@ -343,7 +343,7 @@
             "name": "symbol",
             "nodeType": "VariableDeclaration",
             "scope": 142,
-            "src": "341:20:1",
+            "src": "345:20:1",
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -354,7 +354,7 @@
               "id": 116,
               "name": "string",
               "nodeType": "ElementaryTypeName",
-              "src": "341:6:1",
+              "src": "345:6:1",
               "typeDescriptions": {
                 "typeIdentifier": "t_string_storage_ptr",
                 "typeString": "string"
@@ -369,7 +369,7 @@
             "name": "decimals",
             "nodeType": "VariableDeclaration",
             "scope": 142,
-            "src": "365:21:1",
+            "src": "371:21:1",
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -380,7 +380,7 @@
               "id": 118,
               "name": "uint8",
               "nodeType": "ElementaryTypeName",
-              "src": "365:5:1",
+              "src": "371:5:1",
               "typeDescriptions": {
                 "typeIdentifier": "t_uint8",
                 "typeString": "uint8"
@@ -393,7 +393,7 @@
             "body": {
               "id": 140,
               "nodeType": "Block",
-              "src": "457:71:1",
+              "src": "465:85:1",
               "statements": [
                 {
                   "expression": {
@@ -410,7 +410,7 @@
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
                       "referencedDeclaration": 115,
-                      "src": "463:4:1",
+                      "src": "475:4:1",
                       "typeDescriptions": {
                         "typeIdentifier": "t_string_storage",
                         "typeString": "string storage ref"
@@ -425,13 +425,13 @@
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
                       "referencedDeclaration": 121,
-                      "src": "470:5:1",
+                      "src": "482:5:1",
                       "typeDescriptions": {
                         "typeIdentifier": "t_string_memory_ptr",
                         "typeString": "string memory"
                       }
                     },
-                    "src": "463:12:1",
+                    "src": "475:12:1",
                     "typeDescriptions": {
                       "typeIdentifier": "t_string_storage",
                       "typeString": "string storage ref"
@@ -439,7 +439,7 @@
                   },
                   "id": 131,
                   "nodeType": "ExpressionStatement",
-                  "src": "463:12:1"
+                  "src": "475:12:1"
                 },
                 {
                   "expression": {
@@ -456,7 +456,7 @@
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
                       "referencedDeclaration": 117,
-                      "src": "481:6:1",
+                      "src": "497:6:1",
                       "typeDescriptions": {
                         "typeIdentifier": "t_string_storage",
                         "typeString": "string storage ref"
@@ -471,13 +471,13 @@
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
                       "referencedDeclaration": 123,
-                      "src": "490:7:1",
+                      "src": "506:7:1",
                       "typeDescriptions": {
                         "typeIdentifier": "t_string_memory_ptr",
                         "typeString": "string memory"
                       }
                     },
-                    "src": "481:16:1",
+                    "src": "497:16:1",
                     "typeDescriptions": {
                       "typeIdentifier": "t_string_storage",
                       "typeString": "string storage ref"
@@ -485,7 +485,7 @@
                   },
                   "id": 135,
                   "nodeType": "ExpressionStatement",
-                  "src": "481:16:1"
+                  "src": "497:16:1"
                 },
                 {
                   "expression": {
@@ -502,7 +502,7 @@
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
                       "referencedDeclaration": 119,
-                      "src": "503:8:1",
+                      "src": "523:8:1",
                       "typeDescriptions": {
                         "typeIdentifier": "t_uint8",
                         "typeString": "uint8"
@@ -517,13 +517,13 @@
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
                       "referencedDeclaration": 125,
-                      "src": "514:9:1",
+                      "src": "534:9:1",
                       "typeDescriptions": {
                         "typeIdentifier": "t_uint8",
                         "typeString": "uint8"
                       }
                     },
-                    "src": "503:20:1",
+                    "src": "523:20:1",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint8",
                       "typeString": "uint8"
@@ -531,7 +531,7 @@
                   },
                   "id": 139,
                   "nodeType": "ExpressionStatement",
-                  "src": "503:20:1"
+                  "src": "523:20:1"
                 }
               ]
             },
@@ -553,7 +553,7 @@
                   "name": "_name",
                   "nodeType": "VariableDeclaration",
                   "scope": 141,
-                  "src": "403:12:1",
+                  "src": "411:12:1",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -564,7 +564,7 @@
                     "id": 120,
                     "name": "string",
                     "nodeType": "ElementaryTypeName",
-                    "src": "403:6:1",
+                    "src": "411:6:1",
                     "typeDescriptions": {
                       "typeIdentifier": "t_string_storage_ptr",
                       "typeString": "string"
@@ -579,7 +579,7 @@
                   "name": "_symbol",
                   "nodeType": "VariableDeclaration",
                   "scope": 141,
-                  "src": "417:14:1",
+                  "src": "425:14:1",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -590,7 +590,7 @@
                     "id": 122,
                     "name": "string",
                     "nodeType": "ElementaryTypeName",
-                    "src": "417:6:1",
+                    "src": "425:6:1",
                     "typeDescriptions": {
                       "typeIdentifier": "t_string_storage_ptr",
                       "typeString": "string"
@@ -605,7 +605,7 @@
                   "name": "_decimals",
                   "nodeType": "VariableDeclaration",
                   "scope": 141,
-                  "src": "433:15:1",
+                  "src": "441:15:1",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -616,7 +616,7 @@
                     "id": 124,
                     "name": "uint8",
                     "nodeType": "ElementaryTypeName",
-                    "src": "433:5:1",
+                    "src": "441:5:1",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint8",
                       "typeString": "uint8"
@@ -626,27 +626,27 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "402:47:1"
+              "src": "410:47:1"
             },
             "payable": false,
             "returnParameters": {
               "id": 127,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "457:0:1"
+              "src": "465:0:1"
             },
             "scope": 142,
-            "src": "391:137:1",
+            "src": "399:151:1",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "public"
           }
         ],
         "scope": 143,
-        "src": "283:247:1"
+        "src": "283:269:1"
       }
     ],
-    "src": "0:531:1"
+    "src": "0:553:1"
   },
   "legacyAST": {
     "absolutePath": "/Users/arietrouw/GitHub/dapp-scsc-solidity/contracts/DetailedERC20.sol",
@@ -723,7 +723,7 @@
             "name": "name",
             "nodeType": "VariableDeclaration",
             "scope": 142,
-            "src": "319:18:1",
+            "src": "321:18:1",
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -734,7 +734,7 @@
               "id": 114,
               "name": "string",
               "nodeType": "ElementaryTypeName",
-              "src": "319:6:1",
+              "src": "321:6:1",
               "typeDescriptions": {
                 "typeIdentifier": "t_string_storage_ptr",
                 "typeString": "string"
@@ -749,7 +749,7 @@
             "name": "symbol",
             "nodeType": "VariableDeclaration",
             "scope": 142,
-            "src": "341:20:1",
+            "src": "345:20:1",
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -760,7 +760,7 @@
               "id": 116,
               "name": "string",
               "nodeType": "ElementaryTypeName",
-              "src": "341:6:1",
+              "src": "345:6:1",
               "typeDescriptions": {
                 "typeIdentifier": "t_string_storage_ptr",
                 "typeString": "string"
@@ -775,7 +775,7 @@
             "name": "decimals",
             "nodeType": "VariableDeclaration",
             "scope": 142,
-            "src": "365:21:1",
+            "src": "371:21:1",
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -786,7 +786,7 @@
               "id": 118,
               "name": "uint8",
               "nodeType": "ElementaryTypeName",
-              "src": "365:5:1",
+              "src": "371:5:1",
               "typeDescriptions": {
                 "typeIdentifier": "t_uint8",
                 "typeString": "uint8"
@@ -799,7 +799,7 @@
             "body": {
               "id": 140,
               "nodeType": "Block",
-              "src": "457:71:1",
+              "src": "465:85:1",
               "statements": [
                 {
                   "expression": {
@@ -816,7 +816,7 @@
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
                       "referencedDeclaration": 115,
-                      "src": "463:4:1",
+                      "src": "475:4:1",
                       "typeDescriptions": {
                         "typeIdentifier": "t_string_storage",
                         "typeString": "string storage ref"
@@ -831,13 +831,13 @@
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
                       "referencedDeclaration": 121,
-                      "src": "470:5:1",
+                      "src": "482:5:1",
                       "typeDescriptions": {
                         "typeIdentifier": "t_string_memory_ptr",
                         "typeString": "string memory"
                       }
                     },
-                    "src": "463:12:1",
+                    "src": "475:12:1",
                     "typeDescriptions": {
                       "typeIdentifier": "t_string_storage",
                       "typeString": "string storage ref"
@@ -845,7 +845,7 @@
                   },
                   "id": 131,
                   "nodeType": "ExpressionStatement",
-                  "src": "463:12:1"
+                  "src": "475:12:1"
                 },
                 {
                   "expression": {
@@ -862,7 +862,7 @@
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
                       "referencedDeclaration": 117,
-                      "src": "481:6:1",
+                      "src": "497:6:1",
                       "typeDescriptions": {
                         "typeIdentifier": "t_string_storage",
                         "typeString": "string storage ref"
@@ -877,13 +877,13 @@
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
                       "referencedDeclaration": 123,
-                      "src": "490:7:1",
+                      "src": "506:7:1",
                       "typeDescriptions": {
                         "typeIdentifier": "t_string_memory_ptr",
                         "typeString": "string memory"
                       }
                     },
-                    "src": "481:16:1",
+                    "src": "497:16:1",
                     "typeDescriptions": {
                       "typeIdentifier": "t_string_storage",
                       "typeString": "string storage ref"
@@ -891,7 +891,7 @@
                   },
                   "id": 135,
                   "nodeType": "ExpressionStatement",
-                  "src": "481:16:1"
+                  "src": "497:16:1"
                 },
                 {
                   "expression": {
@@ -908,7 +908,7 @@
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
                       "referencedDeclaration": 119,
-                      "src": "503:8:1",
+                      "src": "523:8:1",
                       "typeDescriptions": {
                         "typeIdentifier": "t_uint8",
                         "typeString": "uint8"
@@ -923,13 +923,13 @@
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
                       "referencedDeclaration": 125,
-                      "src": "514:9:1",
+                      "src": "534:9:1",
                       "typeDescriptions": {
                         "typeIdentifier": "t_uint8",
                         "typeString": "uint8"
                       }
                     },
-                    "src": "503:20:1",
+                    "src": "523:20:1",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint8",
                       "typeString": "uint8"
@@ -937,7 +937,7 @@
                   },
                   "id": 139,
                   "nodeType": "ExpressionStatement",
-                  "src": "503:20:1"
+                  "src": "523:20:1"
                 }
               ]
             },
@@ -959,7 +959,7 @@
                   "name": "_name",
                   "nodeType": "VariableDeclaration",
                   "scope": 141,
-                  "src": "403:12:1",
+                  "src": "411:12:1",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -970,7 +970,7 @@
                     "id": 120,
                     "name": "string",
                     "nodeType": "ElementaryTypeName",
-                    "src": "403:6:1",
+                    "src": "411:6:1",
                     "typeDescriptions": {
                       "typeIdentifier": "t_string_storage_ptr",
                       "typeString": "string"
@@ -985,7 +985,7 @@
                   "name": "_symbol",
                   "nodeType": "VariableDeclaration",
                   "scope": 141,
-                  "src": "417:14:1",
+                  "src": "425:14:1",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -996,7 +996,7 @@
                     "id": 122,
                     "name": "string",
                     "nodeType": "ElementaryTypeName",
-                    "src": "417:6:1",
+                    "src": "425:6:1",
                     "typeDescriptions": {
                       "typeIdentifier": "t_string_storage_ptr",
                       "typeString": "string"
@@ -1011,7 +1011,7 @@
                   "name": "_decimals",
                   "nodeType": "VariableDeclaration",
                   "scope": 141,
-                  "src": "433:15:1",
+                  "src": "441:15:1",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -1022,7 +1022,7 @@
                     "id": 124,
                     "name": "uint8",
                     "nodeType": "ElementaryTypeName",
-                    "src": "433:5:1",
+                    "src": "441:5:1",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint8",
                       "typeString": "uint8"
@@ -1032,27 +1032,27 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "402:47:1"
+              "src": "410:47:1"
             },
             "payable": false,
             "returnParameters": {
               "id": 127,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "457:0:1"
+              "src": "465:0:1"
             },
             "scope": 142,
-            "src": "391:137:1",
+            "src": "399:151:1",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "public"
           }
         ],
         "scope": 143,
-        "src": "283:247:1"
+        "src": "283:269:1"
       }
     ],
-    "src": "0:531:1"
+    "src": "0:553:1"
   },
   "compiler": {
     "name": "solc",
@@ -1060,5 +1060,5 @@
   },
   "networks": {},
   "schemaVersion": "2.0.1",
-  "updatedAt": "2018-09-14T22:02:37.014Z"
+  "updatedAt": "2018-09-30T19:05:32.805Z"
 }
