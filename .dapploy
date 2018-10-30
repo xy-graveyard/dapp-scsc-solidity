@@ -2,21 +2,24 @@
 [Truffle]
 projectDir=./
 network=development
-contractOutput=./build/abi
+contractOutput=./src/ABI
 
 # Include if you want to remote copy your contract ABIs to AWS backend
 # Setup your aws_access_key_id and aws_secret_access_key in ~/.aws/credentials
 # [AWS]
-# bucketName=layerone.smart-contracts/ABI
+# bucketName=layerone.smart-contracts
+# remotePath=ABI
 
-# Where to place generated web3 interface adaptor on web3 client,
+# Where to place generated web3 interface adapter on web3 client, 
 # add any exclusions to keep from config
 [Web3]
-web3ModuleOutput=./build/js/scsc-web3.js
+web3ClientPath=./src/web3Adapter-client.js
+web3ServerPath=./src/web3Adapter-server.js
 excludeContracts=Migrations
 
 # Include Portis section if you want Portis support in your web3 client
+# see portis.io
 # [Portis]
-# portisApiKey=<API_KEY>
-# appName=<APP_NAME>
-# logoUrl=<URL_TO_APP>
+# portisApiKey=<PORTIS_API_KEY>
+# infuraApiKey=<INFURA_API_KEY>
+

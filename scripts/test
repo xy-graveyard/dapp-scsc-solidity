@@ -1,2 +1,0 @@
-yarn run truffle develop &
-yarn run truffle test
