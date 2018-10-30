@@ -8,7 +8,7 @@
   },
   "scripts": {
     "build": "dapploy",
-    "deploy": "dapploy -d",
+    "deploy": "dapploy -p",
     "compile": "truffle compile",
     "migrate": "truffle migrate",
     "test": "bash scripts/test",
