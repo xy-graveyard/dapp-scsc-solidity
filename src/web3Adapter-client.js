@@ -58,12 +58,30 @@ export let SmartContracts = []
 export let web3
 export let currentUser
 
+export let StandardToken
+export let XyoStakedConsensus
 
 
 const refreshContracts = async web3 =>
   web3.eth.net.getId().then(netId => {
     SmartContracts = []
     
+		const jsonStandardToken = require('./ABI/StandardToken.json')
+		if (jsonStandardToken && jsonStandardToken.networks[netId]) {
+			const addressStandardToken = jsonStandardToken.networks[netId].address
+			StandardToken = new web3.eth.Contract(
+			jsonStandardToken.abi,
+			addressStandardToken)
+			SmartContracts.push({name: 'StandardToken', contract: StandardToken, address: addressStandardToken})
+		}
+		const jsonXyoStakedConsensus = require('./ABI/XyoStakedConsensus.json')
+		if (jsonXyoStakedConsensus && jsonXyoStakedConsensus.networks[netId]) {
+			const addressXyoStakedConsensus = jsonXyoStakedConsensus.networks[netId].address
+			XyoStakedConsensus = new web3.eth.Contract(
+			jsonXyoStakedConsensus.abi,
+			addressXyoStakedConsensus)
+			SmartContracts.push({name: 'XyoStakedConsensus', contract: XyoStakedConsensus, address: addressXyoStakedConsensus})
+		}
 
     return Promise.resolve(SmartContracts)
   })

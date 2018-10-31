@@ -28,7 +28,7 @@ contract XyoStakedConsensus is XyoStaked {
     /**
     * @dev The constructor sets the rules for the system that can not be changed ever again.
     * @param _token - The address of the ERC20 token to be used for staking
-    * @param _cooldown - The time delay before a stake is available for withdrawal ater a remove
+    * @param _cooldown - The time delay before a stake is available for withdrawal after a remove
     * @param _genesis - The genesis block of the chain being staked
     */
     constructor(
