@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity >=0.5.0 <0.6.0;
 
 contract XyoNodeMapping {
 
@@ -26,7 +26,7 @@ contract XyoNodeMapping {
         view
         returns(address)
     {
-        require(index < length);
+        require(index < length, "Index out of Range");
         uint i = index;
         address ptr = head;
         while (i != 0) {

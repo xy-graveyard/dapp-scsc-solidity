@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity >=0.5.0 <0.6.0;
 
 import "./Ownable.sol";
 import "./ERC20.sol";
@@ -96,7 +96,7 @@ contract XyoStaked is Ownable, XyoNodeMapping {
     )
         public
     {
-        require(nodes[node].owner == msg.sender);
+        //require(nodes[node].owner == msg.sender);
 
         //we assume that the caller gave this contract permission to transfer tokens before this call
         token.transferFrom(msg.sender, this, amount);

@@ -500,10 +500,10 @@
                       "name": "require",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        1020,
-                        1021
+                        1010,
+                        1011
                       ],
-                      "referencedDeclaration": 1020,
+                      "referencedDeclaration": 1010,
                       "src": "417:7:3",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_require_pure$_t_bool_$returns$__$",
@@ -1312,7 +1312,7 @@
                         "name": "msg",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 1017,
+                        "referencedDeclaration": 1007,
                         "src": "842:3:3",
                         "typeDescriptions": {
                           "typeIdentifier": "t_magic_message",
@@ -3116,10 +3116,10 @@
                       "name": "require",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        1020,
-                        1021
+                        1010,
+                        1011
                       ],
-                      "referencedDeclaration": 1020,
+                      "referencedDeclaration": 1010,
                       "src": "417:7:3",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_require_pure$_t_bool_$returns$__$",
@@ -3928,7 +3928,7 @@
                         "name": "msg",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 1017,
+                        "referencedDeclaration": 1007,
                         "src": "842:3:3",
                         "typeDescriptions": {
                           "typeIdentifier": "t_magic_message",
@@ -5372,5 +5372,5 @@
   },
   "networks": {},
   "schemaVersion": "2.0.1",
-  "updatedAt": "2018-10-31T16:46:20.198Z"
+  "updatedAt": "2018-11-21T16:18:06.735Z"
 }
