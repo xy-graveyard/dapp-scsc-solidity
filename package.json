@@ -9,9 +9,7 @@
   "scripts": {
     "build": "dapploy",
     "deploy": "dapploy -p",
-    "compile": "truffle compile",
-    "migrate": "truffle migrate",
-    "test": "bash scripts/test",
+    "compile": "bash scripts/compile",
     "chain": "ganache-cli"
   },
   "author": "",
@@ -25,7 +23,7 @@
     "babel-register": "^6.26.0",
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
-    "chai-bignumber": "^2.0.2",
+    "chai-bignumber": "^3.0.0",
     "elliptic": "^6.4.1",
     "eslint": "^5.9.0",
     "eslint-config-airbnb": "^17.1.0",
@@ -37,12 +35,12 @@
     "eslint-plugin-promise": "^4.0.1",
     "eslint-plugin-react": "^7.11.0",
     "eslint-plugin-standard": "^4.0.0",
-    "ganache-cli": "^6.2.0",
+    "ganache-cli": "^6.2.3",
     "js-sha3": "^0.8.0",
     "openzeppelin-solidity": "^2.0.0",
     "solc": "^0.5.0",
     "solium": "^1.1.8",
-    "truffle": "^4.1.14",
     "truffle-hdwallet-provider": "^0.0.6"
-  }
+  },
+  "dependencies": {}
 }

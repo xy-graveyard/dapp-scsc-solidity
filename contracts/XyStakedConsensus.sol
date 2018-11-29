@@ -1,12 +1,12 @@
 pragma solidity >=0.5.0 <0.6.0;
 
-import "./XyoStaked.sol";
+import "./XyStaked.sol";
 
   /**
   * @title XyoStakedConsensus
   * @dev Manages the Stake for multiple clients in a decentralized consensus system
   */
-contract XyoStakedConsensus is XyoStaked {
+contract XyStakedConsensus is XyStaked {
 
     struct Block {
         uint previousBlock;
@@ -37,7 +37,7 @@ contract XyoStakedConsensus is XyoStaked {
       uint _genesis
     )
         public
-        XyoStaked(_token, _cooldown)
+        XyStaked(_token, _cooldown)
     {
         genesis = _genesis;
         current = _genesis;

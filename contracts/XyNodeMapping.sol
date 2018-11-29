@@ -1,6 +1,6 @@
 pragma solidity >=0.5.0 <0.6.0;
 
-contract XyoNodeMapping {
+contract XyNodeMapping {
 
     struct Node {
         address owner;
@@ -42,7 +42,7 @@ contract XyoNodeMapping {
     {
         address ptr = tail();
 
-        if (ptr == 0) {
+        if (ptr == address(0)) {
             head = node;
         } else {
             nodes[ptr].next = node;
@@ -60,7 +60,7 @@ contract XyoNodeMapping {
             head = nodes[head].next;
         } else {
             address ptr = head;
-            while(ptr != 0) {
+            while(ptr != address(0)) {
                 if (nodes[ptr].next == node) {
                     nodes[ptr].next = nodes[nodes[ptr].next].next;
                     delete nodes[node];
@@ -80,7 +80,7 @@ contract XyoNodeMapping {
         returns(address)
     {
         address ptr = head;
-        while (nodes[ptr].next != 0) {
+        while (nodes[ptr].next != address(0)) {
             ptr = nodes[ptr].next;
         }
         return ptr;

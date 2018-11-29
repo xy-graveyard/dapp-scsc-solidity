@@ -1,6 +1,6 @@
 pragma solidity >=0.5.0 <0.6.0;
 
-import "./XyoSignedData.sol";
+import "./XySignedData.sol";
 
 /*
 
@@ -10,9 +10,9 @@ Kovan = 0x89AAbf18d6030FB1a78B9B609531021599d21506
 
 */
 
-contract XyoAddressOwnership {
+contract XyAddressOwnership {
 
-    using XyoSignedData for XyoSignedData;
+    using XySignedData for XySignedData;
 
     struct Ownership {
         address owner;
@@ -49,16 +49,22 @@ contract XyoAddressOwnership {
         bytes32 sigS
     )
         public
+        returns(bool)
     {
+        require(ownee != address(0), "Missing Ownee");
+        require(owner != address(0), "Missing Ownee");
         require(index == owners[ownee].index + 1, "Invalid Index");
+        require(owner != address(0), "Missing Ownee");
 
         bytes memory data = abi.encodePacked(ownee, owner, index);
-        address signer = XyoSignedData.getAddressOfSigner(data, sigV, sigR, sigS);
+        address signer = XySignedData.getAddressOfSigner(data, sigV, sigR, sigS);
         
         require(ownee == signer, "Invalid Signature");
 
         //record the change in ownership
         owners[ownee].index = index;
         owners[ownee].owner = owner;
+
+        return true;
     }
 }

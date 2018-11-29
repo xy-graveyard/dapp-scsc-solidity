@@ -3,14 +3,14 @@ pragma solidity >=0.5.0 <0.6.0;
 import "./Ownable.sol";
 import "./ERC20.sol";
 
-import "./XyoNodeMapping.sol";
+import "./XyNodeMapping.sol";
 
 /**
- * @title XyoStakedConsensus
+ * @title XyStakedConsensus
  * @dev Manages the Stake for multiple clients in a decentralized consensus system
  */
 
-contract XyoStaked is Ownable, XyoNodeMapping {
+contract XyStaked is Ownable, XyNodeMapping {
 
     struct Request {
         address node;
@@ -99,7 +99,7 @@ contract XyoStaked is Ownable, XyoNodeMapping {
         //require(nodes[node].owner == msg.sender);
 
         //we assume that the caller gave this contract permission to transfer tokens before this call
-        token.transferFrom(msg.sender, this, amount);
+        token.transferFrom(msg.sender, address(this), amount);
         stakeRequests.push(Request(node, amount, now));
         emit Stake(node, amount);
     }
@@ -194,14 +194,14 @@ contract XyoStaked is Ownable, XyoNodeMapping {
     }
 
     function withdrawFromRequest(
-        Request request
+        Request storage request
     )
         private
         returns (uint)
     {
         require(nodes[request.node].owner == msg.sender);
         require((request.time + cooldown) < now);
-        token.transferFrom(this, msg.sender, request.amount);
+        token.transferFrom(address(this), msg.sender, request.amount);
         request.amount = 0;
     }
 

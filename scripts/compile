@@ -1,0 +1,2 @@
+cd contracts
+solcjs --abi --bin -o ../build/contracts *.sol
