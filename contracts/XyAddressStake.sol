@@ -56,11 +56,42 @@ contract XyAddressStake {
         stakeEntry.unstakeBlock = block.number;
     }
 
+    function pruneStakee(address stakee) 
+        public
+    {
+        Stake[] storage stakeList = stakeeStakeMap[stakee];
+        uint index = 0;
+        while (index < stakeList.length) {
+            if (stakeList[index].amount == 0) {
+                stakeList[index] = stakeList[stakeList.length - 1];
+                stakeList.length = stakeList.length - 1;
+            } else {
+                index++;
+            }
+        }
+    }
+
     /* withdaw all available tokens (cooled-down unstakes) for the caller account */
     function withdraw()
         public
     {
+        Stake[] storage stakeList = stakerStakeMap[msg.sender];
+        uint unstakeTotal = 0;
+        uint index = 0;
+        while (index < stakeList.length) {
+            if (stakeList[index].unstakeBlock > 0 && (stakeList[index].unstakeBlock + unstakeCooldown) < block.number) {
+                //set the stake to zero and remove
+                unstakeTotal += stakeList[index].amount;
+                stakeList[index].amount = 0;
+                pruneStakee(stakeList[index].stakee);
+                stakeList[index] = stakeList[stakeList.length - 1];
+                stakeList.length = stakeList.length - 1;
+            } else {
+                index++;
+            }
+        }
 
+        token.transfer(msg.sender, unstakeTotal);
     }
 
     /* Get the current stake, counting only stakes that have not been unstaked */    
