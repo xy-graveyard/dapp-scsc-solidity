@@ -99,6 +99,30 @@ contract XyAddressStake is XyAddressStakeBasic {
         emit Withdrawl(msg.sender, unstakeTotal);
     }
 
+    function getStakeCooldown()
+        public
+        view
+        returns(uint)
+    {
+        return stakeCooldown;
+    }
+
+    function getUnstakeCooldown()
+        public
+        view
+        returns(uint)
+    {
+        return unstakeCooldown;
+    }
+
+    function getToken()
+        public
+        view
+        returns(ERC20)
+    {
+        return token;
+    }
+
     /* Get the current stake, counting only stakes that have not been unstaked */    
     function getTotalStakeeStake(address stakee)
         public
