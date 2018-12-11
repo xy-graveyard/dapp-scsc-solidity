@@ -12,6 +12,11 @@ Kovan = 0x89AAbf18d6030FB1a78B9B609531021599d21506
 
 contract XyAddressOwnership {
 
+    event Owned(
+        address indexed owner,
+        address indexed ownee
+    );
+
     using XySignedData for XySignedData;
 
     struct Ownership {
@@ -34,6 +39,7 @@ contract XyAddressOwnership {
     {
         owners[msg.sender].index = owners[msg.sender].index + 1;
         owners[msg.sender].owner = owner;
+        emit Owned(owner, msg.sender);
     }
 
     /* set the owner using a signed datagram from the ownee */
@@ -49,7 +55,6 @@ contract XyAddressOwnership {
         bytes32 sigS
     )
         public
-        returns(bool)
     {
         require(ownee != address(0), "Missing Ownee");
         require(owner != address(0), "Missing Ownee");
@@ -65,6 +70,6 @@ contract XyAddressOwnership {
         owners[ownee].index = index;
         owners[ownee].owner = owner;
 
-        return true;
+        emit Owned(owner, ownee);
     }
 }
