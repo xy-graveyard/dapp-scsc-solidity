@@ -1,23 +1,25 @@
 pragma solidity >=0.5.0 <0.6.0;
 
-import "./ERC20.sol";
+import "./XyAddressStakeBasic.sol";
 
-contract XyAddressStake {
+contract XyAddressStake is XyAddressStakeBasic {
 
-    struct Stake {
-        address staker;
-        address stakee;
-        uint amount;
-        uint stakeBlock;
-        uint unstakeBlock;
-    }
+    event Staked(
+        address indexed staker,
+        address indexed stakee,
+        uint256 amount
+    );
 
-    mapping (address => Stake[]) public stakeeStakeMap;
-    mapping (address => Stake[]) public stakerStakeMap;
+    event Unstaked(
+        address indexed staker,
+        address indexed stakee,
+        uint256 index
+    );
 
-    ERC20 token;
-    uint stakeCooldown;
-    uint unstakeCooldown;
+    event Withdrawl(
+        address indexed staker,
+        uint256 amount
+    );
 
     constructor(
         ERC20 _token,
@@ -36,7 +38,7 @@ contract XyAddressStake {
     {
         address staker = msg.sender;
         token.transferFrom(msg.sender, address(this), amount);
-        Stake memory stakeData = Stake(
+        Stake memory  stakeData = Stake(
             staker,         //staker
             stakee,         //stakee
             amount,         //amount
@@ -45,6 +47,7 @@ contract XyAddressStake {
         );
         stakeeStakeMap[stakee].push(stakeData);
         stakerStakeMap[staker].push(stakeData);
+        emit Staked(msg.sender, stakee, amount);
     }
 
     /* unstake a specific previous stake */
@@ -54,6 +57,7 @@ contract XyAddressStake {
         Stake storage stakeEntry = stakeeStakeMap[stakee][index];
         require(stakeEntry.staker == msg.sender, "Only the staker can unstake a stake");
         stakeEntry.unstakeBlock = block.number;
+        emit Unstaked(msg.sender, stakee, index);
     }
 
     function pruneStakee(address stakee) 
@@ -92,6 +96,7 @@ contract XyAddressStake {
         }
 
         token.transfer(msg.sender, unstakeTotal);
+        emit Withdrawl(msg.sender, unstakeTotal);
     }
 
     /* Get the current stake, counting only stakes that have not been unstaked */    
