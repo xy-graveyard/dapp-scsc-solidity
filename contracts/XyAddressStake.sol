@@ -45,6 +45,7 @@ contract XyAddressStake is XyAddressStakeBasic {
             block.number,   //stakeBlock
             0               //unstakeBlock
         );
+        // TODO this copies the data to two locations
         stakeeStakeMap[stakee].push(stakeData);
         stakerStakeMap[staker].push(stakeData);
         emit Staked(msg.sender, stakee, amount);
@@ -54,6 +55,8 @@ contract XyAddressStake is XyAddressStakeBasic {
     function unstake(address stakee, uint index)
         public
     {
+        // TODO, does this need requirement that the stake cooldown has passed?
+        // TODO, need to also unstake from stakerStakeMap?
         Stake storage stakeEntry = stakeeStakeMap[stakee][index];
         require(stakeEntry.staker == msg.sender, "Only the staker can unstake a stake");
         stakeEntry.unstakeBlock = block.number;
@@ -99,6 +102,7 @@ contract XyAddressStake is XyAddressStakeBasic {
         emit Withdrawl(msg.sender, unstakeTotal);
     }
 
+    // TODO remove: public variables autogenerate getters (not setters)
     function getStakeCooldown()
         public
         view
