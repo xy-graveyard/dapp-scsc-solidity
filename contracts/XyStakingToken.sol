@@ -136,7 +136,7 @@ contract XyStakingToken is ERC721Enumerable, Ownable {
     }
 
     /**
-        @dev must be called by staker to activate their stake within XYO
+        @dev Activate a stake that is past challenge period within XYO
         @param stakingToken - the tokenId of the staking token
      */
     function activateStake(uint stakingToken) public {
@@ -150,11 +150,11 @@ contract XyStakingToken is ERC721Enumerable, Ownable {
     }
 
     /**
-        @dev must be called by staker to activate their unstake to prepare from with witdraw
+        @dev Activate an unstake needs to be done to ensure after unstake challenge period
         @param stakingToken - the tokenId of the staking token
      */
     function activateUnstake(uint stakingToken) public {
-        require (ownerOf(stakingToken) == msg.sender, "Only the staker can activate");
+        require (ownerOf(stakingToken) == msg.sender, "Only the staker can activate unstake");
         Stake memory data = stakeData[stakingToken];
         require(data.activatedUnstake == false, "cannot re-activate unstake");
         data.activatedUnstake = true;

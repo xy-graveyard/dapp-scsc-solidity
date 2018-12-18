@@ -14,18 +14,19 @@ contract XyStakableToken is ERC721Enumerable {
         Mints a component with signed datagram from the ownee device/component that authorized its ownership
         Emits transfer event to sender
         @param ownee - device to be owned by sender
-        @param sigV - the V param of the sig
         @param sigR - the R param of the sig
         @param sigS - the S param of the sig
+        @param sigV - the V param of the sig
     */
     function mint(address ownee, 
-                    uint8 sigV,
                     bytes32 sigR,
-                    bytes32 sigS) 
+                    bytes32 sigS,
+                    uint8 sigV) 
         public 
     {
         require(ownee != address(0), "Missing Ownee");
-        bytes32 data = prefixed(keccak256(abi.encodePacked(ownee, msg.sender)));
+        bytes memory m = abi.encodePacked(ownee, msg.sender);
+        bytes32 data = prefixed(keccak256(m));
         address signer = ecrecover(data, sigV, sigR, sigS);
         require(ownee == signer, "Invalid Signature");
         _mint(msg.sender, uint(ownee));
@@ -34,14 +35,15 @@ contract XyStakableToken is ERC721Enumerable {
     /**
         Allow submitting a signed message instead of the signature
     */
-    function mint(address ownee, 
+    function mintWithMessage(address ownee, 
                     bytes memory signedMessage) 
         public 
     {
         require(ownee != address(0), "Missing Ownee");
-        bytes32 data = prefixed(keccak256(abi.encodePacked(ownee, msg.sender)));
-        // address signer =  ;
-        require(ownee == data.recover(signedMessage), "Invalid Signature");
+        bytes memory m = abi.encodePacked(ownee, msg.sender);
+        bytes32 data = prefixed(keccak256(m));
+        address signer = data.recover(signedMessage);
+        require(ownee == signer, "Invalid Signature");
         _mint(msg.sender, uint(ownee));
     }
 
