@@ -1,6 +1,6 @@
 const abi = require(`ethereumjs-abi`)
 
-const StakingToken = artifacts.require(`XyStakableToken.sol`)
+const Stakeable = artifacts.require(`XyStakableToken.sol`)
 
 const should = require(`chai`)
   .use(require(`chai-as-promised`))
@@ -11,7 +11,7 @@ contract(
   ([contractOwner, deviceOwner, deviceOwner2, ownee, ownee2]) => {
     let stakableToken
     beforeEach(async () => {
-      stakableToken = await StakingToken.new({ from: contractOwner })
+      stakableToken = await Stakeable.new({ from: contractOwner })
     })
     describe(`Minting`, async () => {
       it(`should allow minting using signed message`, async () => {

@@ -5,7 +5,7 @@ const EC = ec
 const ecc = new EC(`secp256k1`)
 
 const XyoStaked = artifacts.require(`XyoStaked.sol`)
-const StandardToken = artifacts.require(`StandardToken.sol`)
+const XyERC20Token = artifacts.require(`XyERC20Token.sol`)
 
 const BN = _x_ => web3.toBigNumber(_x_)
 
@@ -74,8 +74,8 @@ contract(`XyoStaked`, ([contractCreator, owner1]) => {
   const nodeAddressNumber = BN(`0x${nodeAddress.toString(`hex`)}`)
 
   it(`create contracts`, async () => {
-    token = await StandardToken.new(TW(10000000), { from: contractCreator, gasPrice: 0 })
-    console.log(`StandardToken Created: `, token.address)
+    token = await XyERC20Token.new(TW(10000000), `XY Token`, `XYO`, { from: contractCreator, gasPrice: 0 })
+    console.log(`XyERC20Token Created: `, token.address)
     await token.transfer(owner1, TW(100), { from: contractCreator })
     const tokensForOwner1 = await token.balanceOf(owner1)
     console.log(`Tokens for Owner1: `, tokensForOwner1.toString(10))
