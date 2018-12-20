@@ -15,13 +15,6 @@ jobs:
             node --version
             npm --version
 
-      - run:
-          name: 'Run ganache-cli, run truffle tests'
-          command: |
-            node_modules/.bin/ganache-cli > /dev/null &
-            sleep 5
-            node_modules/.bin/truffle test 
-
       # Download and cache dependencies
       - restore_cache:
           keys:
@@ -33,6 +26,13 @@ jobs:
           name: 'Yarn project and samples'
           command: |
             yarn
+
+      - run:
+          name: 'Run ganache-cli, run truffle tests'
+          command: |
+            node_modules/.bin/ganache-cli > /dev/null &
+            sleep 5
+            node_modules/.bin/truffle test 
 
       - save_cache:
           paths:
