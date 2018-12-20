@@ -221,15 +221,17 @@ contract XyStakingToken is ERC721Enumerable, Ownable {
     /** 
         Withdraw a batch of first avaliable staking tokens
         @param batchLimit - Allows iterating over withdrawing due to gas limits
+        if batchlimit is 0, try withdrawing all available tokens (be prepared for out of gas if you've got > 50 tokens)
     */
     function withdrawMany(uint batchLimit)
         public
     {
         uint balance = balanceOf(msg.sender);
+        uint limit = batchLimit > 0 ? batchLimit : balance;
         uint withdrawAmt = 0;
-        uint[] memory burnTokens = new uint[](batchLimit);
+        uint[] memory burnTokens = new uint[](limit);
         uint numBurnTokens = 0;
-        for (uint i = 0; i < balance && i < batchLimit; i++) {
+        for (uint i = 0; i < balance && i < limit; i++) {
             uint tokenId = tokenOfOwnerByIndex(msg.sender, i);
             Stake memory data = stakeData[tokenId];
             if (data.unstakeBlock > 0 && (data.unstakeBlock + unstakeCooldown) < block.number) {
@@ -244,9 +246,10 @@ contract XyStakingToken is ERC721Enumerable, Ownable {
             updateCacheOnWithdraw(data.amount, data.stakee);
         }
 
-        token.transfer(msg.sender, withdrawAmt);
-
-        emit Withdrawl(msg.sender, withdrawAmt);
+        if (withdrawAmt > 0) {
+            token.transfer(msg.sender, withdrawAmt);
+            emit Withdrawl(msg.sender, withdrawAmt);
+        }
     }
 
     /** Get the available unstake, counting only stakes that can be withdrawn */    

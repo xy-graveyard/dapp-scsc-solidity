@@ -484,10 +484,13 @@ contract(
               0,
               stakingTokens * 100
             ])
-
-            await staking.withdrawMany(10, { from: withdrawStaker }).should.not
-              .be.fulfilled
-
+            await staking.withdrawMany(2, { from: withdrawStaker }).should.be
+              .fulfilled
+            await stakeCompare(stakerStake(withdrawStaker), [
+              0,
+              0,
+              stakingTokens * 100
+            ])
             const blockNumber2 = await web3.eth.getBlockNumber()
             await advanceToBlock(blockNumber2 + cooldownUnstake)
 
