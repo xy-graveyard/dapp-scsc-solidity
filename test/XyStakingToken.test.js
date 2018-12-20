@@ -6,9 +6,7 @@ const BN = web3.utils.BN
 const should = require(`chai`)
   .use(require(`chai-as-promised`))
   .should()
-const {
-  advanceBlock
-} = require(`openzeppelin-solidity/test/helpers/advanceToBlock`)
+
 const {
   inTransaction
 } = require(`openzeppelin-solidity/test/helpers/expectEvent`)
@@ -16,6 +14,16 @@ const {
 const cooldownStake = 10
 const cooldownUnstake = 20
 const erc20TotalSupply = 1000000
+
+function advanceBlock () {
+  return new Promise((resolve, reject) => {
+    web3.currentProvider.send({
+      jsonrpc: `2.0`,
+      method: `evm_mine`,
+      id: Date.now()
+    }, (err, res) => (err ? reject(err) : resolve(res)))
+  })
+}
 
 contract(
   `XyStakableToken`,
