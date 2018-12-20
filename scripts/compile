@@ -1,0 +1,2 @@
+cd contracts
+solcjs --abi --bin -o ../build/contracts *.sol ownership/*.sol token/ERC721/*.sol utils/*.sol introspection/*.sol access/*.sol access/roles/*.sol lifecycle/*.sol math/*.sol
