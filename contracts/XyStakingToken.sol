@@ -24,7 +24,6 @@ contract XyStakingToken is ERC721Enumerable, Ownable {
         uint totalStake;
         uint activeStake;
         uint totalUnstake;
-        uint activeUnstake;
     }
     mapping (uint => StakeAmounts) public stakeeStake;
     mapping (address => StakeAmounts) public stakerStake;
@@ -35,8 +34,7 @@ contract XyStakingToken is ERC721Enumerable, Ownable {
         uint stakeBlock;
         uint unstakeBlock;
         uint stakee; 
-        bool activatedStake;
-        bool activatedUnstake;
+        bool isActivated;
     }
     mapping (uint => Stake) public stakeData;
 
@@ -55,13 +53,6 @@ contract XyStakingToken is ERC721Enumerable, Ownable {
     );
 
     event ActivatedStake(
-        address indexed staker,
-        uint indexed stakingToken,
-        uint indexed stakee,
-        uint amount
-    );
-
-    event ActivatedUnstake(
         address indexed staker,
         uint indexed stakingToken,
         uint indexed stakee,
@@ -109,24 +100,19 @@ contract XyStakingToken is ERC721Enumerable, Ownable {
         stakeeStake[stakee].activeStake = stakeeStake[stakee].activeStake.add(amount);
         stakerStake[msg.sender].activeStake = stakerStake[msg.sender].activeStake.add(amount);
     }
-    function updateCacheOnUnstake(uint amount, uint stakee) internal {
-        stakeeStake[stakee].totalStake = stakeeStake[stakee].totalStake.sub(amount);
-        stakerStake[msg.sender].totalStake = stakerStake[msg.sender].totalStake.sub(amount);
-        stakeeStake[stakee].activeStake = stakeeStake[stakee].activeStake.sub(amount);
-        stakerStake[msg.sender].activeStake = stakerStake[msg.sender].activeStake.sub(amount);
-
-        stakeeStake[stakee].totalUnstake = stakeeStake[stakee].totalUnstake.add(amount);
-        stakerStake[msg.sender].totalUnstake = stakerStake[msg.sender].totalUnstake.add(amount);
-    }
-    function updateCacheOnActivateUnstake(uint amount, uint stakee) internal {
-        stakeeStake[stakee].activeUnstake = stakeeStake[stakee].activeUnstake.add(amount);
-        stakerStake[msg.sender].activeUnstake = stakerStake[msg.sender].activeUnstake.add(amount);
+    function updateCacheOnUnstake(Stake memory data) internal {
+        stakeeStake[data.stakee].totalStake = stakeeStake[data.stakee].totalStake.sub(data.amount);
+        stakerStake[msg.sender].totalStake = stakerStake[msg.sender].totalStake.sub(data.amount);
+        if (data.isActivated) {
+            stakeeStake[data.stakee].activeStake = stakeeStake[data.stakee].activeStake.sub(data.amount);
+            stakerStake[msg.sender].activeStake = stakerStake[msg.sender].activeStake.sub(data.amount);
+        }
+        stakeeStake[data.stakee].totalUnstake = stakeeStake[data.stakee].totalUnstake.add(data.amount);
+        stakerStake[msg.sender].totalUnstake = stakerStake[msg.sender].totalUnstake.add(data.amount);
     }
     function updateCacheOnWithdraw(uint amount, uint stakee) internal {
         stakeeStake[stakee].totalUnstake = stakeeStake[stakee].totalUnstake.sub(amount);
         stakerStake[msg.sender].totalUnstake = stakerStake[msg.sender].totalUnstake.sub(amount);
-        stakeeStake[stakee].activeUnstake = stakeeStake[stakee].activeUnstake.sub(amount);
-        stakerStake[msg.sender].activeUnstake = stakerStake[msg.sender].activeUnstake.sub(amount);
     }
 
     /** 
@@ -150,9 +136,8 @@ contract XyStakingToken is ERC721Enumerable, Ownable {
             amount,         // amount
             block.number,   // stakeBlock
             0,              // unstakeBlock
-            stakee,          // stakee 
-            false,          // activated stake
-            false           // activated unstake
+            stakee,         // stakee 
+            false           // isActivated
         );
 
         // // Store the staking data
@@ -174,8 +159,8 @@ contract XyStakingToken is ERC721Enumerable, Ownable {
     function activateStake(uint stakingToken) public {
         require (ownerOf(stakingToken) == msg.sender, "Only the staker can activate");
         Stake storage data = stakeData[stakingToken];
-        require(data.activatedStake == false, "cannot re-activate stake");
-        data.activatedStake = true;
+        require(data.isActivated == false, "cannot re-activate stake");
+        data.isActivated = true;
         require(data.stakeBlock + stakeCooldown < block.number, "Not ready to activate stake yet");
         updateCacheOnActivate(data.amount, data.stakee);
         emit ActivatedStake(msg.sender, stakingToken, data.stakee, data.amount);
@@ -192,23 +177,9 @@ contract XyStakingToken is ERC721Enumerable, Ownable {
         Stake storage data = stakeData[stakingToken];
         require(data.stakeBlock + stakeCooldown < block.number, "Staking needs to cooldown");
         require(data.unstakeBlock == 0, "Cannot re-unstake");
-        updateCacheOnUnstake(data.amount, data.stakee);
+        updateCacheOnUnstake(data);
         data.unstakeBlock = block.number;
         emit Unstaked(msg.sender, stakingToken, data.stakee, data.amount);
-    }
-
-    /**
-        @dev Activate an unstake needs to be done to ensure after unstake challenge period
-        @param stakingToken - the tokenId of the staking token
-     */
-    function activateUnstake(uint stakingToken) public {
-        require (ownerOf(stakingToken) == msg.sender, "Only the staker can activate unstake");
-        Stake memory data = stakeData[stakingToken];
-        require(data.activatedUnstake == false, "cannot re-activate unstake");
-        data.activatedUnstake = true;
-        require(data.unstakeBlock + unstakeCooldown < block.number, "Not ready to activate unstake yet");
-        updateCacheOnActivateUnstake(data.amount, data.stakee);
-        emit ActivatedUnstake(msg.sender, stakingToken, data.stakee, data.amount);
     }
 
     /** 
@@ -256,14 +227,21 @@ contract XyStakingToken is ERC721Enumerable, Ownable {
     {
         uint balance = balanceOf(msg.sender);
         uint withdrawAmt = 0;
+        uint[] memory burnTokens = new uint[](batchLimit);
+        uint numBurnTokens = 0;
         for (uint i = 0; i < balance && i < batchLimit; i++) {
             uint tokenId = tokenOfOwnerByIndex(msg.sender, i);
             Stake memory data = stakeData[tokenId];
             if (data.unstakeBlock > 0 && (data.unstakeBlock + unstakeCooldown) < block.number) {
-                withdrawAmt += data.amount;
-                burn(data.stakee, tokenId);
-                updateCacheOnWithdraw(withdrawAmt, data.stakee);
-            }
+                burnTokens[numBurnTokens] = tokenId;      
+                numBurnTokens++;
+            }      
+        }
+        for (uint b = 0; b < numBurnTokens; b++) {
+            Stake memory data = stakeData[burnTokens[b]];
+            withdrawAmt += data.amount;
+            burn(data.stakee, burnTokens[b]);
+            updateCacheOnWithdraw(data.amount, data.stakee);
         }
 
         token.transfer(msg.sender, withdrawAmt);
@@ -273,23 +251,24 @@ contract XyStakingToken is ERC721Enumerable, Ownable {
 
     /** Get the available unstake, counting only stakes that can be withdrawn */    
     function getAvailableStakerUnstake(address staker)
-        public
+        external
         view
         returns(uint)
     {
         uint stakeTotal = 0;
-        for (uint i = 0; i < balanceOf(staker); i++) {
-            Stake memory data = stakeData[tokenOfOwnerByIndex(msg.sender, i)];
+        uint balance = balanceOf(staker);
+        for (uint i = 0; i < balance; i++) {
+            Stake memory data = stakeData[tokenOfOwnerByIndex(staker, i)];
             if (data.unstakeBlock > 0 && (data.unstakeBlock + unstakeCooldown) < block.number) {
                 stakeTotal += data.amount;
             }
         }
         return stakeTotal;
     }
-    
+
     /** Get the available unstake, counting only stakes that can be withdrawn */    
     function getAvailableStakeeUnstake(uint stakee)
-        public
+        external
         view
         returns(uint)
     {

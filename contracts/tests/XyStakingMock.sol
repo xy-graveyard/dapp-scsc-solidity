@@ -20,11 +20,15 @@ contract XyStakingMock is XyStakingToken {
       updateCacheOnActivate(amount, stakee);
     }
     function mock_updateCacheOnUnstake(uint amount, uint stakee) public {
-      updateCacheOnUnstake(amount, stakee);
+        Stake memory data = Stake(
+            amount,         // amount
+            block.number,   // stakeBlock
+            0,              // unstakeBlock
+            stakee,         // stakee 
+            true           // isActivated
+        );
+      updateCacheOnUnstake(data);
   }
-    function mock_updateCacheOnActivateUnstake(uint amount, uint stakee) public {
-       updateCacheOnActivateUnstake(amount, stakee);
-   }
     function mock_updateCacheOnWithdraw(uint amount, uint stakee) public {
       updateCacheOnWithdraw(amount, stakee);
    }
