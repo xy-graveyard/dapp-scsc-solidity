@@ -4,7 +4,7 @@ jobs:
     docker:
       - image: circleci/node:8
 
-    working_directory: ~/
+    working_directory: ~/scsc
 
     steps:
       - checkout
@@ -14,14 +14,6 @@ jobs:
           command: |
             node --version
             npm --version
-
-      - run:
-          name: 'Run ganache-cli, run truffle tests'
-          command: |
-            cd samples/sample-datavault-solidity
-            node_modules/.bin/ganache-cli > /dev/null &
-            sleep 5
-            node_modules/.bin/truffle test 
 
       # Download and cache dependencies
       - restore_cache:
@@ -34,6 +26,13 @@ jobs:
           name: 'Yarn project and samples'
           command: |
             yarn
+
+      - run:
+          name: 'Run ganache-cli, run truffle tests'
+          command: |
+            node_modules/.bin/ganache-cli > /dev/null &
+            sleep 5
+            node_modules/.bin/truffle test 
 
       - save_cache:
           paths:
