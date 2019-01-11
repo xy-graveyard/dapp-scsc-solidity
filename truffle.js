@@ -18,6 +18,7 @@ module.exports = {
     development: {
       network_id: `*`, // Match any network id
       host: `localhost`,
+      gas: 6721975,
       port: 8545
     },
     kovan: {

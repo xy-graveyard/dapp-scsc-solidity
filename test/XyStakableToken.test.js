@@ -90,6 +90,39 @@ contract(
           from: deviceOwner
         }).should.not.be.fulfilled
       })
+
+      const repeatArray = (num, obj) => Array(num).fill(obj)
+
+      it.only(`should allow testing many addresses`, async () => {
+        const hash = `0x${abi
+          .soliditySHA3([`address`, `address`], [ownee, deviceOwner])
+          .toString(`hex`)}`
+
+        const signedMessage = await web3.eth.sign(hash, ownee)
+
+        const sig = signedMessage.slice(2)
+        const r = `0x${sig.slice(0, 64)}`
+        const s = `0x${sig.slice(64, 128)}`
+        const v = web3.utils.toDecimal(sig.slice(128, 130)) + 27
+        const nTimes = 180
+        const result = await stakableToken.testMany(
+          hash,
+          repeatArray(nTimes, ownee),
+          repeatArray(nTimes, r),
+          repeatArray(nTimes, s),
+          repeatArray(nTimes, v),
+          {
+            from: deviceOwner,
+            gas: 6721975
+            // gasPrice: 0
+          }
+        )
+
+        console.log(result)
+
+        result.logs.map(l => console.log(`LOG`, l.args))
+        console.log(`GAS`, result.receipt.gasUsed)
+      })
     })
   }
 )

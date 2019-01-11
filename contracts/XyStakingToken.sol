@@ -13,11 +13,14 @@ contract XyStakingToken is ERC721Enumerable, Ownable {
     ERC721 stakableToken;
 
     // ERC20 contract for stake denomination
-    XyERC20Token token;
+    XyERC20Token xyoToken;
 
     // Number of cooldown blocks to allow time to challenge staked false answers
     uint public stakeCooldown;
     uint public unstakeCooldown;
+
+    // Track the total active stake in XYO
+    uint public totalActiveStake;
 
     // Total/Active amounts staked by stakee and staker 
     struct StakeAmounts {
@@ -85,7 +88,7 @@ contract XyStakingToken is ERC721Enumerable, Ownable {
     )
         public
     {
-        token = _token;
+        xyoToken = _token;
         stakableToken = _stakableToken;
         stakeCooldown = _stakeCooldown;
         unstakeCooldown = _unstakeCooldown;
@@ -99,6 +102,7 @@ contract XyStakingToken is ERC721Enumerable, Ownable {
     function updateCacheOnActivate(uint amount, uint stakee) internal {
         stakeeStake[stakee].activeStake = stakeeStake[stakee].activeStake.add(amount);
         stakerStake[msg.sender].activeStake = stakerStake[msg.sender].activeStake.add(amount);
+        totalActiveStake = totalActiveStake.add(amount);
     }
     function updateCacheOnUnstake(Stake memory data) internal {
         stakeeStake[data.stakee].totalStake = stakeeStake[data.stakee].totalStake.sub(data.amount);
@@ -109,6 +113,7 @@ contract XyStakingToken is ERC721Enumerable, Ownable {
         }
         stakeeStake[data.stakee].totalUnstake = stakeeStake[data.stakee].totalUnstake.add(data.amount);
         stakerStake[msg.sender].totalUnstake = stakerStake[msg.sender].totalUnstake.add(data.amount);
+        totalActiveStake = totalActiveStake.sub(data.amount);
     }
     function updateCacheOnWithdraw(uint amount, uint stakee) internal {
         stakeeStake[stakee].totalUnstake = stakeeStake[stakee].totalUnstake.sub(amount);
@@ -146,7 +151,7 @@ contract XyStakingToken is ERC721Enumerable, Ownable {
         stakeData[newToken] = data;
 
         // Escrow the ERC20
-        token.transferFrom(msg.sender, address(this), amount);
+        xyoToken.transferFrom(msg.sender, address(this), amount);
 
         emit Staked(msg.sender, newToken, stakee, amount);
         return newToken;
@@ -213,7 +218,7 @@ contract XyStakingToken is ERC721Enumerable, Ownable {
         Stake memory data = stakeData[stakingToken];
         require (data.unstakeBlock > 0 && (data.unstakeBlock + unstakeCooldown) < block.number, "Not ready for withdraw");
         burn(data.stakee, stakingToken);
-        token.transfer(msg.sender, data.amount);
+        xyoToken.transfer(msg.sender, data.amount);
         updateCacheOnWithdraw(data.amount, data.stakee);
         emit Withdrawl(msg.sender, data.amount);
     }
@@ -247,7 +252,7 @@ contract XyStakingToken is ERC721Enumerable, Ownable {
         }
 
         if (withdrawAmt > 0) {
-            token.transfer(msg.sender, withdrawAmt);
+            xyoToken.transfer(msg.sender, withdrawAmt);
             emit Withdrawl(msg.sender, withdrawAmt);
         }
     }

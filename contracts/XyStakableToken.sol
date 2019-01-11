@@ -58,4 +58,47 @@ contract XyStakableToken is ERC721Enumerable {
     {
         return keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", _hash));
     }
+
+
+    // function toBytes(address _num) pure private returns (bytes memory _ret)  {
+    //     assembly {
+    //         _ret := mload(0x10)
+    //         mstore(_ret, 0x20)
+    //         mstore(add(_ret, 0x20), _num)
+    //     }
+    // }
+
+    function toBytes(address a) public pure returns (bytes memory b){
+   assembly {
+        let m := mload(0x40)
+        mstore(add(m, 20), xor(0x140000000000000000000000000000000000000000, a))
+        mstore(0x40, add(m, 52))
+        b := m
+   }
+}
+    event TestResults(bool[] results);
+    event Testing(uint resultlen);
+
+    uint256[] storageResults;
+
+    /** 
+        Test many signatures
+    */
+    function testMany( bytes32 data,
+                        address[] memory checkAddresses,
+                        bytes32[] memory sigR,
+                        bytes32[] memory sigS,
+                        uint8[] memory sigV) 
+        public 
+        returns (bool[] memory)
+    {
+        bool[] memory results = new bool[](checkAddresses.length);
+
+        for (uint i = 0; i < checkAddresses.length; i++) {
+            address signer = ecrecover(prefixed(data), sigV[i], sigR[i], sigS[i]);
+            results[i] = (checkAddresses[i] == signer);
+            storageResults.push(results[i] ? 1: 0); // TODO Simulate real contract call...
+        }
+        return results;
+    }
 }
