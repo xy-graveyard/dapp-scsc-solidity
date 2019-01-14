@@ -61,5 +61,10 @@ module.exports = {
       enabled: true,
       runs: 500
     }
+  },
+  compilers: {
+    solc: {
+      version: `0.5.2`
+    }
   }
 }

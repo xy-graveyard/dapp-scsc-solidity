@@ -59,15 +59,6 @@ contract XyStakableToken is ERC721Enumerable {
         return keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", _hash));
     }
 
-
-    // function toBytes(address _num) pure private returns (bytes memory _ret)  {
-    //     assembly {
-    //         _ret := mload(0x10)
-    //         mstore(_ret, 0x20)
-    //         mstore(add(_ret, 0x20), _num)
-    //     }
-    // }
-
     function toBytes(address a) public pure returns (bytes memory b){
    assembly {
         let m := mload(0x40)

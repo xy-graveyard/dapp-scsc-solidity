@@ -40,7 +40,7 @@ contract BytesToTypes {
         }
     }
 
-    function bytesToString(uint _offst, bytes memory _input, bytes memory _output) internal  {
+    function bytesToString(uint _offst, bytes memory _input, bytes memory _output) internal pure {
 
         uint size = 32;
         assembly {
