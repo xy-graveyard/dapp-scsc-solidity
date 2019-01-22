@@ -1,6 +1,6 @@
 pragma solidity >=0.5.0 <0.6.0;
 import "./XyStakingToken.sol";
-import "./XyERC20Token.sol"; // TODO remove for ERC20 
+import "./token/ERC20/IERC20.sol";
 import "./BytesToTypes.sol";
 import "./IXyIntersectionQuestion.sol";
 
@@ -29,12 +29,6 @@ contract XyStakingConsensus is XyStakingToken, BytesToTypes {
         address blockProducer
     );
 
-    // TODO implement challenge
-    struct Challenge {
-        uint block;
-        address challenger;
-    }
-
     struct Block {
         uint blockHash;
         uint previousBlock;
@@ -48,104 +42,91 @@ contract XyStakingConsensus is XyStakingToken, BytesToTypes {
         uint createdAt;
         address questionContract;
         uint8 answerType;
+        bool answered;
     }
 
     uint public genesis;
-    uint public ethMiningCost = .1 finney; // .1 finney == .0001 ether
-    uint public xyoMiningCost = 1 ether; // 1 ether of XYO == 1 XYO as they have same decimals (18)
+
 
     // keyed is question ipfs as uint - stripped 2 bytes (hash fcn and size) and hex representation
     mapping(uint => Question) public questionsById; 
     uint[] public questionArray;
 
     mapping(uint => Block) public blocks; //The blocks in the chain
-    mapping(uint => Challenge) public challenges; //Challenges
-
-    mapping(address => uint) public xyoCosts; //The minimum XYO needed for given question contract
-    mapping(address => uint) public miningCosts; //The minimum XYO needed for given question contract
 
     uint[] public chain; // Store the chain as an array
-    uint public stakedConsensusNumerator = 2;
-    uint public stakedConsensusDenominator = 3;
 
-    XyERC20Token public erc20;
+    IERC20 public erc20;
 
     constructor(
         uint _genesis,
-        XyERC20Token _token,
-        ERC721 _stakableToken,
-        uint _stakeCooldown,
-        uint _unstakeCooldown
+        address _token,
+        address _stakeeToken,
+        address _governance
     )
         public
-        XyStakingToken(_token, _stakableToken, _stakeCooldown, _unstakeCooldown)
+        XyStakingToken(_token, _stakeeToken, _governance)
     {
         genesis = _genesis;
-        erc20 = _token;
+        erc20 = IERC20(_token);
     }
 
-    /*
-        Enables contract owner to set min staking necessary to come to consensus
-        TODO: Should we allow a minimum bounds?
-    */
-    function setStakingConsensus(uint numerator, uint denominator) 
-        onlyOwner 
-        public 
-    {
-        stakedConsensusNumerator = numerator;
-        stakedConsensusDenominator = denominator;
-    }
 
-    /*
-        Escrow value sent, making sure it covers the answer mining cost
-        Escrow xyo to be paid to network as part of question cost
+    /**
+        @dev Escrow eth and xyo, making sure it covers the answer mining cost
+        Stores new question in question pool
+        @param question - the ipfs hash (first 2 bytes stripped) to identify the question
+        @param xyoSender - who to deduct the xyo from for mining cost
+        @param answerType - based on the type we know which callback to call (string or bool)
     */
     function submitQuestion(uint question, address xyoSender, uint8 answerType) 
         public
         payable
     {
-        if (ethMiningCost > 0) {
-            require (msg.value >= ethMiningCost, "Not enough eth to cover mining");
+        uint ethMining = params.get("xyEthMiningCost");
+        uint xyoMining = params.get("xyXYOMiningCost");
+        if (ethMining > 0) {
+            require (msg.value >= ethMining, "Not enough eth to cover mining");
         }
-        if (xyoMiningCost > 0) {
-            require (erc20.allowance(address(this), xyoSender) >= xyoMiningCost, "Not enough XYO to cover mining");
+        if (xyoMining > 0) {
+            require (erc20.allowance(address(this), xyoSender) >= xyoMining, "Not enough XYO to cover mining");
             // escrow xyo token
-            xyoToken.transferFrom(xyoSender, address(this), xyoMiningCost);
+            xyoToken.transferFrom(xyoSender, address(this), xyoMining);
         }
 
         Question memory q = Question (
-            xyoMiningCost,
+            xyoMining,
             msg.value, 
             block.number,
             msg.sender,
-            answerType
+            answerType,
+            false
         );
 
         questionsById[question] = q;
 
-        emit QuestionSubmitted(question, xyoMiningCost, msg.value,  msg.sender, xyoSender);
+        emit QuestionSubmitted(question, xyoMining, msg.value,  msg.sender, xyoSender);
     }
 
     /**
         @dev Builds a prefixed hash to mimic the behavior of eth_sign
-        @param _hash bytes32 Message hash to be prefixed
+        @param hash bytes32 Message hash to be prefixed
     */
-    function prefixed(bytes32 _hash)
+    function prefixed(bytes32 hash)
         internal
         pure
         returns (bytes32)
     {
-        return keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", _hash));
+        return keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", hash));
     }
 
     /*
-        Submit a new block to the consensus chain
-        Verifies all signers signed the data for new block, verifies their stake is sufficient,
-        calls questions' callbacks with answers.  Creates new block.
+        Submit a new block to the consensus chain. Verifies stake in consensus is over 51% of the network. 
+        calls questions' callbacks with answers.  Creates new block and returns reward for successful creation.
         @param previousBlock - the prior block to maintain the 
         @param _questions - list of the ipfs question addresses (minus first 2 bytes)
         @param answers - byte array of answers
-        @param signers - Who signed the answers (must be passed in ascending order to check for dups)
+        @param signers - Stakees, aka diviners and must be passed in ascending order to check for dups
         @param sigR, sigS, sigV - Signatures of signers
     */
     function submitBlock(uint previousBlock,
@@ -164,11 +145,11 @@ contract XyStakingConsensus is XyStakingToken, BytesToTypes {
 
         // use static array to not run out of stack space
         uint[5] memory uintValues = [
-            uint(keccak256(m)), // newBlock
-            0, // stake
-            0, // lastStakee
-            0, // bytesOffset
-            0 // reward
+            uint(keccak256(m)), // 0 - newBlock
+            0, // 1 - stake
+            0, // 2 - lastStakee
+            0, // 3 - bytesOffset
+            0 // 4 - reward
         ];
 
         for (uint i = 0; i < signers.length; i++) {
@@ -178,22 +159,25 @@ contract XyStakingConsensus is XyStakingToken, BytesToTypes {
             uintValues[2] = uint(signer);
             uintValues[1] = uintValues[1].add(stakeeStake[uint(signer)].activeStake);
         }
-
-        require (uintValues[1] >= totalActiveStake.mul(stakedConsensusNumerator).div(stakedConsensusDenominator), "Not enough stake");
+        // check sufficient stake by stakees subitted
+        require (uintValues[1] >= totalActiveStake.mul(params.get("xyStakeQuorumPct")).div(100), "Not enough stake");
 
         for (uint i = 0; i < _questions.length; i++) {
-          Question memory q = questionsById[_questions[i]];
-          if (q.answerType == 0) {
-            IXyIntersectionQuestion(q.questionContract).completionBool(_questions[i], bytesToBool(uintValues[3], answers));
-            uintValues[3] += 1;
-            uintValues[4] = uintValues[4].add(q.reward);
-          } else if (q.answerType == 1) {
-            string memory result;
-            bytesToString(uintValues[3], answers, bytes(result));
-            // TODO when dapploy uses latest truffle
-            // IXyIntersectionQuestion(q.questionContract).completionString(_questions[i], result);
-            uintValues[3] += getStringSize(uintValues[3], answers);
-          } 
+          Question storage q = questionsById[_questions[i]];
+          if (!q.answered) {
+            if (q.answerType == 0) {
+                IXyIntersectionQuestion(q.questionContract).completionBool(_questions[i], bytesToBool(uintValues[3], answers));
+                uintValues[3] += 1;
+                uintValues[4] = uintValues[4].add(q.reward);
+            } else if (q.answerType == 1) {
+                string memory result;
+                bytesToString(uintValues[3], answers, bytes(result));
+                // TODO when dapploy uses latest truffle
+                // IXyIntersectionQuestion(q.questionContract).completionString(_questions[i], result);
+                uintValues[3] += getStringSize(uintValues[3], answers);
+            } 
+          }
+          q.answered = true;
         }
         Block memory b = Block(uintValues[0], previousBlock, block.number, msg.sender);
         chain.push(uintValues[0]);

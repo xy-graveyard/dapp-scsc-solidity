@@ -3,12 +3,11 @@ import '../XyStakingToken.sol';
 
 contract XyStakingMock is XyStakingToken {
 
-    constructor(XyERC20Token _token,
-        ERC721 _stakableToken,
-        uint _stakeCooldown,
-        uint _unstakeCooldown)
+    constructor(address _token,
+        address _stakableToken,
+        address _governance)
         public
-    XyStakingToken(_token, _stakableToken, _stakeCooldown, _unstakeCooldown)
+    XyStakingToken(_token, _stakableToken, _governance)
     {
 
     }
@@ -25,6 +24,7 @@ contract XyStakingMock is XyStakingToken {
             block.number,   // stakeBlock
             0,              // unstakeBlock
             stakee,         // stakee 
+            msg.sender,     // staker
             true           // isActivated
         );
       updateCacheOnUnstake(data);
