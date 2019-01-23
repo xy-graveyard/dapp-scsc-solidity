@@ -30,12 +30,20 @@ contract XyGovernance is XyParameterizer {
     mapping (uint => bool) public stakeeDisabled;
 
     constructor(
-        address _resolverAddress
     ) XyParameterizer() 
     public {
-        resolverAddress = _resolverAddress;
     }
 
+    function init(
+        address _resolverAddress,
+        address _xyERC20,
+        address _plcr,
+        uint[] memory _parameters
+    ) public {
+        resolverAddress = _resolverAddress;
+        super.init(_xyERC20, _plcr, _parameters);
+    }
+    
     /** 
         Any staker with over challenge cost can challenge a stakee.
 

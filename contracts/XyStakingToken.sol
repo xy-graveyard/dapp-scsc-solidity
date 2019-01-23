@@ -3,12 +3,16 @@ pragma solidity >=0.5.0 <0.6.0;
 import "./token/ERC721/ERC721.sol";
 import "./token/ERC721/ERC721Enumerable.sol";
 import "./SafeMath.sol";
+import "./token/ERC20/ERC20.sol";
 import "./token/ERC20/IERC20.sol";
+import "./token/ERC20/XyERC20Token.sol";
 import "./XyGovernance.sol";
+import "./token/ERC20/SafeERC20.sol";
 
 contract XyStakingToken is ERC721Enumerable {
     using SafeMath for uint;
-    // ERC20 contract for stake denomination
+    using SafeERC20 for IERC20;
+    // IERC20 contract for stake denomination
     IERC20 xyoToken;
 
     // 721 contract that we reference for all things staked
@@ -29,7 +33,6 @@ contract XyStakingToken is ERC721Enumerable {
         uint stakeBlock;
         uint unstakeBlock;
         uint stakee; 
-        address staker;
         bool isActivated;
     }
 
@@ -113,16 +116,16 @@ contract XyStakingToken is ERC721Enumerable {
         stakerStake[msg.sender].activeStake = stakerStake[msg.sender].activeStake.add(amount);
         totalActiveStake = totalActiveStake.add(amount);
     }
-    function updateCacheOnUnstake(Stake memory data) internal {
+    function updateCacheOnUnstake(Stake memory data, address from) internal {
         stakeeStake[data.stakee].totalStake = stakeeStake[data.stakee].totalStake.sub(data.amount);
-        stakerStake[data.staker].totalStake = stakerStake[data.staker].totalStake.sub(data.amount);
+        stakerStake[from].totalStake = stakerStake[from].totalStake.sub(data.amount);
         if (data.isActivated) {
             stakeeStake[data.stakee].activeStake = stakeeStake[data.stakee].activeStake.sub(data.amount);
-            stakerStake[data.staker].activeStake = stakerStake[data.staker].activeStake.sub(data.amount);
+            stakerStake[from].activeStake = stakerStake[from].activeStake.sub(data.amount);
+            totalActiveStake = totalActiveStake.sub(data.amount);
         }
         stakeeStake[data.stakee].totalUnstake = stakeeStake[data.stakee].totalUnstake.add(data.amount);
-        stakerStake[data.staker].totalUnstake = stakerStake[data.staker].totalUnstake.add(data.amount);
-        totalActiveStake = totalActiveStake.sub(data.amount);
+        stakerStake[from].totalUnstake = stakerStake[from].totalUnstake.add(data.amount);
     }
     function updateCacheOnWithdraw(uint amount, uint stakee) internal {
         stakeeStake[stakee].totalUnstake = stakeeStake[stakee].totalUnstake.sub(amount);
@@ -133,7 +136,10 @@ contract XyStakingToken is ERC721Enumerable {
         for (uint i = startIndex; i < batchSize + startIndex; i++) {
             uint token = stakeeStakingTokenMap[stakee][i];
             Stake storage data = stakeData[token];
-            _unstake(data);
+            if (data.unstakeBlock == 0) {
+                updateCacheOnUnstake(data, ownerOf(token));
+                data.unstakeBlock = block.number;
+            }
         }
         if (stakeeStake[stakee].activeStake == 0) {
             params.resolveAction(stakee);
@@ -174,7 +180,6 @@ contract XyStakingToken is ERC721Enumerable {
             block.number,   // stakeBlock
             0,              // unstakeBlock
             stakee,         // stakee 
-            msg.sender,     // staker
             false           // isActivated
         );
 
@@ -184,6 +189,7 @@ contract XyStakingToken is ERC721Enumerable {
         stakeData[newToken] = data;
 
         // Escrow the ERC20
+        // xyoToken.asmTransferFrom(msg.sender, address(this), amount);
         xyoToken.transferFrom(msg.sender, address(this), amount);
 
         emit Staked(msg.sender, newToken, stakee, amount);
@@ -207,14 +213,6 @@ contract XyStakingToken is ERC721Enumerable {
         emit ActivatedStake(msg.sender, stakingToken, data.stakee, data.amount);
     }
 
-
-    function _unstake(Stake storage data) private {
-        if (data.unstakeBlock == 0) {
-            updateCacheOnUnstake(data);
-            data.unstakeBlock = block.number;
-        }
-    }
-
     /** 
         unstake a specific previous stake 
         @param stakingToken - the tokenId of the staking token
@@ -227,7 +225,8 @@ contract XyStakingToken is ERC721Enumerable {
         Stake storage data = stakeData[stakingToken];
         require(data.stakeBlock + params.get("xyStakeCooldown") < block.number, "Staking needs to cooldown");
         require(data.unstakeBlock == 0, "Cannot re-unstake");
-        _unstake(data);
+        updateCacheOnUnstake(data, msg.sender);
+        data.unstakeBlock = block.number;
         emit Unstaked(msg.sender, stakingToken, data.stakee, data.amount);
     }
 
@@ -263,10 +262,10 @@ contract XyStakingToken is ERC721Enumerable {
     {
         require(_isApprovedOrOwner(msg.sender, stakingToken), "Only approved or owner can withdraw");
         Stake memory data = stakeData[stakingToken];
-        require (data.unstakeBlock > 0 && (data.unstakeBlock + params.get("xyUnStakeCooldown")) < block.number, "Not ready for withdraw");
+        require (data.unstakeBlock > 0 && (data.unstakeBlock + params.get("xyUnstakeCooldown")) < block.number, "Not ready for withdraw");
         burn(data.stakee, stakingToken);
-        xyoToken.transfer(msg.sender, data.amount);
         updateCacheOnWithdraw(data.amount, data.stakee);
+        xyoToken.safeTransfer(msg.sender, data.amount);
         emit Withdrawl(msg.sender, data.amount);
     }
 
@@ -287,7 +286,7 @@ contract XyStakingToken is ERC721Enumerable {
         for (uint i = 0; i < balance && i < limit; i++) {
             uint tokenId = tokenOfOwnerByIndex(msg.sender, i);
             Stake memory data = stakeData[tokenId];
-            if (data.unstakeBlock > 0 && (data.unstakeBlock + params.get("xyUnStakeCooldown")) < block.number) {
+            if (data.unstakeBlock > 0 && (data.unstakeBlock + params.get("xyUnstakeCooldown")) < block.number) {
                 burnTokens[numBurnTokens] = tokenId;      
                 numBurnTokens++;
             }      
@@ -300,7 +299,7 @@ contract XyStakingToken is ERC721Enumerable {
         }
 
         if (withdrawAmt > 0) {
-            xyoToken.transfer(msg.sender, withdrawAmt);
+            xyoToken.safeTransfer(msg.sender, withdrawAmt);
             emit Withdrawl(msg.sender, withdrawAmt);
         }
     }
@@ -315,7 +314,7 @@ contract XyStakingToken is ERC721Enumerable {
         uint balance = balanceOf(staker);
         for (uint i = 0; i < balance; i++) {
             Stake memory data = stakeData[tokenOfOwnerByIndex(staker, i)];
-            if (data.unstakeBlock > 0 && (data.unstakeBlock + params.get("xyUnStakeCooldown")) < block.number) {
+            if (data.unstakeBlock > 0 && (data.unstakeBlock + params.get("xyUnstakeCooldown")) < block.number) {
                 stakeTotal += data.amount;
             }
         }
@@ -332,7 +331,7 @@ contract XyStakingToken is ERC721Enumerable {
         uint stakeTotal = 0;
         for (uint i = 0; i < stakeList.length; i++) {
             Stake memory data = stakeData[stakeList[i]];
-            if (data.unstakeBlock > 0 && (data.unstakeBlock + params.get("xyUnStakeCooldown")) < block.number) {
+            if (data.unstakeBlock > 0 && (data.unstakeBlock + params.get("xyUnstakeCooldown")) < block.number) {
                 stakeTotal += data.amount;
             }
         }

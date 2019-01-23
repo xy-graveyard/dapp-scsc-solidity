@@ -90,8 +90,8 @@ contract XyStakingConsensus is XyStakingToken, BytesToTypes {
         }
         if (xyoMining > 0) {
             require (erc20.allowance(address(this), xyoSender) >= xyoMining, "Not enough XYO to cover mining");
-            // escrow xyo token
-            xyoToken.transferFrom(xyoSender, address(this), xyoMining);
+            // escrow xyo token TODO
+            // xyoToken.transferFrom(xyoSender, address(this), xyoMining);
         }
 
         Question memory q = Question (
