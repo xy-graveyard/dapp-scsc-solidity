@@ -93,7 +93,7 @@ contract(
 
       const repeatArray = (num, obj) => Array(num).fill(obj)
 
-      it.only(`should allow testing many addresses`, async () => {
+      it(`should allow testing many addresses`, async () => {
         const hash = `0x${abi
           .soliditySHA3([`address`, `address`], [ownee, deviceOwner])
           .toString(`hex`)}`
@@ -117,11 +117,6 @@ contract(
             // gasPrice: 0
           }
         )
-
-        console.log(result)
-
-        result.logs.map(l => console.log(`LOG`, l.args))
-        console.log(`GAS`, result.receipt.gasUsed)
       })
     })
   }

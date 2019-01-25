@@ -1,13 +1,13 @@
 pragma solidity >=0.5.0 <0.6.0;
-import '../XyStakingToken.sol';
+import '../XyStakingModel.sol';
 
-contract XyStakingMock is XyStakingToken {
+contract XyStakingMock is XyStakingModel {
 
     constructor(address _token,
         address _stakableToken,
         address _governance)
         public
-    XyStakingToken(_token, _stakableToken, _governance)
+    XyStakingModel(_token, _stakableToken, _governance)
     {
 
     }
@@ -24,6 +24,7 @@ contract XyStakingMock is XyStakingToken {
             block.number,   // stakeBlock
             0,              // unstakeBlock
             stakee,         // stakee 
+            msg.sender,     // staker
             true           // isActivated
         );
       updateCacheOnUnstake(data, msg.sender);

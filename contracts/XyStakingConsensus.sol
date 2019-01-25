@@ -1,6 +1,5 @@
 pragma solidity >=0.5.0 <0.6.0;
-import "./XyStakingToken.sol";
-import "./token/ERC20/IERC20.sol";
+import "./XyStakingModel.sol";
 import "./BytesToTypes.sol";
 import "./IXyIntersectionQuestion.sol";
 
@@ -9,7 +8,7 @@ import "./IXyIntersectionQuestion.sol";
     @dev Manages the Stake for multiple clients in a decentralized consensus 
     system to trustlessly answer questions
   */
-contract XyStakingConsensus is XyStakingToken, BytesToTypes {
+contract XyStakingConsensus is XyStakingModel, BytesToTypes {
     using SafeMath for uint;
     
     /** EVENT */
@@ -22,7 +21,7 @@ contract XyStakingConsensus is XyStakingToken, BytesToTypes {
     );
 
     event BlockCreated(
-        uint newBlock,
+        uint blockHash,
         uint previousBlock,
         uint reward,
         uint createdAtBlock,
@@ -45,32 +44,31 @@ contract XyStakingConsensus is XyStakingToken, BytesToTypes {
         bool answered;
     }
 
-    uint public genesis;
-
-
     // keyed is question ipfs as uint - stripped 2 bytes (hash fcn and size) and hex representation
     mapping(uint => Question) public questionsById; 
-    uint[] public questionArray;
 
     mapping(uint => Block) public blocks; //The blocks in the chain
 
     uint[] public chain; // Store the chain as an array
 
-    IERC20 public erc20;
-
     constructor(
-        uint _genesis,
         address _token,
         address _stakeeToken,
         address _governance
     )
         public
-        XyStakingToken(_token, _stakeeToken, _governance)
+        XyStakingModel(_token, _stakeeToken, _governance)
     {
-        genesis = _genesis;
-        erc20 = IERC20(_token);
     }
 
+    function getLatestBlock() public view returns (uint) {
+        if (chain.length == 0) {
+            return 0;
+        }
+        uint theBlock = blocks[chain[chain.length-1]].blockHash;
+        require(theBlock != 0, "invalid latest block");
+        return theBlock;
+    }
 
     /**
         @dev Escrow eth and xyo, making sure it covers the answer mining cost
@@ -89,7 +87,7 @@ contract XyStakingConsensus is XyStakingToken, BytesToTypes {
             require (msg.value >= ethMining, "Not enough eth to cover mining");
         }
         if (xyoMining > 0) {
-            require (erc20.allowance(address(this), xyoSender) >= xyoMining, "Not enough XYO to cover mining");
+            require (xyoToken.allowance(address(this), xyoSender) >= xyoMining, "Not enough XYO to cover mining");
             xyoToken.transferFrom(xyoSender, address(this), xyoMining);
         }
 
@@ -138,7 +136,7 @@ contract XyStakingConsensus is XyStakingToken, BytesToTypes {
         public 
     {
         // Off to good start, noone front running us
-        require(previousBlock == chain[chain.length-1], "Incorrect previous block");
+        require(previousBlock == getLatestBlock(), "Incorrect previous block");
 
         bytes memory m = abi.encodePacked(previousBlock, _questions, answers);
 
@@ -182,7 +180,7 @@ contract XyStakingConsensus is XyStakingToken, BytesToTypes {
         chain.push(uintValues[0]);
         blocks[uintValues[0]] = b;
         emit BlockCreated(uintValues[0], previousBlock, uintValues[4], block.number, msg.sender);
-        transferFrom(address(this), msg.sender, uintValues[4]);
+        msg.sender.transfer(uintValues[4]);
     }
 
 }

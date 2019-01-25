@@ -33,8 +33,6 @@ library SafeERC20 {
             // Insufficient funds
             return false;
         }
-        
-        // solium-disable-next-line security/no-low-level-calls
         (bool success, ) = address(_token).call(
             abi.encodeWithSignature("transfer(address,uint256)", _to, _value)
         );

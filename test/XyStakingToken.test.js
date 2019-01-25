@@ -55,15 +55,17 @@ contract(
     stakableTokenOwner,
     staker1,
     staker2,
-    stakee1,
-    stakee2,
     withdrawStaker
   ]) => {
     let erc20,
       staking,
       stakableToken,
       parameterizer,
-      plcr
+      plcr,
+      stakee1,
+      stakee2,
+      stakee3,
+      stakee4
 
     before(async () => {
       stakableToken = await Stakeable.new(15, stakableTokenOwner, {
@@ -90,6 +92,11 @@ contract(
           from: stakingTokenOwner
         }
       )
+      stakee1 = await stakableToken.stakeeMocks(0)
+      stakee2 = await stakableToken.stakeeMocks(1)
+      stakee3 = await stakableToken.stakeeMocks(2)
+      stakee4 = await stakableToken.stakeeMocks(3)
+
       await parameterizer.init(
         staking.address,
         erc20.address,
@@ -253,7 +260,7 @@ contract(
       describe(`Staking`, async () => {
         it(`should allow staking on a stakable token and transfer token to contract`, async () => {
           const balanceBefore = await erc20.balanceOf(staker1)
-          const tx = await createStake(staker1, 1, stakeAmt)
+          await createStake(staker1, stakee1, stakeAmt)
           const newBalance = await erc20.balanceOf(staker1)
           const contractBalance = await erc20.balanceOf(staking.address)
           stakeAmt.should.be.equal(balanceBefore - newBalance)
@@ -265,16 +272,15 @@ contract(
           }).should.not.be.fulfilled
         })
         it(`should update cache on stake`, async () => {
-          await createStake(staker1, 2, stakeAmt).should.be.fulfilled
-          await stakeCompare(stakeeStake(2), [stakeAmt, 0, 0])
+          await createStake(staker1, stakee2, stakeAmt).should.be.fulfilled
+          await stakeCompare(stakeeStake(stakee2), [stakeAmt, 0, 0])
           await stakeCompare(stakerStake(staker1), [stakeAmt, 0, 0])
         })
         it(`should save stakee data on stake`, async () => {
-          const stakeeToken = 2
-          const newToken = await staking.stake.call(stakeeToken, stakeAmt, {
+          const newToken = await staking.stake.call(stakee2, stakeAmt, {
             from: staker1
           })
-          const tx = await createStake(staker1, stakeeToken, stakeAmt).should.be
+          const tx = await createStake(staker1, stakee2, stakeAmt).should.be
             .fulfilled
           await expectEvent.inLogs(tx.logs, `Staked`)
           const curBlock = await web3.eth.getBlockNumber()
@@ -289,28 +295,26 @@ contract(
 
           amount.toNumber().should.be.equal(stakeAmt)
           stakeBlock.toNumber().should.be.equal(curBlock)
-          stakee.toNumber().should.be.equal(stakeeToken)
+          stakee.toString().should.be.equal(stakee2.toString())
           unstakeBlock.toNumber().should.be.equal(0)
           isActivated.should.be.equal(false)
         })
       })
       describe(`Activating Stake`, async () => {
         const stakeAmt2 = 1000
-        const stakeeTokenId = 4
-        const stakeeTokenId2 = 5
         let stakeeToken
         let stakeeToken2
         beforeEach(async () => {
-          stakeeToken = await staking.stake.call(stakeeTokenId, stakeAmt, {
+          stakeeToken = await staking.stake.call(stakee3, stakeAmt, {
             from: staker1
           })
-          await staking.stake(stakeeTokenId, stakeAmt, {
+          await staking.stake(stakee3, stakeAmt, {
             from: staker1
           })
-          stakeeToken2 = await staking.stake.call(stakeeTokenId2, stakeAmt2, {
+          stakeeToken2 = await staking.stake.call(stakee4, stakeAmt2, {
             from: staker2
           })
-          await staking.stake(stakeeTokenId2, stakeAmt2, {
+          await staking.stake(stakee4, stakeAmt2, {
             from: staker2
           })
         })
@@ -336,7 +340,7 @@ contract(
           await advanceToBlock(blockNumber + cooldownStake)
           const tx = await staking.activateStake(stakeeToken, { from: staker1 })
             .should.be.fulfilled
-          await stakeCompare(stakeeStake(stakeeTokenId), [
+          await stakeCompare(stakeeStake(stakee3), [
             stakeAmt,
             stakeAmt,
             0,
@@ -348,21 +352,19 @@ contract(
       })
       describe(`Unstaking and withdrawing`, async () => {
         const stakeAmt2 = 500
-        const stakeeTokenId = 4
-        const stakeeTokenId2 = 5
         let stakingToken
         let stakingToken2
         beforeEach(async () => {
-          stakingToken = await staking.stake.call(stakeeTokenId, stakeAmt, {
+          stakingToken = await staking.stake.call(stakee3, stakeAmt, {
             from: staker1
           })
-          await staking.stake(stakeeTokenId, stakeAmt, {
+          await staking.stake(stakee3, stakeAmt, {
             from: staker1
           })
-          stakingToken2 = await staking.stake.call(stakeeTokenId2, stakeAmt2, {
+          stakingToken2 = await staking.stake.call(stakee4, stakeAmt2, {
             from: staker1
           })
-          await staking.stake(stakeeTokenId2, stakeAmt2, {
+          await staking.stake(stakee4, stakeAmt2, {
             from: staker1
           })
         })
@@ -403,7 +405,7 @@ contract(
             await advanceToBlock(blockNumber + cooldownStake)
             await staking.unstake(stakingToken, { from: staker1 }).should.be
               .fulfilled
-            await stakeCompare(stakeeStake(stakeeTokenId), [0, 0, stakeAmt])
+            await stakeCompare(stakeeStake(stakee3), [0, 0, stakeAmt])
             await stakeCompare(stakerStake(staker1), [stakeAmt2, 0, stakeAmt])
           })
           it(`should reflect proper available staker and stakee unstake before and after cooldown`, async () => {
@@ -429,10 +431,10 @@ contract(
             const b2 = await web3.eth.getBlockNumber()
             await advanceToBlock(b2 + cooldownUnstake)
             const avUnStakeeAfter = await staking.getAvailableStakeeUnstake.call(
-              stakeeTokenId
+              stakee3
             )
             const avUnStakeeAfter2 = await staking.getAvailableStakeeUnstake.call(
-              stakeeTokenId2
+              stakee4
             )
             const avUnStakerAfter = await staking.getAvailableStakerUnstake.call(
               staker1
@@ -472,11 +474,11 @@ contract(
           it(`should transfer stake on withdraw from contract to staker`, async () => {
             const blockNumber = await web3.eth.getBlockNumber()
             await advanceToBlock(blockNumber + cooldownUnstake)
-            const balanceBefore = await staking.balanceOf(staker1)
+            const balanceBefore = await staking.numStakes(staker1)
             const balanceBefore20 = await erc20.balanceOf(staker1)
             await staking.withdraw(stakingToken, { from: staker1 }).should.be
               .fulfilled
-            const balanceAfter = await staking.balanceOf(staker1)
+            const balanceAfter = await staking.numStakes(staker1)
             const balanceAfter20 = await erc20.balanceOf(staker1)
             balanceBefore
               .toNumber()
@@ -491,17 +493,18 @@ contract(
             await advanceToBlock(blockNumber + cooldownUnstake)
             await staking.withdraw(stakingToken, { from: staker1 }).should.be
               .fulfilled
-            await stakeCompare(stakeeStake(stakeeTokenId), [0, 0, 0])
+            await stakeCompare(stakeeStake(stakee3), [0, 0, 0])
             await stakeCompare(stakerStake(staker1), [0, 0, stakeAmt2])
           })
           const stakeMany = async (staker, amounts, numToStake) => {
             const tokens = []
             for (let i = 0; i < numToStake; i++) {
-              const response = await staking.stake.call(i, amounts, {
+              const stakee = await stakableToken.stakeeMocks(i)
+              const response = await staking.stake.call(stakee, amounts, {
                 from: staker
               })
               tokens.push(response)
-              await createStake(staker, i, amounts)
+              await createStake(staker, stakee, amounts)
             }
             return tokens
           }
