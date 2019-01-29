@@ -3,6 +3,7 @@ import BigNumber from "bignumber.js"
 const abi = require(`ethereumjs-abi`)
 const { toChecksumAddress } = require(`ethereumjs-util`)
 
+const PayOnDelivery = artifacts.require(`XyPayOnDelivery.sol`)
 const StakingConsensus = artifacts.require(`XyConsensusMock.sol`)
 const ERC20 = artifacts.require(`XyERC20Token.sol`)
 const Stakeable = artifacts.require(`XyStakableAddressMock.sol`)
@@ -26,16 +27,28 @@ contract(
     d1,
     d2,
     d3,
-    d4
+    d4,
+    payOnDeliveryOwner
   ]) => {
     let erc20
     let consensus
     let stakableToken
     let parameterizer
     let plcr
-    const diviners = [d1, d2, d3, d4]
+    const diviners = [
+      d1,
+      d2,
+      d3,
+      d4,
+      stakableContractOwner,
+      stakableTokenOwner,
+      parameterizerOwner,
+      payOnDeliveryOwner
+    ]
     const numDiviners = diviners.length
-    const numQuestions = 5
+    const numQuestions = 40
+    let payOnD
+    const xyoOnDelivery = 200
 
     function advanceBlock () {
       return new Promise((resolve, reject) => {
@@ -75,6 +88,9 @@ contract(
           from: consensusOwner
         }
       )
+      payOnD = await PayOnDelivery.new(consensus.address, erc20.address, {
+        from: payOnDeliveryOwner
+      })
       await advanceBlock()
     })
 
@@ -89,15 +105,22 @@ contract(
 
     const createQuestions = async (answerType) => {
       const questions = [...Array(numQuestions).keys()]
+      await erc20.approve(payOnD.address, numQuestions * xyoOnDelivery, {
+        from: erc20owner
+      })
       const getQuestions = async () => {
-        const promises = questions.map(async q => consensus.submitQuestion(q, erc20owner, answerType))
-        return Promise.all(promises)
+        const promises = questions.map(async q => consensus.submitRequest(q, erc20owner, answerType))
+        const promises1 = questions.map(async q => payOnD.submitRequest(q, xyoOnDelivery, 1000, d3, {
+          value: 1100,
+          from: erc20owner
+        }))
+        return Promise.all(promises.concat(promises1))
       }
       await getQuestions()
       return questions
     }
 
-    const compareDiviners = (a, b) => a > b
+    const compareDiviners = (a, b) => a.toUpperCase() > b.toUpperCase()
 
     const encodeAndSign = async (signer, previous, questions, answers) => {
       const uintArr = questions.map(() => `uint`)

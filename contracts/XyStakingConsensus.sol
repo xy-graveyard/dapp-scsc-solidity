@@ -1,7 +1,7 @@
 pragma solidity >=0.5.0 <0.6.0;
 import "./XyStakingModel.sol";
 import "./BytesToTypes.sol";
-import "./IXyIntersectionQuestion.sol";
+import "./IXyIntersectionRequest.sol";
 
  /**
     @title XyStakedConsensusAnswering
@@ -77,7 +77,7 @@ contract XyStakingConsensus is XyStakingModel, BytesToTypes {
         @param xyoSender - who to deduct the xyo from for mining cost
         @param answerType - based on the type we know which callback to call (string or bool)
     */
-    function submitQuestion(uint question, address xyoSender, uint8 answerType) 
+    function submitRequest(uint question, address xyoSender, uint8 answerType) 
         public
         payable
     {
@@ -129,13 +129,13 @@ contract XyStakingConsensus is XyStakingModel, BytesToTypes {
           if (!q.answered) {
             reward = reward.add(q.reward);
             if (q.answerType == 1) {
-                IXyIntersectionQuestion(q.questionContract).completionBool(_questions[i], bytesToBool(byteOffset, answers));
+                IXyIntersectionRequest(q.questionContract).completionBool(_questions[i], bytesToBool(byteOffset, answers));
                 byteOffset += 1;
             } else if (q.answerType == 2) {
                 string memory result;
                 bytesToString(byteOffset, answers, bytes(result));
                 // TODO when dapploy uses latest truffle
-                // IXyIntersectionQuestion(q.questionContract).completionString(_questions[i], result);
+                // IXyIntersectionRequest(q.questionContract).completionString(_questions[i], result);
                 byteOffset += getStringSize(byteOffset, answers);
             } 
             q.answered = true;
