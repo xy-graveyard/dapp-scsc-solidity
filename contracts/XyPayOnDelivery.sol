@@ -1,17 +1,18 @@
 pragma solidity >=0.5.0 <0.6.0;
 
-import "./ownership/Ownable.sol";
 import "./SafeMath.sol";
 import "./XyStakingConsensus.sol";
 import "./token/ERC20/IERC20.sol";
 import "./IXyIntersectionQuestion.sol";
+import "./token/ERC20/SafeERC20.sol";
 
 
 /**
  * @title A Payment on delivery contract
  * @dev Will escrow funds until an item is marked as delivered .
  */
-contract XyPayOnDelivery is Ownable, IXyIntersectionQuestion {
+contract XyPayOnDelivery is IXyIntersectionQuestion {
+  using SafeERC20 for IERC20;
   using SafeMath for uint;
 
   event QuestionAsked(uint indexed ipfs);
@@ -88,8 +89,8 @@ contract XyPayOnDelivery is Ownable, IXyIntersectionQuestion {
     Question memory q = questions[questionIndex[ipfs]];
 
     if (didIntersect) {
-      xyoToken.transferFrom(address(this), q.beneficiary, q.xyoOnDelivery);
-      (q.beneficiary).transfer(q.weiOnDelivery);
+      q.beneficiary.safeTransfer(q.xyoOnDelivery);
+      q.beneficiary.transfer(q.weiOnDelivery);
       _deleteQuestion(ipfs);
     } else {
       // No intersection, refund to asker
@@ -111,7 +112,7 @@ contract XyPayOnDelivery is Ownable, IXyIntersectionQuestion {
       q.asker.transfer(q.weiOnDelivery);
     }
     if (q.xyoOnDelivery > 0) {
-      xyoToken.transferFrom(address(this), q.asker, q.xyoOnDelivery);
+      q.asker.safeTransfer(q.xyoOnDelivery);
     }
     _deleteQuestion(ipfs);
     emit QuestionDeleted(ipfs, q.asker);

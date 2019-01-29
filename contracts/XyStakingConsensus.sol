@@ -117,6 +117,58 @@ contract XyStakingConsensus is XyStakingModel, BytesToTypes {
         return keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", hash));
     }
 
+
+    function answerQuestions(uint[] memory _questions, bytes memory answers)
+        internal 
+        returns (uint)
+    {
+        uint byteOffset = 0;
+        uint reward = 0;
+        for (uint i = 0; i < _questions.length; i++) {
+          Question storage q = questionsById[_questions[i]];
+          if (!q.answered) {
+            reward = reward.add(q.reward);
+            if (q.answerType == 1) {
+                IXyIntersectionQuestion(q.questionContract).completionBool(_questions[i], bytesToBool(byteOffset, answers));
+                byteOffset += 1;
+            } else if (q.answerType == 2) {
+                string memory result;
+                bytesToString(byteOffset, answers, bytes(result));
+                // TODO when dapploy uses latest truffle
+                // IXyIntersectionQuestion(q.questionContract).completionString(_questions[i], result);
+                byteOffset += getStringSize(byteOffset, answers);
+            } 
+            q.answered = true;
+          }
+        }
+        return reward;
+    }
+
+
+    function checkSigsAndStake(
+        uint newBlock,
+        address[] memory signers,
+        bytes32[] memory sigR,
+        bytes32[] memory sigS,
+        uint8[] memory sigV
+    )
+        view
+        internal 
+    {
+
+        address lastStakee = address(0);
+        uint stake = 0;
+        for (uint i = 0; i < signers.length; i++) {
+            address signer = ecrecover(prefixed(bytes32(newBlock)), sigV[i], sigR[i], sigS[i]);
+            require(signers[i] > lastStakee , "Signers array must be ascending");
+            lastStakee = signers[i];
+            require(signers[i] == signer, "Invalid Signer");
+            stake = stake.add(stakeeStake[uint(signer)].activeStake);
+        }
+        // check sufficient stake by stakees subitted
+        require (stake > totalActiveStake.mul(params.get("xyStakeQuorumPct")).div(100), "Not enough stake");
+    }
+
     /*
         Submit a new block to the consensus chain. Verifies stake in consensus is over 51% of the network. 
         calls questions' callbacks with answers.  Creates new block and returns reward for successful creation.
@@ -132,55 +184,29 @@ contract XyStakingConsensus is XyStakingModel, BytesToTypes {
                          address[] memory signers,
                          bytes32[] memory sigR,
                          bytes32[] memory sigS,
-                         uint8[] memory sigV) 
+                         uint8[] memory sigV,
+                         bytes memory test) 
         public 
+        returns (uint)
     {
-        // Off to good start, noone front running us
         require(previousBlock == getLatestBlock(), "Incorrect previous block");
-
         bytes memory m = abi.encodePacked(previousBlock, _questions, answers);
 
-        // use static array to not run out of stack space
-        uint[5] memory uintValues = [
-            uint(keccak256(m)), // 0 - newBlock
-            0, // 1 - stake
-            0, // 2 - lastStakee
-            0, // 3 - bytesOffset
-            0 // 4 - reward
-        ];
+        require (keccak256(m) == keccak256(abi.encodePacked(test)), "Message is not packed correctly");
 
-        for (uint i = 0; i < signers.length; i++) {
-            address signer = ecrecover(prefixed(bytes32(uintValues[0])), sigV[i], sigR[i], sigS[i]);
-            require(signers[i] == signer, "Invalid Signer");
-            require(uintValues[2] < uint(signer), "Signers array must be ascending");
-            uintValues[2] = uint(signer);
-            uintValues[1] = uintValues[1].add(stakeeStake[uint(signer)].activeStake);
-        }
-        // check sufficient stake by stakees subitted
-        require (uintValues[1] >= totalActiveStake.mul(params.get("xyStakeQuorumPct")).div(100), "Not enough stake");
+        uint newBlock = uint(keccak256(m));
+        checkSigsAndStake(newBlock, signers, sigR, sigS, sigV);
+        
+        Block memory b = Block(newBlock, previousBlock, block.number, msg.sender);
+        chain.push(newBlock);
+        blocks[newBlock] = b;
 
-        for (uint i = 0; i < _questions.length; i++) {
-          Question storage q = questionsById[_questions[i]];
-          if (!q.answered) {
-            if (q.answerType == 0) {
-                IXyIntersectionQuestion(q.questionContract).completionBool(_questions[i], bytesToBool(uintValues[3], answers));
-                uintValues[3] += 1;
-                uintValues[4] = uintValues[4].add(q.reward);
-            } else if (q.answerType == 1) {
-                string memory result;
-                bytesToString(uintValues[3], answers, bytes(result));
-                // TODO when dapploy uses latest truffle
-                // IXyIntersectionQuestion(q.questionContract).completionString(_questions[i], result);
-                uintValues[3] += getStringSize(uintValues[3], answers);
-            } 
-          }
-          q.answered = true;
-        }
-        Block memory b = Block(uintValues[0], previousBlock, block.number, msg.sender);
-        chain.push(uintValues[0]);
-        blocks[uintValues[0]] = b;
-        emit BlockCreated(uintValues[0], previousBlock, uintValues[4], block.number, msg.sender);
-        msg.sender.transfer(uintValues[4]);
+        uint reward = answerQuestions(_questions, answers);
+
+        emit BlockCreated(newBlock, previousBlock, reward, block.number, msg.sender);
+        msg.sender.transfer(reward);
+
+        return reward;
     }
 
 }

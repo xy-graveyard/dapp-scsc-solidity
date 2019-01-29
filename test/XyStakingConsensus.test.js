@@ -1,12 +1,14 @@
 import BigNumber from "bignumber.js"
 
 const abi = require(`ethereumjs-abi`)
+const { toChecksumAddress } = require(`ethereumjs-util`)
 
-const StakingConsensus = artifacts.require(`XyStakingConsensus.sol`)
+const StakingConsensus = artifacts.require(`XyConsensusMock.sol`)
 const ERC20 = artifacts.require(`XyERC20Token.sol`)
-const Stakeable = artifacts.require(`XyStakableMock.sol`)
+const Stakeable = artifacts.require(`XyStakableAddressMock.sol`)
 const Governance = artifacts.require(`XyGovernance.sol`)
 const PLCR = artifacts.require(`PLCRVoting.sol`)
+const stripHexPrefix = require(`strip-hex-prefix`)
 
 const erc20TotalSupply = 1000000
 const should = require(`chai`)
@@ -20,16 +22,19 @@ contract(
     erc20owner,
     stakableContractOwner,
     stakableTokenOwner,
-    parameterizerOwner
+    parameterizerOwner,
+    d1,
+    d2,
+    d3,
+    d4
   ]) => {
     let erc20
     let consensus
     let stakableToken
-    let stakeeList
     let parameterizer
     let plcr
-
-    const numDiviners = 4
+    const diviners = [d1, d2, d3, d4]
+    const numDiviners = diviners.length
     const numQuestions = 5
 
     function advanceBlock () {
@@ -56,14 +61,13 @@ contract(
       })
       await plcr.init(erc20.address)
 
-      stakableToken = await Stakeable.new(numDiviners, stakableTokenOwner, {
+      stakableToken = await Stakeable.new(stakableTokenOwner, diviners, {
         from: stakableContractOwner
       })
-
-      console.log(`STAKEE LIST`, stakeeList)
     })
     beforeEach(async () => {
       consensus = await StakingConsensus.new(
+        diviners,
         erc20.address,
         stakableToken.address,
         parameterizer.address,
@@ -74,77 +78,111 @@ contract(
       await advanceBlock()
     })
 
-    const fetchDiviners = async () => {
-      const promises = []
-      let ds = []
-      for (let i = 0; i < numDiviners; i++) {
-        promises.push(stakableToken.stakeeMocks(i))
-      }
-      await Promise.all(promises).then((values) => {
-        ds = values
-      })
-
-      return ds
-    }
-
-    const createRandomAnswers = async () => {
-      const byteAnswers = Uint8Array(numQuestions)
-
-      for (let i = 0; i < numDiviners; i++) {
+    const createRandomAnswers = () => {
+      const byteAnswers = new Uint8Array(numQuestions)
+      for (let i = 0; i < numQuestions; i++) {
         const random = Math.random() >= 0.5
-        byteAnswers.push(random)
+        byteAnswers[i] = random
       }
       return byteAnswers
     }
 
-    const compareDiviners = (a, b) => new BigNumber(a).comparedTo(new BigNumber(b))
+    const createQuestions = async (answerType) => {
+      const questions = [...Array(numQuestions).keys()]
+      const getQuestions = async () => {
+        const promises = questions.map(async q => consensus.submitQuestion(q, erc20owner, answerType))
+        return Promise.all(promises)
+      }
+      await getQuestions()
+      return questions
+    }
+
+    const compareDiviners = (a, b) => a > b
 
     const encodeAndSign = async (signer, previous, questions, answers) => {
-      const qs = questions.map(q => ({ t: `uint`, v: q }))
+      const uintArr = questions.map(() => `uint`)
+
       const hash = `0x${abi
-        .soliditySHA3({ t: `uint`, v: previous }, ...qs, { t: `bytes`, v: answers })
+        .soliditySHA3(
+          [`uint`, ...uintArr, `bytes`],
+          [previous, ...questions, answers]
+        )
         .toString(`hex`)}`
 
-      // const hash = abi.simpleEncode(ownee, deviceOwner)
-      // const hash = web3.utils.sha3(ownee, deviceOwner)
+      const packedBytes = `0x${abi
+        .solidityPack(
+          [`uint`, ...uintArr, `bytes`],
+          [previous, ...questions, answers]
+        )
+        .toString(`hex`)}`
+      // console.log(`HASH`, hash)
+      // console.log(`ENCODED BYTES`, packedBytes)
+
       const signedMessage = await web3.eth.sign(hash, signer)
 
       const sig = signedMessage.slice(2)
       const r = `0x${sig.slice(0, 64)}`
       const s = `0x${sig.slice(64, 128)}`
       const v = web3.utils.toDecimal(sig.slice(128, 130)) + 27
-      return r, s, v
+
+      return [r, s, v, packedBytes]
     }
+
     describe(`Submitting blocks`, () => {
       it(`should be able to handle four diviners submitting blocks`, async () => {
-        const diviners = await fetchDiviners()
-        console.log(`Diviners`, diviners)
         const sorted = diviners.sort(compareDiviners)
+
         console.log(`Diviners sorted`, sorted)
+        let previousD = 0
+        for (let i = 0; i < numDiviners; i++) {
+          if (sorted[i] < previousD) {
+            console.log(`NOT SORTED`, previousD, sorted[i])
+          }
+          previousD = sorted[i]
+        }
         const previous = await consensus.getLatestBlock()
         console.log(`Previous block `, previous)
 
-        const questions = [...Array(numQuestions).keys()]
-
+        const questions = await createQuestions(0)
         const answers = createRandomAnswers()
+
+        const getSigs = async () => {
+          const promises = sorted.map(async adr => encodeAndSign(adr, previous, questions, answers))
+          return Promise.all(promises)
+        }
+        const sigArr = await getSigs()
         const r = []
         const s = []
         const v = []
-        diviners.forEach((adr) => {
-          const sig = encodeAndSign(adr, previous, questions, answers)
-          r.push(sig.r)
-          s.push(sig.s)
-          v.push(sig.v)
+        let hash
+        sigArr.forEach((sig) => {
+          r.push(sig[0])
+          s.push(sig[1])
+          v.push(sig[2])
+          hash = sig[3]
         })
-        await consensus.submitBlock(
+        const result = await consensus.submitBlock.call(
           previous,
           questions,
           answers,
-          diviners,
+          sorted,
           r,
           s,
-          v
+          v,
+          hash
+        )
+        const tx = await consensus.submitBlock(
+          previous,
+          questions,
+          answers,
+          sorted,
+          r,
+          s,
+          v,
+          hash
         ).should.be.fulfilled
+
+        console.log(`TX RESULT`, result, tx)
       })
     })
   }
