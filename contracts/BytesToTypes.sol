@@ -16,14 +16,14 @@ contract BytesToTypes {
         }
     } 
     
-    function bytesToBool(uint _offst, bytes memory _input) internal pure returns (bool _output) {
-        
-        uint8 x;
-        assembly {
-            x := mload(add(_input, _offst))
-        }
-        x==0 ? _output = false : _output = true;
-    }   
+    // function bytesToBool(uint _offst, bytes memory _input) public pure returns (bool _output) {
+
+    //     uint8 x;
+    //     assembly {
+    //         x := mload(add(_input, _offst))
+    //     }
+    //     x==0 ? _output = false : _output = true;
+    // }   
         
     function getStringSize(uint _offst, bytes memory _input) internal pure returns(uint size){
         

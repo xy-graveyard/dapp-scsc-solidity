@@ -29,6 +29,10 @@ contract XyGovernance is XyParameterizer {
     mapping (uint => GovernanceAction) public actions;
     mapping (uint => bool) public stakeeDisabled;
 
+    // help ease transition into decentralized entity, 
+    // and once governance has been established renounce ownership role 
+    bool ownershipRenounced = false;
+
     constructor(
     ) XyParameterizer() 
     public {
@@ -46,7 +50,8 @@ contract XyGovernance is XyParameterizer {
     
     /** 
         Any staker with over challenge cost can challenge a stakee.
-
+        @param stakee the stakee to propose action on
+        @param penaltyPct the penalty to enforce on stakers
      */
     function proposeNewAction(
         uint stakee, 
@@ -91,5 +96,23 @@ contract XyGovernance is XyParameterizer {
             params[keccak256(abi.encodePacked(_name))] = _value;
         }
     }
+    /** 
+        Can only be called by owner and will remove centralization 
+        once governance is established
+    */
+    function renounceOwner() public {
+        require (msg.sender == address(get("pOwner")));
+        ownershipRenounced = true;
+    }
 
+    /**
+    @dev While this contract is owned any param can be written by owner
+    @param _name the name of the param to be set
+    @param _value the value to set the param to be set
+    */
+    function ownerSet(string memory _name, uint _value) public {
+        require (ownershipRenounced == false, "Ownership was renounced");
+        require (msg.sender == address(get("pOwner")), "only owner can call");
+        set(_name, _value);
+    }
 }  

@@ -1,5 +1,5 @@
 pragma solidity >=0.5.0 <0.6.0;
-import '../XyStakableToken.sol';
+import "../XyStakableToken.sol";
 
 contract XyStakableAddressMock is XyStakableToken {
   address[] public stakeeMocks; // simulated stakable tokens

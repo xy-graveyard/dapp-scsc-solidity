@@ -152,6 +152,11 @@ contract XyStakingModel {
         return stakerToStakingIds[staker].length;
     }
 
+    /** 
+        Call this when it's time to resolve a passed governance action
+        @param stakee the staked item receiving action
+        @param startIndex if there ar e
+    */
     function resolveGovernanceAction(uint stakee, uint startIndex, uint batchSize) public {
         (,,,uint8 actionType, bool accepted) = params.actions(stakee);
         require(accepted == true, "action must be accepted");

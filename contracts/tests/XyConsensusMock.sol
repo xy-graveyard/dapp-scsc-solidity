@@ -1,5 +1,5 @@
 pragma solidity >=0.5.0 <0.6.0;
-import '../XyStakingConsensus.sol';
+import "../XyStakingConsensus.sol";
 
 contract XyConsensusMock is XyStakingConsensus {
 
@@ -19,5 +19,23 @@ contract XyConsensusMock is XyStakingConsensus {
       }
 
     }
-
+    function mock_respondAndCalcReward(uint[] memory _requests, bytes memory responses)
+        public 
+        returns (uint)
+    {
+      return respondAndCalcReward(_requests, responses);
+    }
+    function mock_checkSigsAndStake(
+        uint messageHash,
+        address[] memory signers,
+        bytes32[] memory sigR,
+        bytes32[] memory sigS,
+        uint8[] memory sigV
+    )   
+        view
+        public 
+        returns (uint)
+    {
+      checkSigsAndStake(messageHash, signers, sigR, sigS, sigV);
+    }
 }

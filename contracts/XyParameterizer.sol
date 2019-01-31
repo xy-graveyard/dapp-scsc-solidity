@@ -56,10 +56,6 @@ contract XyParameterizer {
     // maps pollIDs to intended data change if poll passes
     mapping(bytes32 => ParamProposal) public proposals;
 
-    // help ease transition into decentralized entity, 
-    // and once governance has been established renounce ownership role 
-    bool ownershipRenounced = false;
-
     // Global Variables
     IERC20 public token;
     PLCRVoting public voting;
@@ -386,24 +382,6 @@ contract XyParameterizer {
         params[keccak256(abi.encodePacked(_name))] = _value;
     }
 
-    /** 
-        Can only be called by owner and will remove centralization 
-        once governance is established
-    */
-    function renounceOwner() public {
-        require (msg.sender == address(get("pOwner")));
-        ownershipRenounced = true;
-    }
 
-    /**
-    @dev While this contract is owned any param can be written by owner
-    @param _name the name of the param to be set
-    @param _value the value to set the param to be set
-    */
-    function ownerSet(string memory _name, uint _value) public {
-        require (ownershipRenounced == false, "Ownership was renounced");
-        require (msg.sender == address(get("pOwner")), "only owner can call");
-        set(_name, _value);
-    }
 }
 

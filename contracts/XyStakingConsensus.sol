@@ -1,22 +1,22 @@
 pragma solidity >=0.5.0 <0.6.0;
 import "./XyStakingModel.sol";
 import "./BytesToTypes.sol";
-import "./IXyIntersectionRequest.sol";
+import "./IXyRequester.sol";
 
  /**
-    @title XyStakedConsensusAnswering
+    @title XyStakingConsensus
     @dev Manages the Stake for multiple clients in a decentralized consensus 
-    system to trustlessly answer questions
+    system to trustlessly answer requests
   */
 contract XyStakingConsensus is XyStakingModel, BytesToTypes {
     using SafeMath for uint;
     
     /** EVENT */
-    event QuestionSubmitted(
-        uint indexed question,
+    event RequestSubmitted(
+        uint request,
         uint xyoValue,
         uint reward,
-        address indexed questionContract,
+        address callbackContract,
         address xyoSender
     );
 
@@ -35,21 +35,24 @@ contract XyStakingConsensus is XyStakingModel, BytesToTypes {
         address creator;
     }
 
-    struct Question {
+    struct Request {
         uint xyoValue;
         uint reward;
         uint createdAt;
-        address questionContract;
+        address callbackContract;
         uint8 answerType;
         bool answered;
     }
 
-    // keyed is question ipfs as uint - stripped 2 bytes (hash fcn and size) and hex representation
-    mapping(uint => Question) public questionsById; 
+    // keyed is request ipfs as uint - stripped 2 bytes (hash fcn and size) and hex representation
+    mapping(uint => Request) public requestsById; 
+    uint[] public requestChain;
 
-    mapping(uint => Block) public blocks; //The blocks in the chain
+    mapping(uint => Block) public blocks; //The blocks in the blockChain
+    uint[] public blockChain; // Store the blockChain as an array
 
-    uint[] public chain; // Store the chain as an array
+    uint8 public BoolAnswerType = 1; 
+    uint8 public StringAnswerType = 2; 
 
     constructor(
         address _token,
@@ -61,26 +64,31 @@ contract XyStakingConsensus is XyStakingModel, BytesToTypes {
     {
     }
 
+    /** 
+        Returns the latest block submitted to the blockChain 
+    */
     function getLatestBlock() public view returns (uint) {
-        if (chain.length == 0) {
+        if (blockChain.length == 0) {
             return 0;
         }
-        uint theBlock = blocks[chain[chain.length-1]].blockHash;
+        uint theBlock = blocks[blockChain[blockChain.length-1]].blockHash;
         require(theBlock != 0, "invalid latest block");
         return theBlock;
     }
 
     /**
         @dev Escrow eth and xyo, making sure it covers the answer mining cost
-        Stores new question in question pool
-        @param question - the ipfs hash (first 2 bytes stripped) to identify the question
+        Stores new request in request pool
+        @param request - How to uniquely identify a request
         @param xyoSender - who to deduct the xyo from for mining cost
         @param answerType - based on the type we know which callback to call (string or bool)
     */
-    function submitRequest(uint question, address xyoSender, uint8 answerType) 
+    function submitRequest(uint request, address xyoSender, uint8 answerType) 
         public
         payable
     {
+        require (requestsById[request].createdAt == 0, "Duplicate request submitted");
+
         uint ethMining = params.get("xyEthMiningCost");
         uint xyoMining = params.get("xyXYOMiningCost");
         if (ethMining > 0) {
@@ -91,7 +99,7 @@ contract XyStakingConsensus is XyStakingModel, BytesToTypes {
             xyoToken.transferFrom(xyoSender, address(this), xyoMining);
         }
 
-        Question memory q = Question (
+        Request memory q = Request (
             xyoMining,
             msg.value, 
             block.number,
@@ -100,9 +108,10 @@ contract XyStakingConsensus is XyStakingModel, BytesToTypes {
             false
         );
 
-        questionsById[question] = q;
+        requestsById[request] = q;
+        requestChain.push(request);
 
-        emit QuestionSubmitted(question, xyoMining, msg.value,  msg.sender, xyoSender);
+        emit RequestSubmitted(request, xyoMining, msg.value,  msg.sender, xyoSender);
     }
 
     /**
@@ -117,26 +126,38 @@ contract XyStakingConsensus is XyStakingModel, BytesToTypes {
         return keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", hash));
     }
 
-
-    function answerQuestions(uint[] memory _questions, bytes memory answers)
+    // function bytesToBool(uint _offst, bytes memory _input) public pure returns (bytes1 _output) {
+    //     return _input[_offst];
+    // }   
+    // function byteAt(uint _offst, bytes memory _input) public pure returns (bytes memory _output) {
+    //     return bytes(bytes1(_input[_offst]));
+    // }   
+        
+    /** 
+    @dev Calls Request interface submitResponse function for each answer.
+    @param _requests the requests queried
+    @param responseData the response data of all the requests
+    */
+    function respondAndCalcReward(uint[] memory _requests, bytes memory responseData)
         internal 
         returns (uint)
     {
         uint byteOffset = 0;
         uint reward = 0;
-        for (uint i = 0; i < _questions.length; i++) {
-          Question storage q = questionsById[_questions[i]];
+        for (uint i = 0; i < _requests.length; i++) {
+          Request storage q = requestsById[_requests[i]];
           if (!q.answered) {
             reward = reward.add(q.reward);
-            if (q.answerType == 1) {
-                IXyIntersectionRequest(q.questionContract).completionBool(_questions[i], bytesToBool(byteOffset, answers));
+            bytes memory result;
+            if (q.answerType == BoolAnswerType) {
+                result = new bytes(1);
+                result[0] = responseData[byteOffset];
+                IXyRequester(q.callbackContract).submitResponse(_requests[i], BoolAnswerType, result);
                 byteOffset += 1;
-            } else if (q.answerType == 2) {
-                string memory result;
-                bytesToString(byteOffset, answers, bytes(result));
-                // TODO when dapploy uses latest truffle
-                // IXyIntersectionRequest(q.questionContract).completionString(_questions[i], result);
-                byteOffset += getStringSize(byteOffset, answers);
+            } else if (q.answerType == StringAnswerType) {
+                bytesToString(byteOffset, responseData, result);
+                IXyRequester(q.callbackContract).submitResponse(_requests[i], StringAnswerType, result);
+                byteOffset += getStringSize(byteOffset, responseData);
             } 
             q.answered = true;
           }
@@ -144,9 +165,16 @@ contract XyStakingConsensus is XyStakingModel, BytesToTypes {
         return reward;
     }
 
-
+    /** 
+        @dev checks a message hash was signed by a list of signers via their sigs
+        @param messageHash The hash of the message that was signed
+        @param signers The in-order list of signers of the messgae
+        @param sigR R values in signatures
+        @param sigS S values in signatures
+        @param sigV V values in signatures
+    */
     function checkSigsAndStake(
-        uint newBlock,
+        uint messageHash,
         address[] memory signers,
         bytes32[] memory sigR,
         bytes32[] memory sigS,
@@ -155,11 +183,10 @@ contract XyStakingConsensus is XyStakingModel, BytesToTypes {
         view
         internal 
     {
-
         address lastStakee = address(0);
         uint stake = 0;
         for (uint i = 0; i < signers.length; i++) {
-            address signer = ecrecover(prefixed(bytes32(newBlock)), sigV[i], sigR[i], sigS[i]);
+            address signer = ecrecover(prefixed(bytes32(messageHash)), sigV[i], sigR[i], sigS[i]);
             require(signers[i] > lastStakee , "Signers array must be ascending");
             lastStakee = signers[i];
             require(signers[i] == signer, "Invalid Signer");
@@ -169,17 +196,19 @@ contract XyStakingConsensus is XyStakingModel, BytesToTypes {
         require (stake > totalActiveStake.mul(params.get("xyStakeQuorumPct")).div(100), "Not enough stake");
     }
 
-    /*
-        Submit a new block to the consensus chain. Verifies stake in consensus is over 51% of the network. 
-        calls questions' callbacks with answers.  Creates new block and returns reward for successful creation.
-        @param previousBlock - the prior block to maintain the 
-        @param _questions - list of the ipfs question addresses (minus first 2 bytes)
-        @param answers - byte array of answers
-        @param signers - Stakees, aka diviners and must be passed in ascending order to check for dups
-        @param sigR, sigS, sigV - Signatures of signers
+    /**
+        Submit a new block to the consensus blockChain. Verifies stake in consensus is over 51% of the network. 
+        calls requests' callbacks with answers.  Creates new block and returns reward for successful creation.
+        @param previousBlock the prior block to maintain the 
+        @param _requests list of the ipfs request addresses (minus first 2 bytes)
+        @param answers byte array of answers
+        @param signers Stakees, aka diviners and must be passed in ascending order to check for dups
+        @param sigR R values in signatures
+        @param sigS S values in signatures
+        @param sigV V values in signatures
     */
     function submitBlock(uint previousBlock,
-                         uint[] memory _questions,
+                         uint[] memory _requests,
                          bytes memory answers,
                          address[] memory signers,
                          bytes32[] memory sigR,
@@ -190,7 +219,7 @@ contract XyStakingConsensus is XyStakingModel, BytesToTypes {
         returns (uint)
     {
         require(previousBlock == getLatestBlock(), "Incorrect previous block");
-        bytes memory m = abi.encodePacked(previousBlock, _questions, answers);
+        bytes memory m = abi.encodePacked(previousBlock, _requests, answers);
 
         require (keccak256(m) == keccak256(abi.encodePacked(test)), "Message is not packed correctly");
 
@@ -198,15 +227,15 @@ contract XyStakingConsensus is XyStakingModel, BytesToTypes {
         checkSigsAndStake(newBlock, signers, sigR, sigS, sigV);
         
         Block memory b = Block(newBlock, previousBlock, block.number, msg.sender);
-        chain.push(newBlock);
+        blockChain.push(newBlock);
         blocks[newBlock] = b;
 
-        uint reward = answerQuestions(_questions, answers);
+        uint reward = respondAndCalcReward(_requests, answers);
 
         emit BlockCreated(newBlock, previousBlock, reward, block.number, msg.sender);
         msg.sender.transfer(reward);
 
-        return reward;
+        return newBlock;
     }
 
 }
