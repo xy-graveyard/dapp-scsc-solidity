@@ -1,6 +1,5 @@
 pragma solidity >=0.5.0 <0.6.0;
 import "./XyStakingModel.sol";
-import "./BytesToTypes.sol";
 import "./IXyRequester.sol";
 
  /**
@@ -8,7 +7,7 @@ import "./IXyRequester.sol";
     @dev Manages the Stake for multiple clients in a decentralized consensus 
     system to trustlessly answer requests
   */
-contract XyStakingConsensus is XyStakingModel, BytesToTypes {
+contract XyStakingConsensus is XyStakingModel {
     using SafeMath for uint;
     
     /** EVENT */
@@ -52,7 +51,7 @@ contract XyStakingConsensus is XyStakingModel, BytesToTypes {
     uint[] public blockChain; // Store the blockChain as an array
 
     uint8 public BoolAnswerType = 1; 
-    uint8 public StringAnswerType = 2; 
+    uint8 public UIntAnswerType = 2; 
 
     constructor(
         address _token,
@@ -125,13 +124,6 @@ contract XyStakingConsensus is XyStakingModel, BytesToTypes {
     {
         return keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", hash));
     }
-
-    // function bytesToBool(uint _offst, bytes memory _input) public pure returns (bytes1 _output) {
-    //     return _input[_offst];
-    // }   
-    // function byteAt(uint _offst, bytes memory _input) public pure returns (bytes memory _output) {
-    //     return bytes(bytes1(_input[_offst]));
-    // }   
         
     /** 
     @dev Calls Request interface submitResponse function for each answer.
@@ -154,10 +146,13 @@ contract XyStakingConsensus is XyStakingModel, BytesToTypes {
                 result[0] = responseData[byteOffset];
                 IXyRequester(q.callbackContract).submitResponse(_requests[i], BoolAnswerType, result);
                 byteOffset += 1;
-            } else if (q.answerType == StringAnswerType) {
-                bytesToString(byteOffset, responseData, result);
-                IXyRequester(q.callbackContract).submitResponse(_requests[i], StringAnswerType, result);
-                byteOffset += getStringSize(byteOffset, responseData);
+            } else if (q.answerType == UIntAnswerType) {
+                result = new bytes(32);
+                for (uint8 j = 0; j < 32; j++) {
+                    result[j] = responseData[byteOffset + j];
+                }
+                IXyRequester(q.callbackContract).submitResponse(_requests[i], UIntAnswerType, result);
+                byteOffset += 32;
             } 
             q.answered = true;
           }
