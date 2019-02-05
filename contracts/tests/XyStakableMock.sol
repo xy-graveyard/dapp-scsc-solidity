@@ -6,7 +6,7 @@ contract XyStakableMock is XyStakableToken {
   
   constructor(uint numToMint, address beneficiary) 
     public
-    XyStakableToken()
+    XyStakableToken(address(0))
   {
     for (uint160 i = 1; i <= numToMint; i++) {
       uint stakee = uint(address(i));

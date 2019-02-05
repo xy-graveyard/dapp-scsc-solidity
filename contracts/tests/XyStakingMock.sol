@@ -27,7 +27,7 @@ contract XyStakingMock is XyStakingModel {
             msg.sender,     // staker
             true           // isActivated
         );
-      updateCacheOnUnstake(data, msg.sender);
+      updateCacheOnUnstake(data);
   }
     function mock_updateCacheOnWithdraw(uint amount, uint stakee) public {
       updateCacheOnWithdraw(amount, stakee);

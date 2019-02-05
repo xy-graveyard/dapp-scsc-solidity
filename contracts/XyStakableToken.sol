@@ -9,6 +9,15 @@ import "./ECDSA.sol";
 */
 contract XyStakableToken is ERC721Enumerable {
     using ECDSA for bytes32;
+    address public governer;
+
+    constructor (
+        address _governer
+    ) 
+        public
+    {
+        governer = _governer;
+    }
 
     /** 
         Mints a component with signed datagram from the ownee device/component that authorized its ownership
@@ -30,6 +39,11 @@ contract XyStakableToken is ERC721Enumerable {
         address signer = ecrecover(data, sigV, sigR, sigS);
         require(ownee == signer, "Invalid Signature");
         _mint(msg.sender, uint(ownee));
+    }
+
+    function burn(uint stakee) public {
+        require(msg.sender == governer);
+        _burn(ownerOf(stakee), stakee);
     }
 
     /**

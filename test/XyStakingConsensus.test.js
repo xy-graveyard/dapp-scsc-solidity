@@ -182,21 +182,60 @@ contract(
 
     const compareDiviners = (a, b) => a > b
 
-    const encodeAndSign = async (signer, previous, requests, responses) => {
+    const generateParams = async (returnHash = false) => {
+      const sorted = diviners.map(d => d.toLowerCase()).sort(compareDiviners)
+      const previous = await consensus.getLatestBlock()
+      const requests = await submitPayOnDeliverys()
+      const responseProofHashes = requests.map(r => abi.soliditySHA3([`uint`], [r]))
+      const responses = randomBoolResponses()
+      const promises = sorted.map(async adr => encodeAndSign(adr, previous, requests, responseProofHashes, responses))
+      const sigArr = await synchronizePromises(promises)
+      const r = []
+      const s = []
+      const v = []
+      let packedMsg
+      let hash
+      sigArr.forEach((sig) => {
+        r.push(sig[0])
+        s.push(sig[1])
+        v.push(sig[2])
+        packedMsg = sig[3]
+        hash = sig[4]
+      })
+      return [
+        previous,
+        requests,
+        responseProofHashes,
+        responses,
+        sorted,
+        r,
+        s,
+        v,
+        returnHash ? hash : packedMsg
+      ]
+    }
+    const encodeAndSign = async (
+      signer,
+      previous,
+      requests,
+      responseHashes,
+      responses
+    ) => {
       const uintArr = requests.map(() => `uint`)
+      const bytes32Arr = requests.map(() => `bytes32`)
       // console.log(`encodeAndSign`, signer, previous, requests, responses)
 
       const hash = `0x${abi
         .soliditySHA3(
-          [`uint`, ...uintArr, `bytes`],
-          [previous, ...requests, responses]
+          [`uint`, ...uintArr, ...bytes32Arr, `bytes`],
+          [previous, ...requests, ...responseHashes, responses]
         )
         .toString(`hex`)}`
 
       const packedBytes = `0x${abi
         .solidityPack(
-          [`uint`, ...uintArr, `bytes`],
-          [previous, ...requests, responses]
+          [`uint`, ...uintArr, ...bytes32Arr, `bytes`],
+          [previous, ...requests, ...responseHashes, responses]
         )
         .toString(`hex`)}`
       // console.log(`HASH`, hash, previous, requests, responses)
@@ -214,111 +253,31 @@ contract(
 
     describe(`Submitting blocks`, () => {
       it(`should allow creating a block by consensus of at least 4 diviners`, async () => {
-        const sorted = diviners.map(d => d.toLowerCase()).sort(compareDiviners)
-        const previous = await consensus.getLatestBlock()
-        const requests = await submitPayOnDeliverys()
-        const responses = randomBoolResponses()
-        const promises = sorted.map(async adr => encodeAndSign(adr, previous, requests, responses))
-        const sigArr = await synchronizePromises(promises)
-        const r = []
-        const s = []
-        const v = []
-        let testMessage
-        sigArr.forEach((sig) => {
-          r.push(sig[0])
-          s.push(sig[1])
-          v.push(sig[2])
-          testMessage = sig[3]
-        })
-
-        const tx = await consensus.submitBlock(
-          previous,
-          requests,
-          responses,
-          sorted,
-          r,
-          s,
-          v,
-          testMessage
-        ).should.be.fulfilled
+        const tx = await consensus.submitBlock(...(await generateParams()))
+          .should.be.fulfilled
         expectEvent.inLogs(tx.logs, `BlockCreated`)
       })
 
       it(`should return correct previous block`, async () => {
-        const sorted = diviners.map(d => d.toLowerCase()).sort(compareDiviners)
-        const previous = await consensus.getLatestBlock()
-        const requests = await submitPayOnDeliverys()
-        const responses = randomBoolResponses()
-        const promises = sorted.map(async adr => encodeAndSign(adr, previous, requests, responses))
-        const sigArr = await synchronizePromises(promises)
-        const r = []
-        const s = []
-        const v = []
-        let testMessage
-        sigArr.forEach((sig) => {
-          r.push(sig[0])
-          s.push(sig[1])
-          v.push(sig[2])
-          testMessage = sig[3]
-        })
-
+        const args = await generateParams()
         const lastBlock = await consensus.submitBlock.call(
-          previous,
-          requests,
-          responses,
-          sorted,
-          r,
-          s,
-          v,
-          testMessage
+          ...args
         ).should.be.fulfilled
-        await consensus.submitBlock(
-          previous,
-          requests,
-          responses,
-          sorted,
-          r,
-          s,
-          v,
-          testMessage
-        ).should.be.fulfilled
+        await consensus.submitBlock(...args).should.be
+          .fulfilled
         lastBlock.toString().should.not.be.equal(`0`)
         const newLast = await consensus.getLatestBlock.call()
         newLast.toString().should.be.equal(lastBlock.toString())
       })
 
       it(`should fail if passes responses doesnt match signed data`, async () => {
-        const sorted = diviners.map(d => d.toLowerCase()).sort(compareDiviners)
-        const previous = await consensus.getLatestBlock()
-        const requests = await submitPayOnDeliverys()
-        const responses = randomBoolResponses()
-        const promises = sorted.map(async adr => encodeAndSign(adr, previous, requests, responses))
-        const sigArr = await synchronizePromises(promises)
-
-        const r = []
-        const s = []
-        const v = []
-        let testMessage
-        sigArr.forEach((sig) => {
-          r.push(sig[0])
-          s.push(sig[1])
-          v.push(sig[2])
-          testMessage = sig[3]
-        })
-        // console.log(`Responses Before`, responses)
-        const randomIndex = Math.floor(Math.random() * (responses.length - 1))
-        responses[randomIndex] = !responses[randomIndex]
+        const submitParams = await generateParams()
+        const randomIndex = Math.floor(
+          Math.random() * (submitParams[2].length - 1)
+        )
+        submitParams[2][randomIndex] = !submitParams[2][randomIndex]
         // console.log(`Responses After`, responses)
-        await consensus.submitBlock(
-          previous,
-          requests,
-          responses,
-          sorted,
-          r,
-          s,
-          v,
-          testMessage
-        ).should.not.be.fulfilled
+        await consensus.submitBlock(...submitParams).should.not.be.fulfilled
       })
 
       describe(`respondAndCalcReward`, async () => {
@@ -365,7 +324,7 @@ contract(
           doneRequests.map(r => r.responseAt.toNumber().should.be.gt(0))
         })
 
-        it.only(`works for uint responses for future interfaces`, async () => {
+        it(`works for uint responses for future interfaces`, async () => {
           const requests = await submitUintRequest()
           const responses = randUintResponse()
           const bytesArr = responses.map(() => `uint`)
@@ -373,7 +332,7 @@ contract(
           const packedBytes = `0x${abi
             .solidityPack([...bytesArr], [...responses])
             .toString(`hex`)}`
-          console.log(packedBytes)
+          // console.log(packedBytes)
           await consensus.mock_respondAndCalcReward(requests, packedBytes)
             .should.be.fulfilled
         })
@@ -381,49 +340,30 @@ contract(
     })
     describe(`checkSigsAndStake`, () => {
       it(`should succeed if signers signed a message hash`, async () => {
-        const sorted = diviners.map(d => d.toLowerCase()).sort(compareDiviners)
-        const previous = await consensus.getLatestBlock()
-        const requests = await submitPayOnDeliverys()
-        const responses = randomBoolResponses()
-        const promises = sorted.map(async adr => encodeAndSign(adr, previous, requests, responses))
-        const sigArr = await synchronizePromises(promises)
-        const r = []
-        const s = []
-        const v = []
-        let hash
-        sigArr.forEach((sig) => {
-          r.push(sig[0])
-          s.push(sig[1])
-          v.push(sig[2])
-          hash = sig[4]
-        })
-        await consensus.mock_checkSigsAndStake(hash, sorted, r, s, v).should.be
-          .fulfilled
+        const subParams = await generateParams(true)
+
+        // console.log(`Args`, subParams)
+        await consensus.mock_checkSigsAndStake(
+          subParams[8],
+          subParams[4],
+          subParams[5],
+          subParams[6],
+          subParams[7]
+        ).should.be.fulfilled
       })
 
       it(`should fail if signers not passed in order`, async () => {
-        const previous = await consensus.getLatestBlock()
-        const requests = await submitPayOnDeliverys()
-        const responses = randomBoolResponses()
-        const promises = diviners.map(async adr => encodeAndSign(adr, previous, requests, responses))
-        const sigArr = await synchronizePromises(promises)
-        const r = []
-        const s = []
-        const v = []
-        let hash
-        sigArr.forEach((sig) => {
-          r.push(sig[0])
-          s.push(sig[1])
-          v.push(sig[2])
-          hash = sig[4]
-        })
-        await consensus.mock_checkSigsAndStake(hash, diviners, r, s, v).should
-          .not.be.fulfilled
+        const subParams = await generateParams(true)
+        await consensus.mock_checkSigsAndStake(
+          subParams[8],
+          diviners,
+          subParams[5],
+          subParams[6],
+          subParams[7]
+        ).should.not.be.fulfilled
       })
 
       it(`should fail if quorum not met`, async () => {
-        const previous = await consensus.getLatestBlock()
-
         await parameterizer.ownerSet(`xyStakeQuorumPct`, 66, {
           from: parameterizerOwner
         })
@@ -434,23 +374,14 @@ contract(
           0,
           Math.floor(numDiviners - numDiviners * 0.5)
         )
-        const requests = await submitPayOnDeliverys()
-
-        const responses = randomBoolResponses()
-        const promises = sortedQuorum.map(async adr => encodeAndSign(adr, previous, requests, responses))
-        const sigArr = await synchronizePromises(promises)
-        const r = []
-        const s = []
-        const v = []
-        let hash
-        sigArr.forEach((sig) => {
-          r.push(sig[0])
-          s.push(sig[1])
-          v.push(sig[2])
-          hash = sig[4]
-        })
-        await consensus.mock_checkSigsAndStake(hash, sortedQuorum, r, s, v)
-          .should.not.be.fulfilled
+        const subParams = await generateParams(true)
+        await consensus.mock_checkSigsAndStake(
+          subParams[8],
+          sortedQuorum,
+          subParams[5],
+          subParams[6],
+          subParams[7]
+        ).should.not.be.fulfilled
       })
     })
   }

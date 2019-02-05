@@ -39,7 +39,7 @@ contract XyPayOnDelivery is IXyRequester {
     }
 
     /**
-        @dev API for client to request an intersection question
+        @dev Called by PonD client.  API for client to request an intersection question
         @param ipfs - the hash of the request (first 2 bytes stripped)
         @param xyoPayment - the amount of XYO to pay on delivery (should include mining gas)
         @param weiPayment - the amount of eth to pay on delivery
@@ -73,7 +73,7 @@ contract XyPayOnDelivery is IXyRequester {
     }
 
     /**
-        @dev If intersection, transfer pay on delivery to beneficiary, delete request
+        @dev Called by SCSC. If intersection, transfer pay on delivery to beneficiary, delete request
         @param ipfs - the hash of the request (first 2 bytes stripped)
         @param responseType Used by scsc to signal what is in the response data
         @param responseData Response data from scsc

@@ -16,12 +16,11 @@ contract XyGovernance is XyParameterizer {
     event NewActionAccepted(uint indexed stakee, uint8 actionType, string reason);
     event ActionResolved(uint indexed stakee, uint8 actionType, string reason);
 
-    uint8 UnstakeAction = 1;
     struct GovernanceAction {
-        bytes32 propId;                                // proposal id
-        uint stakePenaltyPct;
+        bytes32 propId;         // proposal id
+        uint stakePenaltyPct;   // amount that is transferred from the active stake to the penalty balance
         string reason;
-        uint8 actionType;                          // penalty for being challenged from one's active stake
+        uint8 actionType;                          
         bool accepted;
     }
 

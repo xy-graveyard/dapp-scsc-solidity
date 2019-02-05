@@ -231,6 +231,7 @@ contract XyStakingConsensus is XyStakingModel {
     */
     function submitBlock(uint previousBlock,
                          uint[] memory _requests,
+                         bytes32[] memory payloadData,
                          bytes memory answers,
                          address[] memory signers,
                          bytes32[] memory sigR,
@@ -241,7 +242,7 @@ contract XyStakingConsensus is XyStakingModel {
         returns (uint)
     {
         require(previousBlock == getLatestBlock(), "Incorrect previous block");
-        bytes memory m = abi.encodePacked(previousBlock, _requests, answers);
+        bytes memory m = abi.encodePacked(previousBlock, _requests, payloadData, answers);
 
         require (keccak256(m) == keccak256(abi.encodePacked(test)), "Message is not packed correctly");
 

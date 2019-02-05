@@ -8,10 +8,10 @@ const should = require(`chai`)
 
 contract(
   `XyStakableToken`,
-  ([contractOwner, deviceOwner, deviceOwner2, ownee, ownee2]) => {
+  ([contractOwner, deviceOwner, deviceOwner2, ownee, ownee2, govenor]) => {
     let stakableToken
     beforeEach(async () => {
-      stakableToken = await Stakeable.new({ from: contractOwner })
+      stakableToken = await Stakeable.new(govenor, { from: contractOwner })
     })
     describe(`Minting`, async () => {
       it(`should allow minting using signed message`, async () => {

@@ -474,11 +474,11 @@ contract(
           it(`should transfer stake on withdraw from contract to staker`, async () => {
             const blockNumber = await web3.eth.getBlockNumber()
             await advanceToBlock(blockNumber + cooldownUnstake)
-            const balanceBefore = await staking.numStakes(staker1)
+            const balanceBefore = await staking.numStakerStakes(staker1)
             const balanceBefore20 = await erc20.balanceOf(staker1)
             await staking.withdraw(stakingToken, { from: staker1 }).should.be
               .fulfilled
-            const balanceAfter = await staking.numStakes(staker1)
+            const balanceAfter = await staking.numStakerStakes(staker1)
             const balanceAfter20 = await erc20.balanceOf(staker1)
             balanceBefore
               .toNumber()

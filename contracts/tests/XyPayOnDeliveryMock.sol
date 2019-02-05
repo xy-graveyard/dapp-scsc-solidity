@@ -40,7 +40,7 @@ contract XyPayOnDeliveryMock is XyPayOnDelivery {
 
     function submitResponse(uint ipfs, uint8 responseType, bytes memory responseData) public {
       if (responseType == 1) {
-        return submitResponse(ipfs, responseType, responseData);
+        super.submitResponse(ipfs, responseType, responseData);
       } else if (responseType == 2) {
         uint result;
         for (uint i = 0; i < responseData.length; i++) {
