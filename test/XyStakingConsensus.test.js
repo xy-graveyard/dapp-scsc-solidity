@@ -12,7 +12,6 @@ const ERC20 = artifacts.require(`XyERC20Token.sol`)
 const Stakeable = artifacts.require(`XyStakableAddressMock.sol`)
 const Governance = artifacts.require(`XyGovernance.sol`)
 const PLCR = artifacts.require(`PLCRVoting.sol`)
-const stripHexPrefix = require(`strip-hex-prefix`)
 const erc20TotalSupply = 1000000
 
 const should = require(`chai`)
@@ -67,7 +66,7 @@ contract(
     const numDiviners = diviners.length
     const numRequests = 2
     let payOnD
-    const xyoOnDelivery = 200
+    const xyoPayment = 200
     const ethOnDelivery = 1000
     const miningEth = 100
 
@@ -151,13 +150,13 @@ contract(
       return uintResp
     }
 
-    const submitIPFSRequests = async () => {
+    const submitPayOnDeliverys = async () => {
       const requests = [...Array(numRequests).keys()].map(r => r + 1)
-      await erc20.approve(payOnD.address, numRequests * xyoOnDelivery, {
+      await erc20.approve(payOnD.address, numRequests * xyoPayment, {
         from: erc20owner
       })
       const promises = requests.map(
-        async q => payOnD.submitIPFSRequest(q, xyoOnDelivery, ethOnDelivery, d3, {
+        async q => payOnD.submitPayOnDelivery(q, xyoPayment, ethOnDelivery, d3, {
           value: ethOnDelivery + miningEth,
           from: erc20owner
         }).should.be.fulfilled
@@ -166,13 +165,13 @@ contract(
       return requests
     }
 
-    const submitStringTypeRequests = async () => {
+    const submitUintRequest = async () => {
       const requests = [...Array(numRequests).keys()].map(r => r + 1)
-      await erc20.approve(payOnD.address, numRequests * xyoOnDelivery, {
+      await erc20.approve(payOnD.address, numRequests * xyoPayment, {
         from: erc20owner
       })
       const promises = requests.map(
-        async q => payOnD.submitStringRequest(q, xyoOnDelivery, ethOnDelivery, d3, {
+        async q => payOnD.submitUintRequest(q, xyoPayment, ethOnDelivery, d3, {
           value: ethOnDelivery + miningEth,
           from: erc20owner
         }).should.be.fulfilled
@@ -217,7 +216,7 @@ contract(
       it(`should allow creating a block by consensus of at least 4 diviners`, async () => {
         const sorted = diviners.map(d => d.toLowerCase()).sort(compareDiviners)
         const previous = await consensus.getLatestBlock()
-        const requests = await submitIPFSRequests()
+        const requests = await submitPayOnDeliverys()
         const responses = randomBoolResponses()
         const promises = sorted.map(async adr => encodeAndSign(adr, previous, requests, responses))
         const sigArr = await synchronizePromises(promises)
@@ -248,7 +247,7 @@ contract(
       it(`should return correct previous block`, async () => {
         const sorted = diviners.map(d => d.toLowerCase()).sort(compareDiviners)
         const previous = await consensus.getLatestBlock()
-        const requests = await submitIPFSRequests()
+        const requests = await submitPayOnDeliverys()
         const responses = randomBoolResponses()
         const promises = sorted.map(async adr => encodeAndSign(adr, previous, requests, responses))
         const sigArr = await synchronizePromises(promises)
@@ -291,7 +290,7 @@ contract(
       it(`should fail if passes responses doesnt match signed data`, async () => {
         const sorted = diviners.map(d => d.toLowerCase()).sort(compareDiviners)
         const previous = await consensus.getLatestBlock()
-        const requests = await submitIPFSRequests()
+        const requests = await submitPayOnDeliverys()
         const responses = randomBoolResponses()
         const promises = sorted.map(async adr => encodeAndSign(adr, previous, requests, responses))
         const sigArr = await synchronizePromises(promises)
@@ -324,7 +323,7 @@ contract(
 
       describe(`respondAndCalcReward`, async () => {
         it(`should return correct reward`, async () => {
-          const requests = await submitIPFSRequests(1)
+          const requests = await submitPayOnDeliverys(1)
           const responses = randomBoolResponses()
           const reward = await consensus.mock_respondAndCalcReward.call(
             requests,
@@ -335,7 +334,7 @@ contract(
         })
 
         it(`should call callback contract and receive a IntersectResponse event`, async () => {
-          const requests = await submitIPFSRequests(1)
+          const requests = await submitPayOnDeliverys(1)
           const responses = randomBoolResponses()
           const { tx } = await consensus.mock_respondAndCalcReward(
             requests,
@@ -346,7 +345,7 @@ contract(
         })
 
         it(`requests callbacks should have correct answers, and should show as answered`, async () => {
-          const requests = await submitIPFSRequests()
+          const requests = await submitPayOnDeliverys()
           const responses = randomBoolResponses()
 
           await consensus.mock_respondAndCalcReward(requests, responses)
@@ -367,7 +366,7 @@ contract(
         })
 
         it.only(`works for uint responses for future interfaces`, async () => {
-          const requests = await submitStringTypeRequests()
+          const requests = await submitUintRequest()
           const responses = randUintResponse()
           const bytesArr = responses.map(() => `uint`)
 
@@ -384,7 +383,7 @@ contract(
       it(`should succeed if signers signed a message hash`, async () => {
         const sorted = diviners.map(d => d.toLowerCase()).sort(compareDiviners)
         const previous = await consensus.getLatestBlock()
-        const requests = await submitIPFSRequests()
+        const requests = await submitPayOnDeliverys()
         const responses = randomBoolResponses()
         const promises = sorted.map(async adr => encodeAndSign(adr, previous, requests, responses))
         const sigArr = await synchronizePromises(promises)
@@ -404,7 +403,7 @@ contract(
 
       it(`should fail if signers not passed in order`, async () => {
         const previous = await consensus.getLatestBlock()
-        const requests = await submitIPFSRequests()
+        const requests = await submitPayOnDeliverys()
         const responses = randomBoolResponses()
         const promises = diviners.map(async adr => encodeAndSign(adr, previous, requests, responses))
         const sigArr = await synchronizePromises(promises)
@@ -435,7 +434,7 @@ contract(
           0,
           Math.floor(numDiviners - numDiviners * 0.5)
         )
-        const requests = await submitIPFSRequests()
+        const requests = await submitPayOnDeliverys()
 
         const responses = randomBoolResponses()
         const promises = sortedQuorum.map(async adr => encodeAndSign(adr, previous, requests, responses))

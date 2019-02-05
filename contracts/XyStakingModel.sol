@@ -93,8 +93,9 @@ contract XyStakingModel {
     mapping (address => StakeAmounts) public stakerStake;
 
     /** Creates a Staking token contract 
-    @param _token - The token to stake with
-    @param _stakableToken - The token to place stakes on
+        @param _token - The ERC20 token to stake with 
+        @param _stakableToken - The ERC721 token to place stakes on 
+        @param _governanceContract - The contract that governs the params and actions of the system
     */
     constructor (
         address _token,
@@ -371,5 +372,13 @@ contract XyStakingModel {
             }
         }
         return stakeTotal;
+    }
+
+    /** Public array length getters */
+    function numStakerStakes(address staker) public view returns (uint) {
+        return stakerToStakingIds[staker].length;
+    }
+    function numStakeeStakes(uint stakee) public view returns (uint) {
+        return stakeeToStakingIds[stakee].length;
     }
 }
