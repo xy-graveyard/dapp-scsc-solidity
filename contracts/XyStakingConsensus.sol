@@ -13,35 +13,39 @@ contract XyStakingConsensus is XyStakingModel {
     /** EVENTS */
     event RequestSubmitted(
         uint request,
-        uint xyoValue,
-        uint reward,
-        address callbackContract,
-        address xyoSender
+        uint xyoBounty,
+        uint weiMining,
+        address requestSender
     );
 
     event BlockCreated(
         uint blockHash,
         uint previousBlock,
-        uint reward,
+        uint weiMining,
         uint createdAtBlock,
         address blockProducer
     );
 
+    event RewardClaimed(
+        address beneficiary,
+        uint amount,
+        uint stakerStake
+    );
+
     /** STRUCTS */
     struct Block {
-        uint blockHash;
         uint previousBlock;
         uint createdAt;
         address creator;
     }
 
     struct Request {
-        uint xyoValue;
-        uint reward;
+        uint xyoBounty;
+        uint weiMining;
         uint createdAt;
-        address callbackContract;
-        uint8 answerType;
-        bool answered;
+        address requestSender;
+        uint8 requestType;
+        bool hasResponse;
     }
 
     // id should be unique (ie ipfs hash) maps to Request data
@@ -54,8 +58,9 @@ contract XyStakingConsensus is XyStakingModel {
     uint[] public blockChain; // Store the blockChain as an array
 
     // Response types for callback
-    uint8 public BoolResponseType = 1;
-    uint8 public UIntResponseType = 2; 
+    uint8 public BoolRequestType = 1;
+    uint8 public UIntRequestType = 2; 
+    uint8 public WithdrawRequestType = 3; 
 
     /**
         @param _token - The ERC20 token to stake with 
@@ -83,50 +88,94 @@ contract XyStakingConsensus is XyStakingModel {
         if (blockChain.length == 0) {
             return 0;
         }
-        return blocks[blockChain[blockChain.length-1]].blockHash;
+        return blockChain[blockChain.length-1];
+    }
+
+    function _requireFeesAndTransfer(address xyoSender, uint xyoBounty) 
+        private 
+    {
+        uint weiMiningMin = params.get("xyWeiMiningMin");
+        uint xyoMiningMin = params.get("xyXYORequestBountyMin");
+        if (weiMiningMin > 0) {
+            require (msg.value >= weiMiningMin, "Not enough wei to cover mining");
+        }
+        if (xyoMiningMin > 0) {
+            require (xyoBounty > xyoMiningMin, "XYO Bounty less than minimum");
+            require (xyoToken.allowance(xyoSender, address(this)) >= xyoMiningMin, "must approve SCSC for XYO mining fee");
+            xyoToken.transferFrom(xyoSender, address(this), xyoMiningMin);
+        }
+    }
+
+    // This is a suggestion for who is the next diviner FWIW
+    function canSubmitBlock(uint stakee) public view returns (bool) {
+        if (params.get("xyTurnOffBPFilter") != 0) {
+            return true;
+        }
+        // get number of diviner stakees
+        if (stakableToken.isBlockProducer(stakee)) {
+            uint blockWindow = stakableToken.numBlockProducers().mul(params.get("xySubmissionBlockTime"));
+            uint startBlockWindow = stakableToken.blockProducerIndexes(stakee).mul(blockWindow);
+            uint endBlockWindow = (startBlockWindow.add(blockWindow)) % blockWindow;
+            uint curBlock = block.number % blockWindow;
+            return (curBlock >= startBlockWindow && curBlock < endBlockWindow);
+        }
+        return false;
+    }
+
+    /**
+        @dev Withdraw reward balance can post same params via raw
+        @param xyoBounty bounty for request
+    */
+    function withdrawRewardsRequest 
+    (
+        uint xyoBounty
+    ) 
+        public
+        payable
+        returns (uint)
+    {
+        uint requestId = uint(keccak256(abi.encodePacked(msg.sender, xyoBounty, block.number)));
+        require (requestsById[requestId].createdAt == 0, "Duplicate request submitted");
+        submitRequest(requestId, xyoBounty, msg.sender, WithdrawRequestType);
+        return requestId;
     }
 
     /**
         @dev Escrow eth and xyo, making sure it covers the answer mining cost
         Stores new request in request pool
-        @param request - How to uniquely identify a request
-        @param xyoSender - who to deduct the xyo from for mining cost
-        @param answerType - based on the type we know which callback to call (string or bool)
+        @param request How to uniquely identify a request
+        @param xyoBounty bounty for request
+        @param xyoSender who to deduct the xyo from for mining cost
+        @param requestType based on the type we know which callback to call (string or bool)
     */
     function submitRequest
     (
         uint request, 
+        uint xyoBounty,
         address xyoSender, 
-        uint8 answerType
+        uint8 requestType
     ) 
         public
         payable
     {
+        require (requestType >= BoolRequestType && requestType <= WithdrawRequestType, "Invalid request type");
         require (requestsById[request].createdAt == 0, "Duplicate request submitted");
 
-        uint ethMining = params.get("xyEthMiningCost");
-        uint xyoMining = params.get("xyXYOMiningCost");
-        if (ethMining > 0) {
-            require (msg.value >= ethMining, "Not enough eth to cover mining");
-        }
-        if (xyoMining > 0) {
-            require (xyoToken.allowance(xyoSender, address(this)) >= xyoMining, "must approve SCSC for XYO mining fee");
-            xyoToken.transferFrom(xyoSender, address(this), xyoMining);
-        }
+        _requireFeesAndTransfer(xyoSender, xyoBounty);
 
         Request memory q = Request (
-            xyoMining,
+            xyoBounty,
             msg.value, 
             block.number,
             msg.sender,
-            answerType,
+            requestType,
             false
         );
 
         requestsById[request] = q;
         requestChain.push(request);
 
-        emit RequestSubmitted(request, xyoMining, msg.value,  msg.sender, xyoSender);
+        emit RequestSubmitted(request, xyoBounty, msg.value,  msg.sender);
     }
 
     /**
@@ -144,14 +193,32 @@ contract XyStakingConsensus is XyStakingModel {
     {
         return keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", msgHash));
     }
-        
+    
+    /**
+        Requires the length of bytes is more than starting point + 32
+        returns 32 bytes memory (reversed to uint) at start + 32 to memory[start]
+        @param _bytes the bytes passed to pull uint from
+        @param _start index in bytes to return uint
+     */
+    function _toUint(bytes memory _bytes, uint _start) private pure returns (uint256) {
+        require(_bytes.length >= (_start + 32));
+        uint256 tempUint;
+
+        assembly {
+            tempUint := mload(add(add(_bytes, 0x20), _start))
+        }
+
+        return tempUint;
+    }    
+
+
     /** 
         @dev Calls Request interface submitResponse function for each answer.
         @param _requests the requests queried
         @param responseData the response data of all the requests
-        @return The reward for submitting the new block
+        @return The weiMining for submitting the new block
     */
-    function respondAndCalcReward
+    function handleResponses
     (
         uint[] memory _requests, 
         bytes memory responseData
@@ -160,29 +227,32 @@ contract XyStakingConsensus is XyStakingModel {
         returns (uint)
     {
         uint byteOffset = 0;
-        uint reward = 0;
+        uint weiMining = 0;
         for (uint i = 0; i < _requests.length; i++) {
           Request storage q = requestsById[_requests[i]];
-          if (!q.answered) {
-            reward = reward.add(q.reward);
-            bytes memory result;
-            if (q.answerType == BoolResponseType) {
-                result = new bytes(1);
-                result[0] = responseData[byteOffset];
-                IXyRequester(q.callbackContract).submitResponse(_requests[i], BoolResponseType, result);
-                byteOffset += 1;
-            } else if (q.answerType == UIntResponseType) {
-                result = new bytes(32);
-                for (uint8 j = 0; j < 32; j++) {
+          if (!q.hasResponse) {
+            q.hasResponse = true;
+            weiMining = weiMining.add(q.weiMining);
+            uint8 numBytes = q.requestType == BoolRequestType ? 1 : 32;
+
+            if (q.requestType == BoolRequestType || q.requestType == UIntRequestType) {
+                bytes memory result = new bytes(numBytes);
+                for (uint8 j = 0; j < numBytes; j++) {
                     result[j] = responseData[byteOffset + j];
                 }
-                IXyRequester(q.callbackContract).submitResponse(_requests[i], UIntResponseType, result);
-                byteOffset += 32;
-            } 
-            q.answered = true;
+                IXyRequester(q.requestSender).submitResponse(_requests[i], q.requestType, result);
+            } else if (q.requestType == WithdrawRequestType) {
+                uint amount = _toUint(responseData, byteOffset);
+                require (amount <= totalStakeAndUnstake(q.requestSender), "Withdraw amount more than total staker's stake");
+                emit RewardClaimed(q.requestSender, amount, totalStakeAndUnstake(q.requestSender));
+                xyoToken.safeTransfer(q.requestSender, amount);
+            } else {
+                assert(false);
+            }
+            byteOffset += numBytes;
           }
         }
-        return reward;
+        return weiMining;
     }
 
     /** 
@@ -193,7 +263,7 @@ contract XyStakingConsensus is XyStakingModel {
         @param sigS S values in signatures
         @param sigV V values in signatures
     */
-    function checkSigsAndStake
+    function checkSigsAndStakes
     (
         uint messageHash,
         address[] memory signers,
@@ -219,20 +289,22 @@ contract XyStakingConsensus is XyStakingModel {
 
     /**
         Submit a new block to the consensus blockChain. Verifies stake in consensus is over 51% of the network. 
-        calls requests' callbacks with answers.  Creates new block and returns reward for successful creation.
+        calls requests' callbacks with responses.  Creates new block and returns weiMining for successful creation.
+        @param blockProducer the id of the stakable diviner in stakable tokens 
         @param previousBlock the prior block to maintain the 
         @param _requests list of the ipfs request addresses (minus first 2 bytes)
-        @param answers byte array of answers
+        @param responses byte array of responses
         @param signers Stakees, aka diviners and must be passed in ascending order to check for dups
         @param sigR R values in signatures
         @param sigS S values in signatures
         @param sigV V values in signatures
         @return The hash of the new block
     */
-    function submitBlock(uint previousBlock,
+    function submitBlock(uint blockProducer,
+                         uint previousBlock,
                          uint[] memory _requests,
-                         bytes32[] memory payloadData,
-                         bytes memory answers,
+                         bytes32 payloadData,
+                         bytes memory responses,
                          address[] memory signers,
                          bytes32[] memory sigR,
                          bytes32[] memory sigS,
@@ -241,22 +313,24 @@ contract XyStakingConsensus is XyStakingModel {
         public 
         returns (uint)
     {
-        require(previousBlock == getLatestBlock(), "Incorrect previous block");
-        bytes memory m = abi.encodePacked(previousBlock, _requests, payloadData, answers);
-
-        require (keccak256(m) == keccak256(abi.encodePacked(test)), "Message is not packed correctly");
+        require (stakableToken.isBlockProducer(blockProducer), "Only approved BP can submit");
+        require (stakableToken.ownerOf(blockProducer) == msg.sender, "Sender does not own BP");
+        require (previousBlock == getLatestBlock(), "Incorrect previous block");
+        bytes memory m = abi.encodePacked(previousBlock, _requests, payloadData, responses);
+        require (keccak256(m) == keccak256(test), "Message is not packed correctly");
+        // return m;
 
         uint newBlock = uint(keccak256(m));
-        checkSigsAndStake(newBlock, signers, sigR, sigS, sigV);
+        checkSigsAndStakes(newBlock, signers, sigR, sigS, sigV);
         
-        Block memory b = Block(newBlock, previousBlock, block.number, msg.sender);
+        Block memory b = Block(previousBlock, block.number, msg.sender);
         blockChain.push(newBlock);
         blocks[newBlock] = b;
 
-        uint reward = respondAndCalcReward(_requests, answers);
+        uint weiMining = handleResponses(_requests, responses);
 
-        emit BlockCreated(newBlock, previousBlock, reward, block.number, msg.sender);
-        msg.sender.transfer(reward);
+        emit BlockCreated(newBlock, previousBlock, weiMining, block.number, msg.sender);
+        msg.sender.transfer(weiMining);
 
         return newBlock;
     }

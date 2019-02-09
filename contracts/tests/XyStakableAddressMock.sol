@@ -11,6 +11,8 @@ contract XyStakableAddressMock is XyStakableToken {
     for (uint i = 0; i < stakees.length; i++) {
       uint stakee = uint(stakees[i]);
       stakeeMocks.push(stakees[i]);
+      blockProducerIndexes[stakee] = blockProducers.length;
+      blockProducers.push(stakee);
       _mint(beneficiary, stakee);
     }
   }

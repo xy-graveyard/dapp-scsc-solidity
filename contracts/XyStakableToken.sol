@@ -11,6 +11,9 @@ contract XyStakableToken is ERC721Enumerable {
     using ECDSA for bytes32;
     address public governer;
 
+    uint[] public blockProducers;
+    mapping(uint => uint) public blockProducerIndexes;
+
     constructor (
         address _governer
     ) 
@@ -30,35 +33,41 @@ contract XyStakableToken is ERC721Enumerable {
     function mint(address ownee, 
                     bytes32 sigR,
                     bytes32 sigS,
-                    uint8 sigV) 
+                    uint8 sigV,
+                    bool isBlockProducer) 
         public 
     {
-        require(ownee != address(0), "Missing Ownee");
-        bytes memory m = abi.encodePacked(ownee, msg.sender);
-        bytes32 data = prefixed(keccak256(m));
+        bytes32 data = _encodeData(ownee);
         address signer = ecrecover(data, sigV, sigR, sigS);
         require(ownee == signer, "Invalid Signature");
-        _mint(msg.sender, uint(ownee));
-    }
-
-    function burn(uint stakee) public {
-        require(msg.sender == governer);
-        _burn(ownerOf(stakee), stakee);
+        uint component = uint(ownee);
+        if (isBlockProducer) {
+            blockProducerIndexes[component] = blockProducers.length;
+            blockProducers.push(component);
+        }
+        _mint(msg.sender, component);
     }
 
     /**
-        Allow submitting a signed message instead of the signature
+        Only govenor (the scsc) can burn a token
+        if blockProducer, delete from blockProducer listing
+        @param stakee the stakee to burn 
     */
-    function mintWithMessage(address ownee, 
-                    bytes memory signedMessage) 
-        public 
-    {
-        require(ownee != address(0), "Missing Ownee");
-        bytes memory m = abi.encodePacked(ownee, msg.sender);
-        bytes32 data = prefixed(keccak256(m));
-        address signer = data.recover(signedMessage);
-        require(ownee == signer, "Invalid Signature");
-        _mint(msg.sender, uint(ownee));
+    function burn(uint stakee) public {
+        require(msg.sender == governer);
+        uint index = blockProducerIndexes[stakee];
+        if (index != 0) {
+            uint lastDivinerIndex = blockProducers.length - 1;
+            uint lastDiviner = blockProducers[lastDivinerIndex];
+
+            blockProducers[lastDivinerIndex] = 0;
+            blockProducers.length--;
+            delete blockProducerIndexes[stakee];
+            
+            blockProducers[index] = lastDiviner;
+            blockProducerIndexes[lastDiviner] = index;
+        }
+        _burn(ownerOf(stakee), stakee);
     }
 
     /**
@@ -66,44 +75,24 @@ contract XyStakableToken is ERC721Enumerable {
         @param _hash bytes32 Message hash to be prefixed
     */
     function prefixed(bytes32 _hash)
-        internal
+        public
         pure
         returns (bytes32)
     {
         return keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", _hash));
     }
 
-    function toBytes(address a) public pure returns (bytes memory b){
-   assembly {
-        let m := mload(0x40)
-        mstore(add(m, 20), xor(0x140000000000000000000000000000000000000000, a))
-        mstore(0x40, add(m, 52))
-        b := m
-   }
-}
-    event TestResults(bool[] results);
-    event Testing(uint resultlen);
+    function isBlockProducer(uint stakee) public view returns (bool) {
+        return stakee == blockProducers[blockProducerIndexes[stakee]];
+    }
 
-    uint256[] storageResults;
+    function numBlockProducers() public view returns (uint) {
+        return blockProducers.length;
+    }
 
-    /** 
-        Test many signatures
-    */
-    function testMany( bytes32 data,
-                        address[] memory checkAddresses,
-                        bytes32[] memory sigR,
-                        bytes32[] memory sigS,
-                        uint8[] memory sigV) 
-        public 
-        returns (bool[] memory)
-    {
-        bool[] memory results = new bool[](checkAddresses.length);
-
-        for (uint i = 0; i < checkAddresses.length; i++) {
-            address signer = ecrecover(prefixed(data), sigV[i], sigR[i], sigS[i]);
-            results[i] = (checkAddresses[i] == signer);
-            storageResults.push(results[i] ? 1: 0); // TODO Simulate real contract call...
-        }
-        return results;
+    function _encodeData(address ownee) private view returns (bytes32) {
+        require(ownee != address(0), "Missing Ownee");
+        bytes memory m = abi.encodePacked(ownee, msg.sender);
+        return prefixed(keccak256(m));
     }
 }

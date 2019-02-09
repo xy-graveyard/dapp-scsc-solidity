@@ -41,32 +41,34 @@ contract XyPayOnDelivery is IXyRequester {
     /**
         @dev Called by PonD client.  API for client to request an intersection question
         @param ipfs - the hash of the request (first 2 bytes stripped)
-        @param xyoPayment - the amount of XYO to pay on delivery (should include mining gas)
-        @param weiPayment - the amount of eth to pay on delivery
+        @param xyoBounty - the xyo bounty for the request (approve scsc for this amount)
+        @param xyoPayOnDelivery - the amount of XYO to pay on delivery
+        @param weiPayOnDelivery - the amount of eth to pay on delivery
         @param beneficiary The destination address of the funds.
     */
     function submitPayOnDelivery(
         uint ipfs, 
-        uint xyoPayment, 
-        uint weiPayment, 
+        uint xyoBounty, 
+        uint xyoPayOnDelivery, 
+        uint weiPayOnDelivery, 
         address payable beneficiary
     ) 
         public 
         payable 
     {
         require (requestIndex[ipfs] == 0, "Duplicate request submitted");
-        require (msg.value >= weiPayment, "Not enough payment provided");
+        require (msg.value >= weiPayOnDelivery, "Not enough payment provided");
         
-        uint miningGas = msg.value.sub(weiPayment);
-        scsc.submitRequest.value(miningGas)(ipfs, msg.sender, 1);
+        uint miningGas = msg.value.sub(weiPayOnDelivery);
+        scsc.submitRequest.value(miningGas)(ipfs, xyoBounty, msg.sender, 1);
         
-        if (xyoPayment > 0) {
-            require (xyoToken.allowance(msg.sender, address(this)) >= xyoPayment, "must approve PonD for XYO Payment");
-            xyoToken.transferFrom(msg.sender, address(this), xyoPayment);
+        if (xyoPayOnDelivery > 0) {
+            require (xyoToken.allowance(msg.sender, address(this)) >= xyoPayOnDelivery, "must approve PonD for XYO Payment");
+            xyoToken.transferFrom(msg.sender, address(this), xyoPayOnDelivery);
         }
 
         IPFSRequest memory q = IPFSRequest(
-            ipfs, weiPayment, xyoPayment, block.number, 0, beneficiary, msg.sender
+            ipfs, weiPayOnDelivery, xyoPayOnDelivery, block.number, 0, beneficiary, msg.sender
         );
         requestIndex[ipfs] = requests.length;
         requests.push(q);
@@ -75,10 +77,10 @@ contract XyPayOnDelivery is IXyRequester {
     /**
         @dev Called by SCSC. If intersection, transfer pay on delivery to beneficiary, delete request
         @param ipfs - the hash of the request (first 2 bytes stripped)
-        @param responseType Used by scsc to signal what is in the response data
+        @param requestType Used by scsc to signal what is in the response data
         @param responseData Response data from scsc
     */
-    function submitResponse(uint ipfs, uint8 responseType, bytes memory responseData) public {
+    function submitResponse(uint ipfs, uint8 requestType, bytes memory responseData) public {
         require (msg.sender == address(scsc), "only scsc can complete requests");
         bool intersection = responseData.length > 0 && responseData[0] > 0;
         didIntersect[ipfs] = intersection;

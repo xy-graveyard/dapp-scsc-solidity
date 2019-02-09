@@ -26,8 +26,8 @@ const parameters = [
   params.pDispensationPct,
   params.pVoteQuorum,
   params.xyStakeQuorumPct,
-  params.xyEthMiningCost,
-  params.xyXYOMiningCost,
+  params.xyWeiMiningMin,
+  params.xyXYORequestBountyMin,
   params.xyStakeCooldown,
   params.xyUnstakeCooldown
 ]

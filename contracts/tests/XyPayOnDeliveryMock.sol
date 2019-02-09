@@ -13,35 +13,33 @@ contract XyPayOnDeliveryMock is XyPayOnDelivery {
     {
     }
 
+    // A sample for a uint style request
     function submitUintRequest(
     uint ipfs, 
-    uint xyoTotal, 
-    uint weiPayment, 
+    uint xyoBounty, 
+    uint xyoPayOnDelivery, 
+    uint weiPayOnDelivery, 
     address payable beneficiary
     ) 
       public payable 
     {
       require (requestIndex[ipfs] == 0, "Duplicate request submitted");
-
-      uint miningGas = msg.value.sub(weiPayment);
-      uint xyoPayment = xyoTotal.sub(scsc.params().get("xyXYOMiningCost"));
-      
       // remainder of value is stored on this address
-      scsc.submitRequest.value(miningGas)(ipfs, msg.sender, 2);
-      if (xyoPayment > 0) {
-        xyoToken.transferFrom(msg.sender, address(this), xyoPayment);
+      scsc.submitRequest.value(msg.value.sub(weiPayOnDelivery))(ipfs, xyoBounty, msg.sender, 2);
+      if (xyoPayOnDelivery > 0) {
+        xyoToken.transferFrom(msg.sender, address(this), xyoPayOnDelivery);
       }
       IPFSRequest memory q = IPFSRequest(
-        ipfs, weiPayment, xyoPayment, block.number, 0, beneficiary, msg.sender
+        ipfs, weiPayOnDelivery, xyoPayOnDelivery, block.number, 0, beneficiary, msg.sender
       );
       requestIndex[ipfs] = requests.length;
       requests.push(q);
     } 
 
-    function submitResponse(uint ipfs, uint8 responseType, bytes memory responseData) public {
-      if (responseType == 1) {
-        super.submitResponse(ipfs, responseType, responseData);
-      } else if (responseType == 2) {
+    function submitResponse(uint ipfs, uint8 requestType, bytes memory responseData) public {
+      if (requestType == 1) {
+        super.submitResponse(ipfs, requestType, responseData);
+      } else if (requestType == 2) {
         uint result;
         for (uint i = 0; i < responseData.length; i++) {
             result = result + uint(uint8(responseData[i]))*(2**(8*(responseData.length-(i+1))));

@@ -222,7 +222,6 @@ contract XyStakingModel {
         stakeData[newToken] = data;
 
         // Escrow the ERC20
-        // xyoToken.asmTransferFrom(msg.sender, address(this), amount);
         xyoToken.transferFrom(msg.sender, address(this), amount);
 
         emit Staked(msg.sender, newToken, stakee, amount);
@@ -311,11 +310,12 @@ contract XyStakingModel {
         Withdraw a single token's stake by token id, removes staking token
         @param stakingId - the tokenId of the staking token to remove
     */
-    function withdraw(uint stakingId)
+    function withdrawStake(uint stakingId)
       whenActive
       public 
     {
         Stake memory data = stakeData[stakingId];
+        require(params.hasUnresolvedAction(data.stakee) == false, "All actions on stakee must be resolved");
         require(data.staker == msg.sender, "Only owner can withdraw");
         require (data.unstakeBlock > 0 && (data.unstakeBlock + params.get("xyUnstakeCooldown")) < block.number, "Not ready for withdraw");
         removeStakeeData(stakingId);
@@ -330,7 +330,7 @@ contract XyStakingModel {
         @param batchLimit - Allows iterating over withdrawing due to gas limits
         if batchlimit is 0, try withdrawing all available tokens (be prepared for out of gas if you've got > 50 tokens)
     */
-    function withdrawMany(uint batchLimit)
+    function withdrawManyStake(uint batchLimit)
         whenActive
         public
     {
@@ -341,7 +341,8 @@ contract XyStakingModel {
         uint numremove = 0;
         for (uint i = 0; i < balance && i < limit; i++) {
             Stake memory data = stakeData[stakerToStakingIds[msg.sender][i]];
-            if (data.unstakeBlock > 0 && (data.unstakeBlock + params.get("xyUnstakeCooldown")) < block.number) {
+
+            if (data.unstakeBlock > 0 && (data.unstakeBlock + params.get("xyUnstakeCooldown")) < block.number && params.hasUnresolvedAction(data.stakee) == false) {
                 removeArr[numremove] = stakerToStakingIds[msg.sender][i];      
                 numremove++;
             }      
@@ -394,11 +395,14 @@ contract XyStakingModel {
         return stakeTotal;
     }
 
-    /** Public array length getters */
+    /** Public getters */
     function numStakerStakes(address staker) public view returns (uint) {
         return stakerToStakingIds[staker].length;
     }
     function numStakeeStakes(uint stakee) public view returns (uint) {
         return stakeeToStakingIds[stakee].length;
+    }
+    function totalStakeAndUnstake(address staker) public view returns (uint) {
+        return stakerStake[staker].totalUnstake + stakerStake[staker].totalStake;
     }
 }

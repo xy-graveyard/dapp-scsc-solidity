@@ -124,7 +124,7 @@ contract XyRegistry {
     @param _listingHash A listingHash msg.sender is the owner of.
     @param _amount      The number of ERC20 tokens to withdraw from the unstaked deposit.
     */
-    function withdraw(bytes32 _listingHash, uint _amount) external {
+    function withdrawStake(bytes32 _listingHash, uint _amount) external {
         Listing storage listing = listings[_listingHash];
 
         require(listing.owner == msg.sender);

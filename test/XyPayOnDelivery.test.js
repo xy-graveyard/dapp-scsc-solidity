@@ -26,8 +26,8 @@ const parameters = [
   params.pDispensationPct,
   params.pVoteQuorum,
   params.xyStakeQuorumPct,
-  params.xyEthMiningCost,
-  params.xyXYOMiningCost,
+  params.xyWeiMiningMin,
+  params.xyXYORequestBountyMin,
   params.xyStakeCooldown,
   params.xyUnstakeCooldown
 ]
@@ -96,13 +96,13 @@ contract(
         })
       })
       it(`should create ipfs requests`, async () => {
-        await payOnD.submitPayOnDelivery(`123`, 0, 0, payOnDeliveryBeneficiary)
+        await payOnD.submitPayOnDelivery(`123`, 0, 0, 0, payOnDeliveryBeneficiary)
           .should.be.fulfilled
       })
       it(`should not allow duplicate ipfs requests`, async () => {
-        await payOnD.submitPayOnDelivery(`123`, 0, 0, payOnDeliveryBeneficiary)
+        await payOnD.submitPayOnDelivery(`123`, 0, 0, 0, payOnDeliveryBeneficiary)
           .should.be.fulfilled
-        await payOnD.submitPayOnDelivery(`123`, 0, 0, payOnDeliveryBeneficiary)
+        await payOnD.submitPayOnDelivery(`123`, 0, 0, 0, payOnDeliveryBeneficiary)
           .should.not.be.fulfilled
       })
 
@@ -110,6 +110,7 @@ contract(
         await erc20.approve(payOnD.address, 90, { from: erc20owner })
         await payOnD.submitPayOnDelivery(
           `123`,
+          0,
           20,
           90,
           payOnDeliveryBeneficiary,
@@ -121,10 +122,10 @@ contract(
         Number(balanceEth).should.be.equal(90)
       })
       it(`should fail if not enough funds for mining costs`, async () => {
-        await parameterizer.ownerSet(`xyXYOMiningCost`, 100, {
+        await parameterizer.ownerSet(`xyXYORequestBountyMin`, 100, {
           from: parameterizerOwner
         })
-        await parameterizer.ownerSet(`xyEthMiningCost`, 100, {
+        await parameterizer.ownerSet(`xyWeiMiningMin`, 100, {
           from: parameterizerOwner
         })
         await erc20.approve(payOnD.address, 500, { from: erc20owner })
@@ -133,6 +134,7 @@ contract(
           `123`,
           20,
           90,
+          0,
           payOnDeliveryBeneficiary,
           { value: 90, from: erc20owner }
         ).should.not.be.fulfilled
@@ -140,6 +142,7 @@ contract(
           `1232`,
           200,
           90,
+          0,
           payOnDeliveryBeneficiary,
           { value: 90, from: erc20owner }
         ).should.not.be.fulfilled
@@ -147,6 +150,7 @@ contract(
           `1233`,
           90,
           200,
+          0,
           payOnDeliveryBeneficiary,
           { value: 90, from: erc20owner }
         ).should.not.be.fulfilled
@@ -154,6 +158,7 @@ contract(
           `1253`,
           300,
           200,
+          0,
           payOnDeliveryBeneficiary,
           { value: 400, from: erc20owner }
         ).should.be.fulfilled
@@ -161,12 +166,13 @@ contract(
       it(`should store requests in array`, async () => {
         await erc20.approve(payOnD.address, 500, { from: erc20owner })
 
-        await payOnD.submitPayOnDelivery(`123`, 0, 0, payOnDeliveryBeneficiary)
+        await payOnD.submitPayOnDelivery(`123`, 0, 0, 0, payOnDeliveryBeneficiary)
           .should.be.fulfilled
-        await payOnD.submitPayOnDelivery(`2`, 0, 0, payOnDeliveryBeneficiary)
+        await payOnD.submitPayOnDelivery(`2`, 0, 0, 0, payOnDeliveryBeneficiary)
           .should.be.fulfilled
         await payOnD.submitPayOnDelivery(
           `3`,
+          0,
           10,
           100,
           payOnDeliveryBeneficiary,
@@ -175,9 +181,9 @@ contract(
             value: 100
           }
         ).should.be.fulfilled
-        await payOnD.submitPayOnDelivery(`4`, 0, 0, payOnDeliveryBeneficiary)
+        await payOnD.submitPayOnDelivery(`4`, 0, 0, 0, payOnDeliveryBeneficiary)
           .should.be.fulfilled
-        await payOnD.submitPayOnDelivery(`5`, 0, 0, payOnDeliveryBeneficiary)
+        await payOnD.submitPayOnDelivery(`5`, 0, 0, 0, payOnDeliveryBeneficiary)
           .should.be.fulfilled
         const numReqs = await payOnD.numRequests()
         numReqs.toNumber().should.be.equal(5)
@@ -198,7 +204,7 @@ contract(
 
         await erc20.approve(payOnD.address, 500, { from: erc20owner })
 
-        await payOnD.submitPayOnDelivery(`1`, 0, 0, payOnDeliveryBeneficiary)
+        await payOnD.submitPayOnDelivery(`1`, 0, 0, 0, payOnDeliveryBeneficiary)
           .should.be.fulfilled
       })
 

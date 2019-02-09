@@ -19,13 +19,13 @@ contract XyConsensusMock is XyStakingConsensus {
       }
 
     }
-    function mock_respondAndCalcReward(uint[] memory _requests, bytes memory responses)
+    function mock_handleResponses(uint[] memory _requests, bytes memory responses)
         public 
         returns (uint)
     {
-      return respondAndCalcReward(_requests, responses);
+      return handleResponses(_requests, responses);
     }
-    function mock_checkSigsAndStake(
+    function mock_checkSigsAndStakes(
         uint messageHash,
         address[] memory signers,
         bytes32[] memory sigR,
@@ -36,6 +36,12 @@ contract XyConsensusMock is XyStakingConsensus {
         public 
         returns (uint)
     {
-      checkSigsAndStake(messageHash, signers, sigR, sigS, sigV);
+      checkSigsAndStakes(messageHash, signers, sigR, sigS, sigV);
+    }
+    function fake_updateCacheOnStake(uint amount, uint stakee) public {
+      updateCacheOnStake(amount, stakee);
+    }
+    function fake_updateCacheOnActivate(uint amount, uint stakee) public {
+      updateCacheOnActivate(amount, stakee);
     }
 }

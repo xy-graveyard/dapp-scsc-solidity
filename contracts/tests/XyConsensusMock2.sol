@@ -17,13 +17,13 @@ contract XyConsensusMock2 is XyConsensusMock {
 
     function submitResponse(
         uint ipfs, 
-        uint8 responseType, 
+        uint8 requestType, 
         bytes memory responseData,
         address pOnDAddress
     ) 
         public
         payable
     {
-       XyPayOnDelivery(pOnDAddress).submitResponse(ipfs,responseType,responseData);
+       XyPayOnDelivery(pOnDAddress).submitResponse(ipfs,requestType,responseData);
     }
 }

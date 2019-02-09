@@ -12,13 +12,13 @@ contract XyStakingMock is XyStakingModel {
 
     }
      /** Increase and decrease cached stake amounts */
-    function mock_updateCacheOnStake(uint amount, uint stakee) public {
+    function fake_updateCacheOnStake(uint amount, uint stakee) public {
       updateCacheOnStake(amount, stakee);
     }
-    function mock_updateCacheOnActivate(uint amount, uint stakee) public {
+    function fake_updateCacheOnActivate(uint amount, uint stakee) public {
       updateCacheOnActivate(amount, stakee);
     }
-    function mock_updateCacheOnUnstake(uint amount, uint stakee) public {
+    function stub_updateCacheOnUnstake(uint amount, uint stakee) public {
         Stake memory data = Stake(
             amount,         // amount
             block.number,   // stakeBlock
@@ -29,7 +29,7 @@ contract XyStakingMock is XyStakingModel {
         );
       updateCacheOnUnstake(data);
   }
-    function mock_updateCacheOnWithdraw(uint amount, uint stakee) public {
+    function fake_updateCacheOnWithdraw(uint amount, uint stakee) public {
       updateCacheOnWithdraw(amount, stakee);
    }
 }

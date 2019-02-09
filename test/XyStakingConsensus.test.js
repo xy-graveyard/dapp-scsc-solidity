@@ -29,8 +29,8 @@ const parameters = [
   params.pDispensationPct,
   params.pVoteQuorum,
   params.xyStakeQuorumPct,
-  params.xyEthMiningCost,
-  params.xyXYOMiningCost,
+  params.xyWeiMiningMin,
+  params.xyXYORequestBountyMin,
   params.xyStakeCooldown,
   params.xyUnstakeCooldown
 ]
@@ -67,6 +67,7 @@ contract(
     const numRequests = 2
     let payOnD
     const xyoPayment = 200
+    const xyoBounty = 0
     const ethOnDelivery = 1000
     const miningEth = 100
 
@@ -94,7 +95,7 @@ contract(
       })
       await plcr.init(erc20.address)
 
-      stakableToken = await Stakeable.new(stakableTokenOwner, diviners, {
+      stakableToken = await Stakeable.new(consensusOwner, diviners, {
         from: stakableContractOwner
       })
     })
@@ -133,13 +134,15 @@ contract(
       return synchronizePromises(promises, results, index + 1)
     }
 
-    const randomBoolResponses = () => {
+    const randomBoolResponses = (responses = []) => {
       const byteResponses = new Uint8Array(numRequests)
       for (let i = 0; i < numRequests; i++) {
         const random = Math.random() >= 0.5
         byteResponses[i] = random
       }
-      return byteResponses
+      appendResponse(responses, `bytes`, byteResponses)
+
+      return responses
     }
     const randUintResponse = () => {
       const uintResp = []
@@ -156,10 +159,17 @@ contract(
         from: erc20owner
       })
       const promises = requests.map(
-        async q => payOnD.submitPayOnDelivery(q, xyoPayment, ethOnDelivery, d3, {
-          value: ethOnDelivery + miningEth,
-          from: erc20owner
-        }).should.be.fulfilled
+        async q => payOnD.submitPayOnDelivery(
+          q,
+          xyoPayment,
+          xyoBounty,
+          ethOnDelivery,
+          d3,
+          {
+            value: ethOnDelivery + miningEth,
+            from: erc20owner
+          }
+        ).should.be.fulfilled
       )
       await synchronizePromises(promises)
       return requests
@@ -171,10 +181,17 @@ contract(
         from: erc20owner
       })
       const promises = requests.map(
-        async q => payOnD.submitUintRequest(q, xyoPayment, ethOnDelivery, d3, {
-          value: ethOnDelivery + miningEth,
-          from: erc20owner
-        }).should.be.fulfilled
+        async q => payOnD.submitUintRequest(
+          q,
+          xyoPayment,
+          xyoBounty,
+          ethOnDelivery,
+          d3,
+          {
+            value: ethOnDelivery + miningEth,
+            from: erc20owner
+          }
+        ).should.be.fulfilled
       )
       await synchronizePromises(promises)
       return requests
@@ -182,13 +199,21 @@ contract(
 
     const compareDiviners = (a, b) => a > b
 
-    const generateParams = async (returnHash = false) => {
-      const sorted = diviners.map(d => d.toLowerCase()).sort(compareDiviners)
+    const createArgs = async (
+      requests,
+      packedResponses,
+      returnHash
+    ) => {
       const previous = await consensus.getLatestBlock()
-      const requests = await submitPayOnDeliverys()
-      const responseProofHashes = requests.map(r => abi.soliditySHA3([`uint`], [r]))
-      const responses = randomBoolResponses()
-      const promises = sorted.map(async adr => encodeAndSign(adr, previous, requests, responseProofHashes, responses))
+      const responseDataHash = abi.soliditySHA3([`bytes32`], [previous]) // a bogus hash
+      const sorted = diviners.map(d => d.toLowerCase()).sort(compareDiviners)
+      const promises = sorted.map(async adr => encodeAndSign(
+        adr,
+        previous,
+        requests,
+        responseDataHash,
+        packedResponses
+      ))
       const sigArr = await synchronizePromises(promises)
       const r = []
       const s = []
@@ -203,10 +228,11 @@ contract(
         hash = sig[4]
       })
       return [
+        d1,
         previous,
         requests,
-        responseProofHashes,
-        responses,
+        responseDataHash,
+        packedResponses,
         sorted,
         r,
         s,
@@ -214,32 +240,78 @@ contract(
         returnHash ? hash : packedMsg
       ]
     }
+    const generateArgs = async (returnHash = false, addWithdraw = false) => {
+      const requests = await submitPayOnDeliverys()
+      const responses = randomBoolResponses()
+      const packedResponses = packResponse(responses)
+      return createArgs(
+        requests,
+        packedResponses,
+        returnHash
+      )
+    }
+
+    const addWithdrawRequest = async (requests) => {
+      const withdrawReq = await consensus.withdrawRewardsRequest.call(0)
+      await consensus.withdrawRewardsRequest(0)
+      requests.push(withdrawReq)
+    }
+
+    const generateWithdrawArgs = async (amount) => {
+      const requests = await submitPayOnDeliverys()
+      await addWithdrawRequest(requests)
+      const responses = randomBoolResponses()
+      appendResponse(responses, `uint`, amount)
+      const packedResponses = packResponse(responses)
+      return createArgs(
+        requests,
+        packedResponses,
+        false
+      )
+    }
+    const appendResponse = (responses, type, val) => {
+      responses.push({ type, value: val })
+    }
+
+    const packResponse = (responses) => {
+      const responseTypes = responses.map(r => r.type)
+      const responseValues = responses.map(r => r.value)
+      // console.log(`TYPES AND VALUES`, responseTypes, responseValues)
+
+      const packedBytes = abi.solidityPack(
+        [...responseTypes],
+        [...responseValues]
+      )
+
+      // console.log(`Packed`, packedBytes)
+      return packedBytes
+    }
     const encodeAndSign = async (
       signer,
       previous,
       requests,
-      responseHashes,
-      responses
+      responseDataHash,
+      packedResponses
     ) => {
       const uintArr = requests.map(() => `uint`)
-      const bytes32Arr = requests.map(() => `bytes32`)
-      // console.log(`encodeAndSign`, signer, previous, requests, responses)
 
       const hash = `0x${abi
         .soliditySHA3(
-          [`uint`, ...uintArr, ...bytes32Arr, `bytes`],
-          [previous, ...requests, ...responseHashes, responses]
+          [`uint`, ...uintArr, `bytes32`, `bytes`],
+          [previous, ...requests, responseDataHash, packedResponses]
         )
         .toString(`hex`)}`
 
       const packedBytes = `0x${abi
         .solidityPack(
-          [`uint`, ...uintArr, ...bytes32Arr, `bytes`],
-          [previous, ...requests, ...responseHashes, responses]
+          [`uint`, ...uintArr, `bytes32`, `bytes`],
+          [previous, ...requests, responseDataHash, packedResponses]
         )
         .toString(`hex`)}`
-      // console.log(`HASH`, hash, previous, requests, responses)
+
+      // console.log(`HASH`, hash, previous, requests)
       // console.log(`ENCODED BYTES`, packedBytes)
+      // console.log(`JUST RESPONSES`, justResponses, responses.toString())
 
       const signedMessage = await web3.eth.sign(hash, signer)
 
@@ -253,25 +325,23 @@ contract(
 
     describe(`Submitting blocks`, () => {
       it(`should allow creating a block by consensus of at least 4 diviners`, async () => {
-        const tx = await consensus.submitBlock(...(await generateParams()))
+        const tx = await consensus.submitBlock(...(await generateArgs()))
           .should.be.fulfilled
         expectEvent.inLogs(tx.logs, `BlockCreated`)
       })
 
       it(`should return correct previous block`, async () => {
-        const args = await generateParams()
-        const lastBlock = await consensus.submitBlock.call(
-          ...args
-        ).should.be.fulfilled
-        await consensus.submitBlock(...args).should.be
+        const args = await generateArgs()
+        const lastBlock = await consensus.submitBlock.call(...args).should.be
           .fulfilled
+        await consensus.submitBlock(...args).should.be.fulfilled
         lastBlock.toString().should.not.be.equal(`0`)
         const newLast = await consensus.getLatestBlock.call()
         newLast.toString().should.be.equal(lastBlock.toString())
       })
 
       it(`should fail if passes responses doesnt match signed data`, async () => {
-        const submitParams = await generateParams()
+        const submitParams = await generateArgs()
         const randomIndex = Math.floor(
           Math.random() * (submitParams[2].length - 1)
         )
@@ -280,11 +350,11 @@ contract(
         await consensus.submitBlock(...submitParams).should.not.be.fulfilled
       })
 
-      describe(`respondAndCalcReward`, async () => {
+      describe(`handleResponses`, async () => {
         it(`should return correct reward`, async () => {
           const requests = await submitPayOnDeliverys(1)
-          const responses = randomBoolResponses()
-          const reward = await consensus.mock_respondAndCalcReward.call(
+          const responses = packResponse(randomBoolResponses())
+          const reward = await consensus.mock_handleResponses.call(
             requests,
             responses,
             {}
@@ -294,8 +364,8 @@ contract(
 
         it(`should call callback contract and receive a IntersectResponse event`, async () => {
           const requests = await submitPayOnDeliverys(1)
-          const responses = randomBoolResponses()
-          const { tx } = await consensus.mock_respondAndCalcReward(
+          const responses = packResponse(randomBoolResponses())
+          const { tx } = await consensus.mock_handleResponses(
             requests,
             responses
           )
@@ -305,9 +375,9 @@ contract(
 
         it(`requests callbacks should have correct answers, and should show as answered`, async () => {
           const requests = await submitPayOnDeliverys()
-          const responses = randomBoolResponses()
+          const responses = packResponse(randomBoolResponses())
 
-          await consensus.mock_respondAndCalcReward(requests, responses)
+          await consensus.mock_handleResponses(requests, responses)
           const cbResponses = await synchronizePromises(
             requests.map(r => payOnD.didIntersect(r))
           )
@@ -333,33 +403,33 @@ contract(
             .solidityPack([...bytesArr], [...responses])
             .toString(`hex`)}`
           // console.log(packedBytes)
-          await consensus.mock_respondAndCalcReward(requests, packedBytes)
-            .should.be.fulfilled
+          await consensus.mock_handleResponses(requests, packedBytes).should.be
+            .fulfilled
         })
       })
     })
-    describe(`checkSigsAndStake`, () => {
+    describe(`checkSigsAndStakes`, () => {
       it(`should succeed if signers signed a message hash`, async () => {
-        const subParams = await generateParams(true)
+        const subParams = await generateArgs(true)
 
         // console.log(`Args`, subParams)
-        await consensus.mock_checkSigsAndStake(
-          subParams[8],
-          subParams[4],
+        await consensus.mock_checkSigsAndStakes(
+          subParams[9],
           subParams[5],
           subParams[6],
-          subParams[7]
+          subParams[7],
+          subParams[8]
         ).should.be.fulfilled
       })
 
       it(`should fail if signers not passed in order`, async () => {
-        const subParams = await generateParams(true)
-        await consensus.mock_checkSigsAndStake(
-          subParams[8],
+        const subParams = await generateArgs(true)
+        await consensus.mock_checkSigsAndStakes(
+          subParams[9],
           diviners,
-          subParams[5],
           subParams[6],
-          subParams[7]
+          subParams[7],
+          subParams[8]
         ).should.not.be.fulfilled
       })
 
@@ -374,14 +444,34 @@ contract(
           0,
           Math.floor(numDiviners - numDiviners * 0.5)
         )
-        const subParams = await generateParams(true)
-        await consensus.mock_checkSigsAndStake(
-          subParams[8],
+        const subParams = await generateArgs(true)
+        await consensus.mock_checkSigsAndStakes(
+          subParams[9],
           sortedQuorum,
-          subParams[5],
           subParams[6],
-          subParams[7]
+          subParams[7],
+          subParams[8]
         ).should.not.be.fulfilled
+      })
+    })
+
+    describe(`rewards request`, () => {
+      const stakeAmt = 10000000
+      beforeEach(async () => {
+        await consensus.fake_updateCacheOnStake(stakeAmt, d1)
+        await consensus.fake_updateCacheOnActivate(stakeAmt, d1)
+        await erc20.transfer(consensus.address, stakeAmt, {
+          from: erc20owner
+        })
+        await advanceBlock()
+      })
+      it(`should be able to withdraw rewards`, async () => {
+        const balanceBefore = await erc20.balanceOf(consensusOwner)
+        const args = await generateWithdrawArgs(stakeAmt)
+        // await consensus.submitBlock.call(...args)
+        await consensus.submitBlock(...args)
+        const newBalance = await erc20.balanceOf(consensusOwner)
+        stakeAmt.should.be.equal(newBalance - balanceBefore)
       })
     })
   }

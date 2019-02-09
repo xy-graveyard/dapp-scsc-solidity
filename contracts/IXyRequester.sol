@@ -11,5 +11,5 @@ interface IXyRequester {
         address payable asker;
     }
 
-    function submitResponse(uint question, uint8 responseType, bytes calldata response) external;
+    function submitResponse(uint question, uint8 requestType, bytes calldata response) external;
 }

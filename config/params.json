@@ -8,8 +8,8 @@
     "pDispensationPct": 50,
     "pVoteQuorum": 50,
     "xyStakeQuorumPct": 66,
-    "xyEthMiningCost": "100000000000000000",
-    "xyXYOMiningCost": "10000000000000000000",
+    "xyWeiMiningMin": "100000000000000000",
+    "xyXYORequestBountyMin": "10000000000000000000",
     "xyStakeCooldown": 200, 
     "xyUnstakeCooldown": 300
 	}

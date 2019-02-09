@@ -97,13 +97,13 @@ contract XyParameterizer {
         set("pVoteQuorum", _parameters[5]);
 
         set("xyStakeQuorumPct", _parameters[6]);
-        set("xyEthMiningCost", _parameters[7]);
-        set("xyXYOMiningCost", _parameters[8]);
+        set("xyWeiMiningMin", _parameters[7]);
+        set("xyXYORequestBountyMin", _parameters[8]);
         set("xyStakeCooldown", _parameters[9]);
         set("xyUnstakeCooldown", _parameters[10]);
 
-        // set the temporary owner who has authority to change contract until voted out
-        set("pOwner", uint(msg.sender));
+        set("xySubmissionBlockTime", 8); // every 2 minutes
+        set("pOwner", uint(msg.sender)); // temporary owner until voted out
     }
 
     // -----------------------

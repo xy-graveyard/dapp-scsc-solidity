@@ -26,7 +26,6 @@ contract XyGovernance is XyParameterizer {
 
     mapping (uint => GovernanceAction[]) public resolutions;
     mapping (uint => GovernanceAction) public actions;
-    mapping (uint => bool) public stakeeDisabled;
 
     // help ease transition into decentralized entity, 
     // and once governance has been established renounce ownership role 
