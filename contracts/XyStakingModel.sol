@@ -4,7 +4,7 @@ import "./XyStakableToken.sol";
 import "./token/ERC20/IERC20.sol";
 import "./token/ERC20/SafeERC20.sol";
 import "./XyGovernance.sol";
-import "./SafeMath.sol";
+import "./utils/SafeMath.sol";
 
 contract XyStakingModel {
     using SafeMath for uint;

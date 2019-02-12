@@ -1,9 +1,9 @@
 pragma solidity ^0.5.0;
-import "./token/ERC20/IERC20.sol";
+import "../token/ERC20/IERC20.sol";
 import "./dll/DLL.sol";
 import "./attrstore/AttributeStore.sol";
-import "./SafeMath.sol";
-import "./token/ERC20/SafeERC20.sol";
+import "../utils/SafeMath.sol";
+import "../token/ERC20/SafeERC20.sol";
 
 /**
 @title Partial-Lock-Commit-Reveal Voting scheme with ERC20 tokens
