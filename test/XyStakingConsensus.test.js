@@ -153,13 +153,13 @@ contract(
       return uintResp
     }
 
-    const submitPayOnDeliverys = async () => {
+    const requestPayOnDeliveries = async () => {
       const requests = [...Array(numRequests).keys()].map(r => r + 1)
       await erc20.approve(payOnD.address, numRequests * xyoPayment, {
         from: erc20owner
       })
       const promises = requests.map(
-        async q => payOnD.submitPayOnDelivery(
+        async q => payOnD.requestPayOnDelivery(
           q,
           xyoPayment,
           xyoBounty,
@@ -237,7 +237,7 @@ contract(
       ]
     }
     const generateArgs = async (returnHash = false, addWithdraw = false) => {
-      const requests = await submitPayOnDeliverys()
+      const requests = await requestPayOnDeliveries()
       const responses = randomBoolResponses()
       const packedResponses = packResponse(responses)
       return createArgs(requests, packedResponses, returnHash)
@@ -250,7 +250,7 @@ contract(
     }
 
     const generateWithdrawArgs = async (amount) => {
-      const requests = await submitPayOnDeliverys()
+      const requests = await requestPayOnDeliveries()
       await addWithdrawRequest(requests)
       const responses = randomBoolResponses()
       appendResponse(responses, `uint`, amount)
@@ -361,7 +361,7 @@ contract(
 
       describe(`handleResponses`, async () => {
         it(`should return correct reward`, async () => {
-          const requests = await submitPayOnDeliverys(1)
+          const requests = await requestPayOnDeliveries(1)
           const responses = packResponse(randomBoolResponses())
           const reward = await consensus.mock_handleResponses.call(
             requests,
@@ -372,7 +372,7 @@ contract(
         })
 
         it(`should call callback contract and receive a IntersectResponse event`, async () => {
-          const requests = await submitPayOnDeliverys(1)
+          const requests = await requestPayOnDeliveries(1)
           const responses = packResponse(randomBoolResponses())
           const { tx } = await consensus.mock_handleResponses(
             requests,
@@ -383,7 +383,7 @@ contract(
         })
 
         it(`requests callbacks should have correct answers, and should show as answered`, async () => {
-          const requests = await submitPayOnDeliverys()
+          const requests = await requestPayOnDeliveries()
           const responses = packResponse(randomBoolResponses())
 
           await consensus.mock_handleResponses(requests, responses)

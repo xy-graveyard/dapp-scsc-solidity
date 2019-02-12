@@ -106,22 +106,6 @@ contract XyStakingConsensus is XyStakingModel {
         }
     }
 
-    // This is a suggestion for who is the next diviner FWIW
-    function canSubmitBlock(uint stakee) public view returns (bool) {
-        if (params.get("xyTurnOffBPFilter") != 0) {
-            return true;
-        }
-        // get number of diviner stakees
-        if (stakableToken.isBlockProducer(stakee)) {
-            uint blockWindow = stakableToken.numBlockProducers().mul(params.get("xySubmissionBlockTime"));
-            uint startBlockWindow = stakableToken.blockProducerIndexes(stakee).mul(blockWindow);
-            uint endBlockWindow = (startBlockWindow.add(blockWindow)) % blockWindow;
-            uint curBlock = block.number % blockWindow;
-            return (curBlock >= startBlockWindow && curBlock < endBlockWindow);
-        }
-        return false;
-    }
-
     /**
         @dev Withdraw reward balance can post same params via raw
         @param xyoBounty bounty for request

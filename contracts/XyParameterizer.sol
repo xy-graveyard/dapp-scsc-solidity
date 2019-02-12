@@ -59,7 +59,7 @@ contract XyParameterizer {
     // Global Variables
     IERC20 public token;
     PLCRVoting public voting;
-    uint public PROCESSBY = 604800; // 7 days
+    uint public stageBlockLen = 40320; // 7 days
 
     /**
     @dev Initializer        Can only be called once
@@ -138,7 +138,7 @@ contract XyParameterizer {
             processBy: now.add(get("pApplyStageLen"))
                 .add(get("pCommitStageLen"))
                 .add(get("pRevealStageLen"))
-                .add(PROCESSBY),
+                .add(stageBlockLen),
             value: _value
         });
 
@@ -223,7 +223,7 @@ contract XyParameterizer {
         now.add(get("pApplyStageLen"))
             .add(get("pCommitStageLen"))
             .add(get("pRevealStageLen"))
-            .add(PROCESSBY);
+            .add(stageBlockLen);
 
         delete proposals[_propID];
     }

@@ -5,7 +5,6 @@ import { request } from "http"
 
 const abi = require(`ethereumjs-abi`)
 const { toChecksumAddress } = require(`ethereumjs-util`)
-const PayOnDeliveryMock = artifacts.require(`XyPayOnDeliveryMock.sol`)
 
 const PayOnDelivery = artifacts.require(`XyPayOnDelivery.sol`)
 const StakingConsensus = artifacts.require(`XyConsensusMock2.sol`)
@@ -96,19 +95,19 @@ contract(
         })
       })
       it(`should create requests`, async () => {
-        await payOnD.submitPayOnDelivery(`123`, 0, 0, 0, payOnDeliveryBeneficiary)
+        await payOnD.requestPayOnDelivery(`123`, 0, 0, 0, payOnDeliveryBeneficiary)
           .should.be.fulfilled
       })
       it(`should not allow duplicate requests`, async () => {
-        await payOnD.submitPayOnDelivery(`123`, 0, 0, 0, payOnDeliveryBeneficiary)
+        await payOnD.requestPayOnDelivery(`123`, 0, 0, 0, payOnDeliveryBeneficiary)
           .should.be.fulfilled
-        await payOnD.submitPayOnDelivery(`123`, 0, 0, 0, payOnDeliveryBeneficiary)
+        await payOnD.requestPayOnDelivery(`123`, 0, 0, 0, payOnDeliveryBeneficiary)
           .should.not.be.fulfilled
       })
 
       it(`should escrow funds for pay on delivery`, async () => {
         await erc20.approve(payOnD.address, 90, { from: erc20owner })
-        await payOnD.submitPayOnDelivery(
+        await payOnD.requestPayOnDelivery(
           `123`,
           0,
           20,
@@ -130,7 +129,7 @@ contract(
         })
         await erc20.approve(payOnD.address, 500, { from: erc20owner })
         await erc20.approve(consensus.address, 500, { from: erc20owner })
-        await payOnD.submitPayOnDelivery(
+        await payOnD.requestPayOnDelivery(
           `123`,
           20,
           90,
@@ -138,7 +137,7 @@ contract(
           payOnDeliveryBeneficiary,
           { value: 90, from: erc20owner }
         ).should.not.be.fulfilled
-        await payOnD.submitPayOnDelivery(
+        await payOnD.requestPayOnDelivery(
           `1232`,
           200,
           90,
@@ -146,7 +145,7 @@ contract(
           payOnDeliveryBeneficiary,
           { value: 90, from: erc20owner }
         ).should.not.be.fulfilled
-        await payOnD.submitPayOnDelivery(
+        await payOnD.requestPayOnDelivery(
           `1233`,
           90,
           200,
@@ -154,7 +153,7 @@ contract(
           payOnDeliveryBeneficiary,
           { value: 90, from: erc20owner }
         ).should.not.be.fulfilled
-        await payOnD.submitPayOnDelivery(
+        await payOnD.requestPayOnDelivery(
           `1253`,
           300,
           200,
@@ -166,11 +165,11 @@ contract(
       it(`should store requests in array`, async () => {
         await erc20.approve(payOnD.address, 500, { from: erc20owner })
 
-        await payOnD.submitPayOnDelivery(`123`, 0, 0, 0, payOnDeliveryBeneficiary)
+        await payOnD.requestPayOnDelivery(`123`, 0, 0, 0, payOnDeliveryBeneficiary)
           .should.be.fulfilled
-        await payOnD.submitPayOnDelivery(`2`, 0, 0, 0, payOnDeliveryBeneficiary)
+        await payOnD.requestPayOnDelivery(`2`, 0, 0, 0, payOnDeliveryBeneficiary)
           .should.be.fulfilled
-        await payOnD.submitPayOnDelivery(
+        await payOnD.requestPayOnDelivery(
           `3`,
           0,
           10,
@@ -181,9 +180,9 @@ contract(
             value: 100
           }
         ).should.be.fulfilled
-        await payOnD.submitPayOnDelivery(`4`, 0, 0, 0, payOnDeliveryBeneficiary)
+        await payOnD.requestPayOnDelivery(`4`, 0, 0, 0, payOnDeliveryBeneficiary)
           .should.be.fulfilled
-        await payOnD.submitPayOnDelivery(`5`, 0, 0, 0, payOnDeliveryBeneficiary)
+        await payOnD.requestPayOnDelivery(`5`, 0, 0, 0, payOnDeliveryBeneficiary)
           .should.be.fulfilled
         const numReqs = await payOnD.numRequests()
         numReqs.toNumber().should.be.equal(5)
@@ -204,7 +203,7 @@ contract(
 
         await erc20.approve(payOnD.address, 500, { from: erc20owner })
 
-        await payOnD.submitPayOnDelivery(`1`, 0, 0, 0, payOnDeliveryBeneficiary)
+        await payOnD.requestPayOnDelivery(`1`, 0, 0, 0, payOnDeliveryBeneficiary)
           .should.be.fulfilled
       })
 

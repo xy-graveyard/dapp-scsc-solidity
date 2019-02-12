@@ -1,7 +1,6 @@
 pragma solidity >=0.5.0 <0.6.0;
 
 import "./token/ERC721/ERC721Enumerable.sol";
-import "./ECDSA.sol";
 
 /* 
     Contract used to track ownership of stakable addresses in XYO network 
@@ -9,7 +8,6 @@ import "./ECDSA.sol";
     Stakers on these tokens may make reward withdrawels,
 */
 contract XyStakableToken is ERC721Enumerable {
-    using ECDSA for bytes32;
     address public governor;
 
     uint[] public blockProducers;

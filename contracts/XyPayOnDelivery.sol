@@ -46,7 +46,7 @@ contract XyPayOnDelivery is IXyRequester {
         @param weiPayOnDelivery - the amount of eth to pay on delivery
         @param beneficiary The destination address of the funds.
     */
-    function submitPayOnDelivery(
+    function requestPayOnDelivery(
         uint requestId, 
         uint xyoBounty, 
         uint xyoPayOnDelivery, 
