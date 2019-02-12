@@ -95,11 +95,11 @@ contract(
           from: payOnDeliveryOwner
         })
       })
-      it(`should create ipfs requests`, async () => {
+      it(`should create requests`, async () => {
         await payOnD.submitPayOnDelivery(`123`, 0, 0, 0, payOnDeliveryBeneficiary)
           .should.be.fulfilled
       })
-      it(`should not allow duplicate ipfs requests`, async () => {
+      it(`should not allow duplicate requests`, async () => {
         await payOnD.submitPayOnDelivery(`123`, 0, 0, 0, payOnDeliveryBeneficiary)
           .should.be.fulfilled
         await payOnD.submitPayOnDelivery(`123`, 0, 0, 0, payOnDeliveryBeneficiary)
@@ -188,7 +188,7 @@ contract(
         const numReqs = await payOnD.numRequests()
         numReqs.toNumber().should.be.equal(5)
         const req2 = await payOnD.requests(2)
-        req2.ipfs.toNumber().should.be.equal(3)
+        req2.requestId.toNumber().should.be.equal(3)
         req2.beneficiary.should.be.equal(payOnDeliveryBeneficiary)
         req2.asker.should.be.equal(erc20owner)
         req2.xyoPayment.toNumber().should.be.equal(10)

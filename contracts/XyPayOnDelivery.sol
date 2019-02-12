@@ -18,7 +18,7 @@ contract XyPayOnDelivery is IXyRequester {
     XyStakingConsensus public scsc;
     IERC20 public xyoToken;
 
-    event IntersectResponse(uint ipfs, uint weiPayment, uint xyoPayment, address payable beneficiary, bool didIntersect);
+    event IntersectResponse(uint requestId, uint weiPayment, uint xyoPayment, address payable beneficiary, bool didIntersect);
 
     // Check that 
     mapping (uint => bool) public didIntersect;
@@ -40,14 +40,14 @@ contract XyPayOnDelivery is IXyRequester {
 
     /**
         @dev Called by PonD client.  API for client to request an intersection question
-        @param ipfs - the hash of the request (first 2 bytes stripped)
+        @param requestId - the hash of the request (first 2 bytes stripped)
         @param xyoBounty - the xyo bounty for the request (approve scsc for this amount)
         @param xyoPayOnDelivery - the amount of XYO to pay on delivery
         @param weiPayOnDelivery - the amount of eth to pay on delivery
         @param beneficiary The destination address of the funds.
     */
     function submitPayOnDelivery(
-        uint ipfs, 
+        uint requestId, 
         uint xyoBounty, 
         uint xyoPayOnDelivery, 
         uint weiPayOnDelivery, 
@@ -56,11 +56,11 @@ contract XyPayOnDelivery is IXyRequester {
         public 
         payable 
     {
-        require (requestIndex[ipfs] == 0, "Duplicate request submitted");
+        require (requestIndex[requestId] == 0, "Duplicate request submitted");
         require (msg.value >= weiPayOnDelivery, "Not enough payment provided");
         
         uint miningGas = msg.value.sub(weiPayOnDelivery);
-        scsc.submitRequest.value(miningGas)(ipfs, xyoBounty, msg.sender, 1);
+        scsc.submitRequest.value(miningGas)(requestId, xyoBounty, msg.sender, 1);
         
         if (xyoPayOnDelivery > 0) {
             require (xyoToken.allowance(msg.sender, address(this)) >= xyoPayOnDelivery, "must approve PonD for XYO Payment");
@@ -68,40 +68,40 @@ contract XyPayOnDelivery is IXyRequester {
         }
 
         IPFSRequest memory q = IPFSRequest(
-            ipfs, weiPayOnDelivery, xyoPayOnDelivery, block.number, 0, beneficiary, msg.sender
+            requestId, weiPayOnDelivery, xyoPayOnDelivery, block.number, 0, beneficiary, msg.sender
         );
-        requestIndex[ipfs] = requests.length;
+        requestIndex[requestId] = requests.length;
         requests.push(q);
     }
 
     /**
         @dev Called by SCSC. If intersection, transfer pay on delivery to beneficiary, delete request
-        @param ipfs - the hash of the request (first 2 bytes stripped)
+        @param requestId - the hash of the request (first 2 bytes stripped)
         @param requestType Used by scsc to signal what is in the response data
         @param responseData Response data from scsc
     */
-    function submitResponse(uint ipfs, uint8 requestType, bytes memory responseData) public {
+    function submitResponse(uint requestId, uint8 requestType, bytes memory responseData) public {
         require (msg.sender == address(scsc), "only scsc can complete requests");
         bool intersection = responseData.length > 0 && responseData[0] > 0;
-        didIntersect[ipfs] = intersection;
-        IPFSRequest storage q = requests[requestIndex[ipfs]];
+        didIntersect[requestId] = intersection;
+        IPFSRequest storage q = requests[requestIndex[requestId]];
         q.responseAt = block.number;
 
         if (intersection) {
-            payOnDelivery(ipfs, q.beneficiary);
+            payOnDelivery(requestId, q.beneficiary);
         } else {
-            payOnDelivery(ipfs, q.asker);
+            payOnDelivery(requestId, q.asker);
         }
-        emit IntersectResponse(q.ipfs, q.weiPayment, q.xyoPayment, q.beneficiary, true);
+        emit IntersectResponse(q.requestId, q.weiPayment, q.xyoPayment, q.beneficiary, true);
     }
 
     /** 
         Will refund the asker prior to deleting the request
-        @param ipfs - the ipfs hash to be deleted
+        @param requestId - the requestId hash to be deleted
         @param payee - who to pay
     */
-    function payOnDelivery(uint ipfs, address payable payee) internal {
-        IPFSRequest memory q = requests[requestIndex[ipfs]];
+    function payOnDelivery(uint requestId, address payable payee) internal {
+        IPFSRequest memory q = requests[requestIndex[requestId]];
         if (q.weiPayment > 0) {
             payee.transfer(q.weiPayment);
         }
@@ -112,20 +112,20 @@ contract XyPayOnDelivery is IXyRequester {
 
     /** 
         Will refund the asker prior to deleting the request
-        @param ipfs - the ipfs hash to be deleted
+        @param requestId - the requestId hash to be deleted
         @param refundee Who to pay the escrow balance too
     */
-    function deleteRequestAndRefund(uint ipfs, address payable refundee) internal {
-        payOnDelivery(ipfs, refundee);
-        _deleteRequest(ipfs);
+    function deleteRequestAndRefund(uint requestId, address payable refundee) internal {
+        payOnDelivery(requestId, refundee);
+        _deleteRequest(requestId);
     }
 
     /** 
         Will delete the request and remove the request index
-        @param ipfs - the ipfs hash to be deleted
+        @param requestId - the requestId hash to be deleted
     */
-    function _deleteRequest(uint ipfs) private {
-        uint qIndex = requestIndex[ipfs];
+    function _deleteRequest(uint requestId) private {
+        uint qIndex = requestIndex[requestId];
         uint lastQIndex = requests.length.sub(1);
         IPFSRequest memory lastRequest = requests[lastQIndex];
 
@@ -133,8 +133,8 @@ contract XyPayOnDelivery is IXyRequester {
         delete requests[lastQIndex];
 
         requests.length--;
-        requestIndex[ipfs] = 0;
-        requestIndex[lastRequest.ipfs] = qIndex;
+        requestIndex[requestId] = 0;
+        requestIndex[lastRequest.requestId] = qIndex;
     }
 
     /** Public array length getters */

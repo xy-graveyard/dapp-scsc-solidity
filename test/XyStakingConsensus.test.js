@@ -199,11 +199,7 @@ contract(
 
     const compareDiviners = (a, b) => a > b
 
-    const createArgs = async (
-      requests,
-      packedResponses,
-      returnHash
-    ) => {
+    const createArgs = async (requests, packedResponses, returnHash) => {
       const previous = await consensus.getLatestBlock()
       const responseDataHash = abi.soliditySHA3([`bytes32`], [previous]) // a bogus hash
       const sorted = diviners.map(d => d.toLowerCase()).sort(compareDiviners)
@@ -244,11 +240,7 @@ contract(
       const requests = await submitPayOnDeliverys()
       const responses = randomBoolResponses()
       const packedResponses = packResponse(responses)
-      return createArgs(
-        requests,
-        packedResponses,
-        returnHash
-      )
+      return createArgs(requests, packedResponses, returnHash)
     }
 
     const addWithdrawRequest = async (requests) => {
@@ -263,11 +255,7 @@ contract(
       const responses = randomBoolResponses()
       appendResponse(responses, `uint`, amount)
       const packedResponses = packResponse(responses)
-      return createArgs(
-        requests,
-        packedResponses,
-        false
-      )
+      return createArgs(requests, packedResponses, false)
     }
     const appendResponse = (responses, type, val) => {
       responses.push({ type, value: val })
@@ -322,11 +310,32 @@ contract(
 
       return [r, s, v, packedBytes, hash]
     }
-
+    describe.only(`Submit Request`, () => {
+      it(`Should only allow creating withdraw, uint, and bool request types`, async () => {
+        await consensus.submitRequest(1, 0, d1, 1).should.be.fulfilled
+        await consensus.submitRequest(2, 0, d1, 2).should.be.fulfilled
+        await consensus.submitRequest(3, 0, d1, 3).should.be.fulfilled
+        await consensus.submitRequest(4, 0, d1, 4).should.not.be.fulfilled
+        await consensus.submitRequest(5, 0, d1, 0).should.not.be.fulfilled
+      })
+      it(`Should not allow duplicate requests`, async () => {
+        await consensus.submitRequest(1, 0, d1, 1).should.be.fulfilled
+        await consensus.submitRequest(1, 0, d1, 2).should.not.be.fulfilled
+      })
+      it(`Should not allow requests under minimum bounty if in place`, async () => {
+        await parameterizer.ownerSet(`xyXYORequestBountyMin`, 100, {
+          from: parameterizerOwner
+        })
+        await parameterizer.ownerSet(`xyWeiMiningMin`, 100, {
+          from: parameterizerOwner
+        })
+        await erc20.approve(consensus.address, 500, { from: erc20owner })
+      })
+    })
     describe(`Submitting blocks`, () => {
       it(`should allow creating a block by consensus of at least 4 diviners`, async () => {
-        const tx = await consensus.submitBlock(...(await generateArgs()))
-          .should.be.fulfilled
+        const tx = await consensus.submitBlock(...(await generateArgs())).should
+          .be.fulfilled
         expectEvent.inLogs(tx.logs, `BlockCreated`)
       })
 
@@ -473,6 +482,8 @@ contract(
         const newBalance = await erc20.balanceOf(consensusOwner)
         stakeAmt.should.be.equal(newBalance - balanceBefore)
       })
+      it(`should not be able to withdraw over staking`, async () => {})
+      it(`should not be able to withdraw over staking`, async () => {})
     })
   }
 )

@@ -9,8 +9,6 @@ import "./IERC20.sol";
 * Why Transfers: transfer methods could have a return value (bool), throw or revert for insufficient funds or
 * unathorized value.
 *
-* Why Approve: approve method could has a return value (bool) or does not accept 0 as a valid value (BNB token).
-* The common strategy used to clean approvals.
 * 
 * We use the Solidity call instead of interface methods because in the case of transfer, it will fail
 * for tokens with an implementation without returning a value.

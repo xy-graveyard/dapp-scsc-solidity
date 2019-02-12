@@ -22,8 +22,7 @@ contract XyStakingModel {
     uint public stakeCooldown;
     uint public unstakeCooldown;
 
-    uint8 public UnstakeAction = 1;
-    uint8 public EOLAction = 2;
+    enum ActionType { EOL, UNSTAKE, ADD_BP, REMOVE_BP }
 
     // Track the total active stake in XYO
     uint public totalActiveStake;
@@ -161,28 +160,35 @@ contract XyStakingModel {
         }
     }
 
-    function isUnstakeAction(uint8 action) view public returns (bool) {
-        return (action == EOLAction || action == UnstakeAction);
+    function isUnstakeAction(uint8 actionType) pure public returns (bool) {
+        return (actionType == uint(ActionType.UNSTAKE)  || actionType == uint(ActionType.EOL) );
     }
 
     /** 
         Call this when it's time to resolve a passed governance action
         @param stakee the staked item receiving action
-        @param startIndex if there ar e
+        @param startIndex if a batchable action, where to start
+        @param batchSize if batchable action, batchSize
     */
     function resolveGovernanceAction(uint stakee, uint startIndex, uint batchSize) public {
         (,uint penalty,,uint8 actionType, bool accepted) = params.actions(stakee);
         require(accepted == true, "action must be accepted");
         // unstake action
-        if (actionType == UnstakeAction) {
+        if (actionType == uint(ActionType.UNSTAKE)) {
             _unstakeGovernanceAction(stakee, startIndex, batchSize, penalty);
-        } else if (actionType == EOLAction) {
+        } else if (actionType == uint(ActionType.EOL)) {
             // unstake all with no penalty
             _unstakeGovernanceAction(stakee, startIndex, batchSize, 0);
-
             // burn stakee 721
             stakableToken.burn(stakee);
-        }
+        } else if (actionType == uint(ActionType.ADD_BP)) {
+            stakableToken.enableBlockProducer(stakee, true);
+            params.resolveAction(stakee);
+        } else if (actionType == uint(ActionType.REMOVE_BP)) {
+            stakableToken.enableBlockProducer(stakee, false);
+            params.resolveAction(stakee);
+        } 
+
         if (isUnstakeAction(actionType) && stakeeStake[stakee].activeStake == 0) {
             params.resolveAction(stakee);
         }
@@ -214,7 +220,7 @@ contract XyStakingModel {
             false           // isActivated
         );
 
-        // // Store the staking data
+        // Store the staking data
         stakingStakeeIndex[newToken] = stakeeToStakingIds[stakee].length;
         stakeeToStakingIds[stakee].push(newToken);
         stakingStakerIndex[newToken] = stakerToStakingIds[msg.sender].length;

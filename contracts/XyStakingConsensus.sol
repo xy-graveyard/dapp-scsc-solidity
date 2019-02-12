@@ -15,13 +15,13 @@ contract XyStakingConsensus is XyStakingModel {
         uint request,
         uint xyoBounty,
         uint weiMining,
-        address requestSender
+        address requestSender,
+        uint8 requestType
     );
 
     event BlockCreated(
         uint blockHash,
         uint previousBlock,
-        uint weiMining,
         uint createdAtBlock,
         address blockProducer
     );
@@ -175,7 +175,7 @@ contract XyStakingConsensus is XyStakingModel {
         requestsById[request] = q;
         requestChain.push(request);
 
-        emit RequestSubmitted(request, xyoBounty, msg.value,  msg.sender);
+        emit RequestSubmitted(request, xyoBounty, msg.value,  msg.sender, requestType);
     }
 
     /**
@@ -287,12 +287,19 @@ contract XyStakingConsensus is XyStakingModel {
         require (stake > totalActiveStake.mul(params.get("xyStakeQuorumPct")).div(100), "Not enough stake");
     }
 
+    function _createBlock(uint previousBlock, uint newBlock) private {
+        Block memory b = Block(previousBlock, block.number, msg.sender);
+        blockChain.push(newBlock);
+        blocks[newBlock] = b;
+        emit BlockCreated(newBlock, previousBlock, block.number, msg.sender);
+    }
+
     /**
         Submit a new block to the consensus blockChain. Verifies stake in consensus is over 51% of the network. 
         calls requests' callbacks with responses.  Creates new block and returns weiMining for successful creation.
         @param blockProducer the id of the stakable diviner in stakable tokens 
         @param previousBlock the prior block to maintain the 
-        @param _requests list of the ipfs request addresses (minus first 2 bytes)
+        @param _requests list of the request ids (minus first 2 bytes)
         @param responses byte array of responses
         @param signers Stakees, aka diviners and must be passed in ascending order to check for dups
         @param sigR R values in signatures
@@ -320,17 +327,12 @@ contract XyStakingConsensus is XyStakingModel {
         require (keccak256(m) == keccak256(test), "Message is not packed correctly");
         // return m;
 
+        uint weiMining = handleResponses(_requests, responses);
+        msg.sender.transfer(weiMining);
+
         uint newBlock = uint(keccak256(m));
         checkSigsAndStakes(newBlock, signers, sigR, sigS, sigV);
-        
-        Block memory b = Block(previousBlock, block.number, msg.sender);
-        blockChain.push(newBlock);
-        blocks[newBlock] = b;
-
-        uint weiMining = handleResponses(_requests, responses);
-
-        emit BlockCreated(newBlock, previousBlock, weiMining, block.number, msg.sender);
-        msg.sender.transfer(weiMining);
+        _createBlock(previousBlock, newBlock);
 
         return newBlock;
     }
