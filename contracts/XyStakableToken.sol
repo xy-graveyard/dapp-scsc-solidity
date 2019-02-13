@@ -70,6 +70,7 @@ contract XyStakableToken is ERC721Enumerable {
         public 
     {
         uint tokenId = uint(keccak256(abi.encodePacked(msg.sender)));
+        require(ownerOf(tokenId) == address(0), "This user already created a stakable Token");
         _mint(msg.sender, tokenId);
     }
 
