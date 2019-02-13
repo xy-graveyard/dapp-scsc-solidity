@@ -47,8 +47,8 @@ contract XyStakableToken is ERC721Enumerable {
     }
 
     function _removeBlockProducer(uint stakee) private {
-        uint index = blockProducerIndexes[stakee];
-        if (index != 0) {
+        if (isBlockProducer(stakee)) {
+            uint index = blockProducerIndexes[stakee];
             uint lastBPIndex = blockProducers.length - 1;
             uint lastBP = blockProducers[lastBPIndex];
 
@@ -70,6 +70,7 @@ contract XyStakableToken is ERC721Enumerable {
         public 
     {
         uint tokenId = uint(keccak256(abi.encodePacked(msg.sender)));
+        require(ownerOf(tokenId) == address(0), "This user already created a stakable Token");
         _mint(msg.sender, tokenId);
     }
 

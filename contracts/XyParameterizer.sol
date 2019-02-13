@@ -1,8 +1,8 @@
 pragma solidity ^0.5.0;
 
-import "./PLCRVoting.sol";
+import "./PLCR/PLCRVoting.sol";
 import "./token/ERC20/IERC20.sol";
-import "./SafeMath.sol";
+import "./utils/SafeMath.sol";
 
 contract XyParameterizer {
 

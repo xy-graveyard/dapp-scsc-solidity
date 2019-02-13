@@ -1,6 +1,6 @@
 import "./token/ERC721/ERC721.sol";
 import "./ownership/Ownable.sol";
-import "./SafeMath.sol";
+import "./utils/SafeMath.sol";
 
 
 /**

@@ -9,7 +9,6 @@
   "scripts": {
     "build": "dapploy",
     "deploy": "dapploy -p",
-    "compile": "bash scripts/compile",
     "chain": "ganache-cli"
   },
   "author": "",
