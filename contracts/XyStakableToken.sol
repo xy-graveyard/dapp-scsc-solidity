@@ -47,8 +47,8 @@ contract XyStakableToken is ERC721Enumerable {
     }
 
     function _removeBlockProducer(uint stakee) private {
-        uint index = blockProducerIndexes[stakee];
-        if (index != 0) {
+        if (isBlockProducer(stakee)) {
+            uint index = blockProducerIndexes[stakee];
             uint lastBPIndex = blockProducers.length - 1;
             uint lastBP = blockProducers[lastBPIndex];
 

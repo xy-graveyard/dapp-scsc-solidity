@@ -83,44 +83,6 @@ contract(
         )
       })
     }
-    before(async () => {
-      erc20 = await ERC20.new(erc20TotalSupply, `XYO Token`, `XYO`, {
-        from: erc20owner
-      })
-      parameterizer = await Governance.new({
-        from: parameterizerOwner
-      })
-      plcr = await PLCR.new({
-        from: parameterizerOwner
-      })
-      await plcr.init(erc20.address)
-
-      stakableToken = await Stakeable.new(consensusOwner, diviners, {
-        from: stakableContractOwner
-      })
-    })
-    beforeEach(async () => {
-      consensus = await StakingConsensus.new(
-        diviners,
-        erc20.address,
-        stakableToken.address,
-        parameterizer.address,
-        {
-          from: consensusOwner
-        }
-      )
-      payOnD = await PayOnDelivery.new(consensus.address, erc20.address, {
-        from: payOnDeliveryOwner
-      })
-      await parameterizer.init(
-        consensus.address,
-        erc20.address,
-        plcr.address,
-        parameters,
-        { from: parameterizerOwner }
-      )
-      await advanceBlock()
-    })
 
     const synchronizePromises = async (promises, results = [], index = 0) => {
       if (promises.length === 0) return []
@@ -243,17 +205,19 @@ contract(
       return createArgs(requests, packedResponses, returnHash)
     }
 
-    const addWithdrawRequest = async (requests) => {
-      const withdrawReq = await consensus.withdrawRewardsRequest.call(0)
-      await consensus.withdrawRewardsRequest(0)
+    const addWithdrawRequest = async (from, requests) => {
+      const withdrawReq = await consensus.withdrawRewardsRequest.call(0, {
+        from
+      })
+      await consensus.withdrawRewardsRequest(0, { from })
       requests.push(withdrawReq)
     }
 
-    const generateWithdrawArgs = async (amount) => {
+    const withdrawSubmitBlockArgs = async (responseAmt, withdrawRequester) => {
       const requests = await requestPayOnDeliveries()
-      await addWithdrawRequest(requests)
+      await addWithdrawRequest(withdrawRequester, requests)
       const responses = randomBoolResponses()
-      appendResponse(responses, `uint`, amount)
+      appendResponse(responses, `uint`, responseAmt)
       const packedResponses = packResponse(responses)
       return createArgs(requests, packedResponses, false)
     }
@@ -310,7 +274,45 @@ contract(
 
       return [r, s, v, packedBytes, hash]
     }
-    describe.only(`Submit Request`, () => {
+    before(async () => {
+      erc20 = await ERC20.new(erc20TotalSupply, `XYO Token`, `XYO`, {
+        from: erc20owner
+      })
+      parameterizer = await Governance.new({
+        from: parameterizerOwner
+      })
+      plcr = await PLCR.new({
+        from: parameterizerOwner
+      })
+      await plcr.init(erc20.address)
+
+      stakableToken = await Stakeable.new(consensusOwner, diviners, {
+        from: stakableContractOwner
+      })
+    })
+    beforeEach(async () => {
+      consensus = await StakingConsensus.new(
+        diviners,
+        erc20.address,
+        stakableToken.address,
+        parameterizer.address,
+        {
+          from: consensusOwner
+        }
+      )
+      payOnD = await PayOnDelivery.new(consensus.address, erc20.address, {
+        from: payOnDeliveryOwner
+      })
+      await parameterizer.init(
+        consensus.address,
+        erc20.address,
+        plcr.address,
+        parameters,
+        { from: parameterizerOwner }
+      )
+      await advanceBlock()
+    })
+    describe(`Submit Request`, () => {
       it(`Should only allow creating withdraw, uint, and bool request types`, async () => {
         await consensus.submitRequest(1, 0, d1, 1).should.be.fulfilled
         await consensus.submitRequest(2, 0, d1, 2).should.be.fulfilled
@@ -323,13 +325,26 @@ contract(
         await consensus.submitRequest(1, 0, d1, 2).should.not.be.fulfilled
       })
       it(`Should not allow requests under minimum bounty if in place`, async () => {
-        await parameterizer.ownerSet(`xyXYORequestBountyMin`, 100, {
+        const min = 100
+        await parameterizer.ownerSet(`xyXYORequestBountyMin`, min, {
           from: parameterizerOwner
         })
-        await parameterizer.ownerSet(`xyWeiMiningMin`, 100, {
+        await parameterizer.ownerSet(`xyWeiMiningMin`, min, {
           from: parameterizerOwner
         })
-        await erc20.approve(consensus.address, 500, { from: erc20owner })
+        await erc20.transfer(d1, 500, { from: erc20owner })
+        await erc20.approve(consensus.address, 500, { from: d1 })
+        await consensus.submitRequest(1, 0, d1, 1, { from: d1 }).should.not.be
+          .fulfilled
+        await consensus.submitRequest(1, 0, d1, 1, { from: d1, value: min })
+          .should.not.be.fulfilled
+        await consensus.submitRequest(1, min, d1, 1, { from: d1, value: 99 })
+          .should.not.be.fulfilled
+        await consensus.submitRequest(1, min, d1, 1, { from: d1, value: min })
+          .should.be.fulfilled
+
+        const contractBalance = await erc20.balanceOf(consensus.address)
+        contractBalance.toNumber().should.be.equal(min)
       })
     })
     describe(`Submitting blocks`, () => {
@@ -464,25 +479,27 @@ contract(
       })
     })
 
-    describe(`rewards request`, () => {
+    describe.only(`withdraw request`, () => {
       const stakeAmt = 10000000
       beforeEach(async () => {
-        await consensus.fake_updateCacheOnStake(stakeAmt, d1)
-        await consensus.fake_updateCacheOnActivate(stakeAmt, d1)
+        await consensus.fake_updateCacheOnStake(stakeAmt, d1, { from: d1 })
+        await consensus.fake_updateCacheOnActivate(stakeAmt, d1, { from: d1 })
         await erc20.transfer(consensus.address, stakeAmt, {
           from: erc20owner
         })
         await advanceBlock()
       })
       it(`should be able to withdraw rewards`, async () => {
-        const balanceBefore = await erc20.balanceOf(consensusOwner)
-        const args = await generateWithdrawArgs(stakeAmt)
-        // await consensus.submitBlock.call(...args)
-        await consensus.submitBlock(...args)
-        const newBalance = await erc20.balanceOf(consensusOwner)
+        const balanceBefore = await erc20.balanceOf(d1)
+        const args = await withdrawSubmitBlockArgs(stakeAmt, d1)
+        await consensus.submitBlock(...args).should.be.fulfilled
+        const newBalance = await erc20.balanceOf(d1)
         stakeAmt.should.be.equal(newBalance - balanceBefore)
       })
-      it(`should not be able to withdraw over staking`, async () => {})
+      it(`should not be able to withdraw over staking`, async () => {
+        const args = await withdrawSubmitBlockArgs(stakeAmt + 100, d1)
+        await consensus.submitBlock(...args).should.not.be.fulfilled
+      })
       it(`should not be able to withdraw over staking`, async () => {})
     })
   }

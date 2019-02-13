@@ -100,7 +100,7 @@ contract XyStakingConsensus is XyStakingModel {
             require (msg.value >= weiMiningMin, "Not enough wei to cover mining");
         }
         if (xyoMiningMin > 0) {
-            require (xyoBounty > xyoMiningMin, "XYO Bounty less than minimum");
+            require (xyoBounty >= xyoMiningMin, "XYO Bounty less than minimum");
             require (xyoToken.allowance(xyoSender, address(this)) >= xyoMiningMin, "must approve SCSC for XYO mining fee");
             xyoToken.transferFrom(xyoSender, address(this), xyoMiningMin);
         }
@@ -119,7 +119,6 @@ contract XyStakingConsensus is XyStakingModel {
         returns (uint)
     {
         uint requestId = uint(keccak256(abi.encodePacked(msg.sender, xyoBounty, block.number)));
-        require (requestsById[requestId].createdAt == 0, "Duplicate request submitted");
         submitRequest(requestId, xyoBounty, msg.sender, WithdrawRequestType);
         return requestId;
     }
