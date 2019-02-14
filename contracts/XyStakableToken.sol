@@ -1,42 +1,37 @@
 pragma solidity >=0.5.0 <0.6.0;
 
 import "./token/ERC721/ERC721Enumerable.sol";
-
+import "./access/GovernorRole.sol";
 /* 
     Contract used to track ownership of stakable addresses in XYO network 
     These token ids are the payment ids that are passed up the XYO origin chains
     Stakers on these tokens may make reward withdrawels,
 */
-contract XyStakableToken is ERC721Enumerable {
-    address public governor;
+contract XyStakableToken is ERC721Enumerable, GovernorRole {
 
+    // Keep a list of block producers to publicly show who the BPs are in the system
     uint[] public blockProducers;
+    // Add mapping of indexes so that we can find a BP by their blockProducers[index[id]]
     mapping(uint => uint) public blockProducerIndexes;
 
     constructor () 
         public
     {
-        governor = msg.sender;
     }
 
-    function transferGovernor
-    (
-        address newGovenor
-    )
-    public 
-    {
-        require(msg.sender == governor, "Only current govenor can set");
-        governor = newGovenor;
-    }
-
+    /**
+        Allow a contract governor to add and remove block producer
+        @param stakee which stakable token
+        @param enable enable == add 
+    */
     function enableBlockProducer
     (
         uint stakee, 
         bool enable
     ) 
+    onlyGovernor
     public 
     {
-        require(msg.sender == governor, "Only current govenor can enable");
         if (enable) {
             require (blockProducerIndexes[stakee] == 0, "Producer already enabled");
             blockProducerIndexes[stakee] = blockProducers.length;
@@ -66,12 +61,13 @@ contract XyStakableToken is ERC721Enumerable {
         Emits transfer event to sender
         msg.sender - new account creator
     */
-    function mint() 
+    function mint(address beneficiary) 
         public 
     {
-        uint tokenId = uint(keccak256(abi.encodePacked(msg.sender)));
-        require(ownerOf(tokenId) == address(0), "This user already created a stakable Token");
-        _mint(msg.sender, tokenId);
+        require(msg.sender == beneficiary || isGovernor(msg.sender), "Only beneficiary or governor can create token");
+        uint tokenId = uint(keccak256(abi.encodePacked(beneficiary)));
+        require(_exists(tokenId) == false, "This user already created a stakable Token");
+        _mint(beneficiary, tokenId);
     }
 
     /**
@@ -80,9 +76,16 @@ contract XyStakableToken is ERC721Enumerable {
         @param stakee the stakee to burn 
     */
     function burn(uint stakee) public {
-        require(msg.sender == governor || msg.sender == ownerOf(stakee), "Only owner or govenor can burn account");
+        require(isGovernor(msg.sender) || msg.sender == ownerOf(stakee), "Only owner or govenor can burn account");
         _removeBlockProducer(stakee);
         _burn(ownerOf(stakee), stakee);
+    }
+
+    /**
+        Expose internal exists function to be used
+    */
+    function exists(uint stakee) public returns (bool) {
+        return _exists(stakee);
     }
 
     function isBlockProducer(uint stakee) public view returns (bool) {

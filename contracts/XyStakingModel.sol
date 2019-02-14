@@ -206,7 +206,7 @@ contract XyStakingModel {
         returns (uint)
     {
         require(params.hasUnresolvedAction(stakee) == false, "All actions on stakee must be resolved");
-        require(stakableToken.ownerOf(stakee) != address(0), "Stakable token must exist");
+        require(stakableToken.exists(stakee) == true, "Stakable token must exist");
         updateCacheOnStake(amount, stakee);
 
         // random generated token id

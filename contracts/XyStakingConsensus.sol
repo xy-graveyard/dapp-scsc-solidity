@@ -91,6 +91,11 @@ contract XyStakingConsensus is XyStakingModel {
         return blockChain[blockChain.length-1];
     }
 
+    /**
+        Will verify proper mining fees have been applied
+        @param xyoSender who to transfer the fees from (must have approved this contract)
+        @param xyoBounty the amount the xyoSender is paying for this request
+    */
     function _requireFeesAndTransfer(address xyoSender, uint xyoBounty) 
         private 
     {
@@ -283,6 +288,7 @@ contract XyStakingConsensus is XyStakingModel {
         @param blockProducer the id of the stakable diviner in stakable tokens 
         @param previousBlock the prior block to maintain the 
         @param _requests list of the request ids (minus first 2 bytes)
+        @param payloadData the hash of the supporting block data
         @param responses byte array of responses
         @param signers Stakees, aka diviners and must be passed in ascending order to check for dups
         @param sigR R values in signatures
@@ -290,16 +296,18 @@ contract XyStakingConsensus is XyStakingModel {
         @param sigV V values in signatures
         @return The hash of the new block
     */
-    function submitBlock(uint blockProducer,
-                         uint previousBlock,
-                         uint[] memory _requests,
-                         bytes32 payloadData,
-                         bytes memory responses,
-                         address[] memory signers,
-                         bytes32[] memory sigR,
-                         bytes32[] memory sigS,
-                         uint8[] memory sigV,
-                         bytes memory test) 
+    function submitBlock
+    (
+        uint blockProducer,
+        uint previousBlock,
+        uint[] memory _requests,
+        bytes32 payloadData,
+        bytes memory responses,
+        address[] memory signers,
+        bytes32[] memory sigR,
+        bytes32[] memory sigS,
+        uint8[] memory sigV
+    ) 
         public 
         returns (uint)
     {
@@ -307,8 +315,6 @@ contract XyStakingConsensus is XyStakingModel {
         require (stakableToken.ownerOf(blockProducer) == msg.sender, "Sender does not own BP");
         require (previousBlock == getLatestBlock(), "Incorrect previous block");
         bytes memory m = abi.encodePacked(previousBlock, _requests, payloadData, responses);
-        require (keccak256(m) == keccak256(test), "Message is not packed correctly");
-        // return m;
 
         uint weiMining = handleResponses(_requests, responses);
         msg.sender.transfer(weiMining);

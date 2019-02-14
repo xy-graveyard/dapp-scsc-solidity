@@ -185,7 +185,7 @@ contract(
         packedMsg = sig[3]
         hash = sig[4]
       })
-      return [
+      const args = [
         d1,
         previous,
         requests,
@@ -194,11 +194,14 @@ contract(
         sorted,
         r,
         s,
-        v,
-        returnHash ? hash : packedMsg
+        v
       ]
+      if (returnHash) {
+        args.push(hash)
+      }
+      return args
     }
-    const generateArgs = async (returnHash = false, addWithdraw = false) => {
+    const generateArgs = async (returnHash = false) => {
       const requests = await requestPayOnDeliveries()
       const responses = randomBoolResponses()
       const packedResponses = packResponse(responses)
@@ -479,7 +482,7 @@ contract(
       })
     })
 
-    describe.only(`withdraw request`, () => {
+    describe(`withdraw request`, () => {
       const stakeAmt = 10000000
       beforeEach(async () => {
         await consensus.fake_updateCacheOnStake(stakeAmt, d1, { from: d1 })
@@ -500,7 +503,6 @@ contract(
         const args = await withdrawSubmitBlockArgs(stakeAmt + 100, d1)
         await consensus.submitBlock(...args).should.not.be.fulfilled
       })
-      it(`should not be able to withdraw over staking`, async () => {})
     })
   }
 )
