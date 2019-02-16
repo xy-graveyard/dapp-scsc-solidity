@@ -49,6 +49,7 @@
     "web3-utils": "^1.0.0-beta.37"
   },
   "dependencies": {
-    "ethereumjs-util": "^6.0.0"
+    "ethereumjs-util": "^6.0.0",
+    "ipfs-http-client": "^29.1.1"
   }
 }

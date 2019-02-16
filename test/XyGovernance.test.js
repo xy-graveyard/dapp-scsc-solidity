@@ -39,9 +39,9 @@ const should = require(`chai`)
 contract(
   `XyPayOnDelivery`,
   ([
-    consensusOwner,
+    governanceOwner,
+    governanceResolver,
     erc20owner,
-    parameterizerOwner,
     payOnDeliveryOwner,
     stakableTokenOwner,
     stakableContractOwner,

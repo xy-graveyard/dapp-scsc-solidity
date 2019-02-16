@@ -5,22 +5,21 @@ import "./XyParameterizer.sol";
 
 
 /**
-    @dev A simple challenge and vote smart contract on stakee based on staker's stake
-
+    @dev Governance contract provides a democratic voting mechanism that will control  
+    parameters and actions that govern the XYO Network
  */
 contract XyGovernance is XyParameterizer {
     using SafeMath for uint;
 
     address public resolverAddress;
 
-    event NewActionAccepted(uint indexed stakee, uint8 actionType, string reason);
-    event ActionResolved(uint indexed stakee, uint8 actionType, string reason);
+    event NewActionAccepted(bytes32 indexed propId, uint indexed stakee, uint8 actionType, string reason);
+    event ActionResolved(bytes32 indexed propId, uint indexed stakee, uint8 actionType);
 
     struct GovernanceAction {
-        bytes32 propId;         // proposal id
+        bytes32 propId;         // proposal id must be unique
         uint stakePenaltyPct;   // amount that is transferred from the active stake to the penalty balance
-        string reason;
-        uint8 actionType;                          
+        uint8 actionType;       // type of action              
         bool accepted;
     }
 
@@ -31,6 +30,9 @@ contract XyGovernance is XyParameterizer {
     // and once governance has been established renounce ownership role 
     bool ownershipRenounced = false;
 
+    /**
+        Governance governs parameters and actions
+    */
     constructor(
     ) XyParameterizer() 
     public {
@@ -78,7 +80,7 @@ contract XyGovernance is XyParameterizer {
         require(action.accepted, "cannot resolve an unaccepted action");
         resolutions[stakee].push(action);
         delete actions[stakee];
-        emit ActionResolved(stakee, action.actionType, action.reason);
+        emit ActionResolved(stakee, action.actionType);
     }
 
       /**
