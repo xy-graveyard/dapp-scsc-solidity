@@ -49,6 +49,7 @@
     "web3-utils": "^1.0.0-beta.37"
   },
   "dependencies": {
-    "ethereumjs-util": "^6.0.0"
+    "ethereumjs-util": "^6.0.0",
+    "zos-lib": "^2.2.0"
   }
 }
