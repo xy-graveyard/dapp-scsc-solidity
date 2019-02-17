@@ -4,14 +4,13 @@ import "./dll/DLL.sol";
 import "./attrstore/AttributeStore.sol";
 import "../utils/SafeMath.sol";
 import "../token/ERC20/SafeERC20.sol";
-import "zos-lib/contracts/Initializable.sol";
 
 
 /**
 @title Partial-Lock-Commit-Reveal Voting scheme with ERC20 tokens
 @author Team: Aspyn Palatnick, Cem Ozer, Yorke Rhodes
 */
-contract PLCRVoting is Initializable {
+contract PLCRVoting {
     using SafeERC20 for IERC20;
 
     // ============
@@ -47,7 +46,9 @@ contract PLCRVoting is Initializable {
     // ============
     // STATE VARIABLES:
     // ============
+
     uint public pollNonce;
+    uint public INITIAL_POLL_NONCE;
 
     mapping(uint => Poll) public pollMap; // maps pollID to Poll struct
     mapping(address => uint) public voteTokenBalance; // maps user's address to voteToken balance
@@ -61,13 +62,12 @@ contract PLCRVoting is Initializable {
     @dev Initializer. Can only be called once.
     @param _token The address where the ERC20 token contract is deployed
     */
-
-    function initialize(address _token) initializer public {
-        require(_token != address(0x40) && address(token) == address(0));
+    function init(address _token) public {
+        require(_token != address(0) && address(token) == address(0));
         token = IERC20(_token);
-        uint INITIAL_POLL_NONCE = 0;
         pollNonce = INITIAL_POLL_NONCE;
     }
+
     // ================
     // TOKEN INTERFACE:
     // ================

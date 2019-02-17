@@ -2,13 +2,15 @@ pragma solidity >=0.5.0 <0.6.0;
 
 import "./utils/SafeMath.sol";
 import "./XyParameterizer.sol";
+import "zos-lib/contracts/Initializable.sol";
+
 
 
 /**
     @dev A simple challenge and vote smart contract on stakee based on staker's stake
 
  */
-contract XyGovernance is XyParameterizer {
+contract XyGovernance is XyParameterizer, Initializable {
     using SafeMath for uint;
 
     address public resolverAddress;
@@ -29,19 +31,14 @@ contract XyGovernance is XyParameterizer {
 
     // help ease transition into decentralized entity, 
     // and once governance has been established renounce ownership role 
-    bool ownershipRenounced = false;
+    bool ownershipRenounced;
 
-    constructor(
-    ) XyParameterizer() 
-    public {
-    }
-
-    function init(
+    function initialize(
         address _resolverAddress,
         address _xyERC20,
         address _plcr,
         uint[] memory _parameters
-    ) public {
+    ) public initializer {
         resolverAddress = _resolverAddress;
         super.init(_xyERC20, _plcr, _parameters);
     }

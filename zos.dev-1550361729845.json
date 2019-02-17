@@ -1,21 +1,338 @@
 {
-  "contracts": {},
-  "solidityLibs": {
-    "DLL": {
-      "address": "0x07a457d878BF363E0Bb5aa0B096092f941e19962",
-      "constructorCode": "610415610030600b82828239805160001a6073146000811461002057610022565bfe5b5030600052607381538281f3fe",
-      "bodyBytecodeHash": "ff3cb78c6e326b317591f74d6df2595ae2b029be398e131d596bb92ac6994dc8",
-      "localBytecodeHash": "f142c51b7f3ef1686b8d9609a17e4ae308d40017342f4a8ef5e2e58bae52a310",
-      "deployedBytecodeHash": "f142c51b7f3ef1686b8d9609a17e4ae308d40017342f4a8ef5e2e58bae52a310"
-    },
-    "AttributeStore": {
-      "address": "0xFA33c8EF8b5c4f3003361c876a298D1DB61ccA4e",
-      "constructorCode": "610329610030600b82828239805160001a6073146000811461002057610022565bfe5b5030600052607381538281f3fe",
-      "bodyBytecodeHash": "5b16410e9cb28cfa2a3308b39b226c5c20fc472b54c51cb09daf57f425f4cf2f",
-      "localBytecodeHash": "59e8c63ac33cf88a743bf824a441d79b123b4b6e693eae7d05218379af662204",
-      "deployedBytecodeHash": "59e8c63ac33cf88a743bf824a441d79b123b4b6e693eae7d05218379af662204"
+  "contracts": {
+    "XyGovernance": {
+      "address": "0xBe0B0f08A599F07699E98A9D001084e97b9a900A",
+      "constructorCode": "608060405234801561001057600080fd5b506136f4806100206000396000f3fe",
+      "bodyBytecodeHash": "9cc6e6d49e15403381f25df2c6e23220d48a89d5ddccff8070af75bffbbdb5e4",
+      "localBytecodeHash": "837c10367645c374f35d2fb62ba9e3ddf141dea0ce1cf336b9342aa5b711438b",
+      "deployedBytecodeHash": "837c10367645c374f35d2fb62ba9e3ddf141dea0ce1cf336b9342aa5b711438b",
+      "types": {
+        "t_uint256": {
+          "id": "t_uint256",
+          "kind": "elementary",
+          "label": "uint256"
+        },
+        "t_mapping<t_uint256>": {
+          "id": "t_mapping<t_uint256>",
+          "valueType": "t_uint256",
+          "label": "mapping(key => uint256)",
+          "kind": "mapping"
+        },
+        "t_struct<XyParameterizer.Challenge>": {
+          "id": "t_struct<XyParameterizer.Challenge>",
+          "kind": "struct",
+          "label": "XyParameterizer.Challenge",
+          "members": [
+            {
+              "label": "rewardPool",
+              "astId": 2062,
+              "type": "t_uint256",
+              "src": "1223:15:6"
+            },
+            {
+              "label": "challenger",
+              "astId": 2064,
+              "type": "t_address",
+              "src": "1320:18:6"
+            },
+            {
+              "label": "resolved",
+              "astId": 2066,
+              "type": "t_bool",
+              "src": "1374:13:6"
+            },
+            {
+              "label": "stake",
+              "astId": 2068,
+              "type": "t_uint256",
+              "src": "1448:10:6"
+            },
+            {
+              "label": "winningTokens",
+              "astId": 2070,
+              "type": "t_uint256",
+              "src": "1542:18:6"
+            },
+            {
+              "label": "tokenClaims",
+              "astId": 2074,
+              "type": "t_mapping<t_bool>",
+              "src": "1642:36:6"
+            }
+          ]
+        },
+        "t_address": {
+          "id": "t_address",
+          "kind": "elementary",
+          "label": "address"
+        },
+        "t_bool": {
+          "id": "t_bool",
+          "kind": "elementary",
+          "label": "bool"
+        },
+        "t_mapping<t_bool>": {
+          "id": "t_mapping<t_bool>",
+          "valueType": "t_bool",
+          "label": "mapping(key => bool)",
+          "kind": "mapping"
+        },
+        "t_mapping<t_struct<XyParameterizer.Challenge>>": {
+          "id": "t_mapping<t_struct<XyParameterizer.Challenge>>",
+          "valueType": "t_struct<XyParameterizer.Challenge>",
+          "label": "mapping(key => XyParameterizer.Challenge)",
+          "kind": "mapping"
+        },
+        "t_struct<XyParameterizer.ParamProposal>": {
+          "id": "t_struct<XyParameterizer.ParamProposal>",
+          "kind": "struct",
+          "label": "XyParameterizer.ParamProposal",
+          "members": [
+            {
+              "label": "appExpiry",
+              "astId": 2047,
+              "type": "t_uint256",
+              "src": "1033:14:6"
+            },
+            {
+              "label": "challengeID",
+              "astId": 2049,
+              "type": "t_uint256",
+              "src": "1057:16:6"
+            },
+            {
+              "label": "deposit",
+              "astId": 2051,
+              "type": "t_uint256",
+              "src": "1083:12:6"
+            },
+            {
+              "label": "name",
+              "astId": 2053,
+              "type": "t_string",
+              "src": "1105:11:6"
+            },
+            {
+              "label": "owner",
+              "astId": 2055,
+              "type": "t_address",
+              "src": "1126:13:6"
+            },
+            {
+              "label": "processBy",
+              "astId": 2057,
+              "type": "t_uint256",
+              "src": "1149:14:6"
+            },
+            {
+              "label": "value",
+              "astId": 2059,
+              "type": "t_uint256",
+              "src": "1173:10:6"
+            }
+          ]
+        },
+        "t_string": {
+          "id": "t_string",
+          "kind": "elementary",
+          "label": "string"
+        },
+        "t_mapping<t_struct<XyParameterizer.ParamProposal>>": {
+          "id": "t_mapping<t_struct<XyParameterizer.ParamProposal>>",
+          "valueType": "t_struct<XyParameterizer.ParamProposal>",
+          "label": "mapping(key => XyParameterizer.ParamProposal)",
+          "kind": "mapping"
+        },
+        "t_array:50<t_uint256>": {
+          "id": "t_array:50<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "50",
+          "kind": "array",
+          "label": "uint256[50]"
+        },
+        "t_struct<XyGovernance.GovernanceAction>": {
+          "id": "t_struct<XyGovernance.GovernanceAction>",
+          "kind": "struct",
+          "label": "XyGovernance.GovernanceAction",
+          "members": [
+            {
+              "label": "propId",
+              "astId": 1716,
+              "type": "t_bytes32",
+              "src": "567:14:5"
+            },
+            {
+              "label": "stakePenaltyPct",
+              "astId": 1718,
+              "type": "t_uint256",
+              "src": "614:20:5"
+            },
+            {
+              "label": "reason",
+              "astId": 1720,
+              "type": "t_string",
+              "src": "721:13:5"
+            },
+            {
+              "label": "actionType",
+              "astId": 1722,
+              "type": "t_uint8",
+              "src": "744:16:5"
+            },
+            {
+              "label": "accepted",
+              "astId": 1724,
+              "type": "t_bool",
+              "src": "796:13:5"
+            }
+          ]
+        },
+        "t_bytes32": {
+          "id": "t_bytes32",
+          "kind": "elementary",
+          "label": "bytes32"
+        },
+        "t_uint8": {
+          "id": "t_uint8",
+          "kind": "elementary",
+          "label": "uint8"
+        },
+        "t_array:dyn<t_struct<XyGovernance.GovernanceAction>>": {
+          "id": "t_array:dyn<t_struct<XyGovernance.GovernanceAction>>",
+          "valueType": "t_struct<XyGovernance.GovernanceAction>",
+          "length": "dyn",
+          "kind": "array",
+          "label": "XyGovernance.GovernanceAction[]"
+        },
+        "t_mapping<t_array:dyn<t_struct<XyGovernance.GovernanceAction>>>": {
+          "id": "t_mapping<t_array:dyn<t_struct<XyGovernance.GovernanceAction>>>",
+          "valueType": "t_array:dyn<t_struct<XyGovernance.GovernanceAction>>",
+          "label": "mapping(key => XyGovernance.GovernanceAction[])",
+          "kind": "mapping"
+        },
+        "t_mapping<t_struct<XyGovernance.GovernanceAction>>": {
+          "id": "t_mapping<t_struct<XyGovernance.GovernanceAction>>",
+          "valueType": "t_struct<XyGovernance.GovernanceAction>",
+          "label": "mapping(key => XyGovernance.GovernanceAction)",
+          "kind": "mapping"
+        }
+      },
+      "storage": [
+        {
+          "contract": "XyParameterizer",
+          "path": "contracts/XyParameterizer.sol",
+          "label": "params",
+          "astId": 2079,
+          "type": "t_mapping<t_uint256>",
+          "src": "1733:38:6"
+        },
+        {
+          "contract": "XyParameterizer",
+          "path": "contracts/XyParameterizer.sol",
+          "label": "challenges",
+          "astId": 2083,
+          "type": "t_mapping<t_struct<XyParameterizer.Challenge>>",
+          "src": "1832:44:6"
+        },
+        {
+          "contract": "XyParameterizer",
+          "path": "contracts/XyParameterizer.sol",
+          "label": "proposals",
+          "astId": 2087,
+          "type": "t_mapping<t_struct<XyParameterizer.ParamProposal>>",
+          "src": "1942:50:6"
+        },
+        {
+          "contract": "XyParameterizer",
+          "path": "contracts/XyParameterizer.sol",
+          "label": "token",
+          "astId": 2089,
+          "type": "t_address",
+          "src": "2023:19:6"
+        },
+        {
+          "contract": "XyParameterizer",
+          "path": "contracts/XyParameterizer.sol",
+          "label": "voting",
+          "astId": 2091,
+          "type": "t_address",
+          "src": "2048:24:6"
+        },
+        {
+          "contract": "XyParameterizer",
+          "path": "contracts/XyParameterizer.sol",
+          "label": "stageBlockLen",
+          "astId": 2093,
+          "type": "t_uint256",
+          "src": "2078:25:6"
+        },
+        {
+          "contract": "Initializable",
+          "path": "zos-lib/contracts/Initializable.sol",
+          "label": "initialized",
+          "astId": 8715,
+          "type": "t_bool",
+          "src": "757:24:32"
+        },
+        {
+          "contract": "Initializable",
+          "path": "zos-lib/contracts/Initializable.sol",
+          "label": "initializing",
+          "astId": 8717,
+          "type": "t_bool",
+          "src": "876:25:32"
+        },
+        {
+          "contract": "Initializable",
+          "path": "zos-lib/contracts/Initializable.sol",
+          "label": "______gap",
+          "astId": 8766,
+          "type": "t_array:50<t_uint256>",
+          "src": "1891:29:32"
+        },
+        {
+          "contract": "XyGovernance",
+          "path": "contracts/XyGovernance.sol",
+          "label": "resolverAddress",
+          "astId": 1698,
+          "type": "t_address",
+          "src": "332:30:5"
+        },
+        {
+          "contract": "XyGovernance",
+          "path": "contracts/XyGovernance.sol",
+          "label": "resolutions",
+          "astId": 1730,
+          "type": "t_mapping<t_array:dyn<t_struct<XyGovernance.GovernanceAction>>>",
+          "src": "822:55:5"
+        },
+        {
+          "contract": "XyGovernance",
+          "path": "contracts/XyGovernance.sol",
+          "label": "actions",
+          "astId": 1734,
+          "type": "t_mapping<t_struct<XyGovernance.GovernanceAction>>",
+          "src": "883:49:5"
+        },
+        {
+          "contract": "XyGovernance",
+          "path": "contracts/XyGovernance.sol",
+          "label": "ownershipRenounced",
+          "astId": 1736,
+          "type": "t_bool",
+          "src": "1068:23:5"
+        }
+      ],
+      "warnings": {
+        "hasConstructor": false,
+        "hasSelfDestruct": false,
+        "hasDelegateCall": false,
+        "hasInitialValuesInDeclarations": false,
+        "uninitializedBaseContracts": []
+      }
     }
   },
+  "solidityLibs": {},
   "proxies": {},
   "zosversion": "2.2",
   "version": "0.1.0"

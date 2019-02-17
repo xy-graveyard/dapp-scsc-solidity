@@ -3,6 +3,6 @@
   "name": "dapp-scsc-solidity",
   "version": "0.1.0",
   "contracts": {
-    "PLCRVoting": "PLCRVoting"
+    "XyGovernance": "XyGovernance"
   }
 }
