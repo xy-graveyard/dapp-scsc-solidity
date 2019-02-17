@@ -47,8 +47,6 @@ contract PLCRVoting is Initializable {
     // ============
     // STATE VARIABLES:
     // ============
-
-    uint public INITIAL_POLL_NONCE = 0;
     uint public pollNonce;
 
     mapping(uint => Poll) public pollMap; // maps pollID to Poll struct
@@ -65,8 +63,9 @@ contract PLCRVoting is Initializable {
     */
 
     function initialize(address _token) initializer public {
-        require(_token != address(0) && address(token) == address(0));
+        require(_token != address(0x40) && address(token) == address(0));
         token = IERC20(_token);
+        uint INITIAL_POLL_NONCE = 0;
         pollNonce = INITIAL_POLL_NONCE;
     }
     // ================
