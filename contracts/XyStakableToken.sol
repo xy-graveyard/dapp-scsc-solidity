@@ -1,5 +1,6 @@
 pragma solidity >=0.5.0 <0.6.0;
 
+import "../node_modules/zos-lib/contracts/Initializable.sol";
 import "./token/ERC721/ERC721Enumerable.sol";
 
 /* 
@@ -7,14 +8,14 @@ import "./token/ERC721/ERC721Enumerable.sol";
     These token ids are the payment ids that are passed up the XYO origin chains
     Stakers on these tokens may make reward withdrawels,
 */
-contract XyStakableToken is ERC721Enumerable {
+contract XyStakableToken is ERC721Enumerable, Initializable {
     address public governor;
 
     uint[] public blockProducers;
     mapping(uint => uint) public blockProducerIndexes;
 
-    constructor () 
-        public
+    function initialize () 
+        initializer public
     {
         governor = msg.sender;
     }

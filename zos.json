@@ -3,6 +3,7 @@
   "name": "dapp-scsc-solidity",
   "version": "0.1.0",
   "contracts": {
-    "XyGovernance": "XyGovernance"
+    "XyGovernance": "XyGovernance",
+    "XyStakableToken": "XyStakableToken"
   }
 }
