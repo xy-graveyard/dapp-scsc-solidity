@@ -1,7 +1,7 @@
 {
   "contracts": {
     "XyGovernance": {
-      "address": "0xBe0B0f08A599F07699E98A9D001084e97b9a900A",
+      "address": "0x6fe6FFcD4dDE9dB11f887bD3320424CcAb50eE3f",
       "constructorCode": "608060405234801561001057600080fd5b506136f4806100206000396000f3fe",
       "bodyBytecodeHash": "9cc6e6d49e15403381f25df2c6e23220d48a89d5ddccff8070af75bffbbdb5e4",
       "localBytecodeHash": "837c10367645c374f35d2fb62ba9e3ddf141dea0ce1cf336b9342aa5b711438b",
