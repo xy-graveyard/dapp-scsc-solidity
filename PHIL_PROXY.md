@@ -103,7 +103,9 @@ uint public stageBlockLen = 40320;
 
 change to 
 ```sol
-uint public stageBlockLen; // arbitrary value
+uint public stageBlockLen;
+
+//initialize value in the init function (stageBlockLen = 40320;)
 ```
 
 Once we set up the contact with this initializer function, we now want to run a ganache environment
