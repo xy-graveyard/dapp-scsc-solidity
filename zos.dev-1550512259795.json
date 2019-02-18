@@ -1,16 +1,28 @@
 {
   "contracts": {
     "XyGovernance": {
-      "address": "0x6fe6FFcD4dDE9dB11f887bD3320424CcAb50eE3f",
-      "constructorCode": "608060405234801561001057600080fd5b506136f4806100206000396000f3fe",
-      "bodyBytecodeHash": "9cc6e6d49e15403381f25df2c6e23220d48a89d5ddccff8070af75bffbbdb5e4",
-      "localBytecodeHash": "837c10367645c374f35d2fb62ba9e3ddf141dea0ce1cf336b9342aa5b711438b",
-      "deployedBytecodeHash": "837c10367645c374f35d2fb62ba9e3ddf141dea0ce1cf336b9342aa5b711438b",
+      "address": "0x9000D9c358dC56200000b0E3710E1A9E8985e058",
+      "constructorCode": "608060405234801561001057600080fd5b50613711806100206000396000f3fe",
+      "bodyBytecodeHash": "c9f344c272de89173936b341f0adaf4f0f5cd9d539528e4842716589fc5dc1d4",
+      "localBytecodeHash": "22f091126d83023e8ecaba4c657219e2044c1d6e57858d995b6faf715abea4b2",
+      "deployedBytecodeHash": "22f091126d83023e8ecaba4c657219e2044c1d6e57858d995b6faf715abea4b2",
       "types": {
+        "t_bool": {
+          "id": "t_bool",
+          "kind": "elementary",
+          "label": "bool"
+        },
         "t_uint256": {
           "id": "t_uint256",
           "kind": "elementary",
           "label": "uint256"
+        },
+        "t_array:50<t_uint256>": {
+          "id": "t_array:50<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "50",
+          "kind": "array",
+          "label": "uint256[50]"
         },
         "t_mapping<t_uint256>": {
           "id": "t_mapping<t_uint256>",
@@ -65,11 +77,6 @@
           "id": "t_address",
           "kind": "elementary",
           "label": "address"
-        },
-        "t_bool": {
-          "id": "t_bool",
-          "kind": "elementary",
-          "label": "bool"
         },
         "t_mapping<t_bool>": {
           "id": "t_mapping<t_bool>",
@@ -143,13 +150,6 @@
           "label": "mapping(key => XyParameterizer.ParamProposal)",
           "kind": "mapping"
         },
-        "t_array:50<t_uint256>": {
-          "id": "t_array:50<t_uint256>",
-          "valueType": "t_uint256",
-          "length": "50",
-          "kind": "array",
-          "label": "uint256[50]"
-        },
         "t_struct<XyGovernance.GovernanceAction>": {
           "id": "t_struct<XyGovernance.GovernanceAction>",
           "kind": "struct",
@@ -159,31 +159,31 @@
               "label": "propId",
               "astId": 1716,
               "type": "t_bytes32",
-              "src": "567:14:5"
+              "src": "581:14:5"
             },
             {
               "label": "stakePenaltyPct",
               "astId": 1718,
               "type": "t_uint256",
-              "src": "614:20:5"
+              "src": "628:20:5"
             },
             {
               "label": "reason",
               "astId": 1720,
               "type": "t_string",
-              "src": "721:13:5"
+              "src": "735:13:5"
             },
             {
               "label": "actionType",
               "astId": 1722,
               "type": "t_uint8",
-              "src": "744:16:5"
+              "src": "758:16:5"
             },
             {
               "label": "accepted",
               "astId": 1724,
               "type": "t_bool",
-              "src": "796:13:5"
+              "src": "810:13:5"
             }
           ]
         },
@@ -218,6 +218,30 @@
         }
       },
       "storage": [
+        {
+          "contract": "Initializable",
+          "path": "node_modules/zos-lib/contracts/Initializable.sol",
+          "label": "initialized",
+          "astId": 8715,
+          "type": "t_bool",
+          "src": "757:24:32"
+        },
+        {
+          "contract": "Initializable",
+          "path": "node_modules/zos-lib/contracts/Initializable.sol",
+          "label": "initializing",
+          "astId": 8717,
+          "type": "t_bool",
+          "src": "876:25:32"
+        },
+        {
+          "contract": "Initializable",
+          "path": "node_modules/zos-lib/contracts/Initializable.sol",
+          "label": "______gap",
+          "astId": 8766,
+          "type": "t_array:50<t_uint256>",
+          "src": "1891:29:32"
+        },
         {
           "contract": "XyParameterizer",
           "path": "contracts/XyParameterizer.sol",
@@ -267,36 +291,12 @@
           "src": "2078:25:6"
         },
         {
-          "contract": "Initializable",
-          "path": "zos-lib/contracts/Initializable.sol",
-          "label": "initialized",
-          "astId": 8715,
-          "type": "t_bool",
-          "src": "757:24:32"
-        },
-        {
-          "contract": "Initializable",
-          "path": "zos-lib/contracts/Initializable.sol",
-          "label": "initializing",
-          "astId": 8717,
-          "type": "t_bool",
-          "src": "876:25:32"
-        },
-        {
-          "contract": "Initializable",
-          "path": "zos-lib/contracts/Initializable.sol",
-          "label": "______gap",
-          "astId": 8766,
-          "type": "t_array:50<t_uint256>",
-          "src": "1891:29:32"
-        },
-        {
           "contract": "XyGovernance",
           "path": "contracts/XyGovernance.sol",
           "label": "resolverAddress",
           "astId": 1698,
           "type": "t_address",
-          "src": "332:30:5"
+          "src": "346:30:5"
         },
         {
           "contract": "XyGovernance",
@@ -304,7 +304,7 @@
           "label": "resolutions",
           "astId": 1730,
           "type": "t_mapping<t_array:dyn<t_struct<XyGovernance.GovernanceAction>>>",
-          "src": "822:55:5"
+          "src": "836:55:5"
         },
         {
           "contract": "XyGovernance",
@@ -312,7 +312,7 @@
           "label": "actions",
           "astId": 1734,
           "type": "t_mapping<t_struct<XyGovernance.GovernanceAction>>",
-          "src": "883:49:5"
+          "src": "897:49:5"
         },
         {
           "contract": "XyGovernance",
@@ -320,7 +320,7 @@
           "label": "ownershipRenounced",
           "astId": 1736,
           "type": "t_bool",
-          "src": "1068:23:5"
+          "src": "1082:23:5"
         }
       ],
       "warnings": {

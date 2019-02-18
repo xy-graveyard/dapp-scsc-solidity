@@ -1,16 +1,14 @@
 pragma solidity >=0.5.0 <0.6.0;
 
+import "../node_modules/zos-lib/contracts/Initializable.sol";
 import "./utils/SafeMath.sol";
 import "./XyParameterizer.sol";
-import "zos-lib/contracts/Initializable.sol";
-
-
 
 /**
     @dev A simple challenge and vote smart contract on stakee based on staker's stake
 
  */
-contract XyGovernance is XyParameterizer, Initializable {
+contract XyGovernance is Initializable, XyParameterizer {
     using SafeMath for uint;
 
     address public resolverAddress;
