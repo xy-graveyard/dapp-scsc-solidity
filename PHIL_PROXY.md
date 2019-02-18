@@ -145,3 +145,52 @@ Now that we have linked our contract with the ZeppelinOS project, we deploy it t
 ```bash
 zos push
 ```
+
+After the deployment, there will be a new file that would look something like this:
+
+```
+zos.dev-<some-number>.json
+```
+
+Now we create an instance of the contract (creating a proxy contract from the logic contract)
+
+```bash
+zos create contractName --init initialize --args (if there are arguments)
+```
+
+Resulting terminal output
+
+```bash
+Deploying new ProxyAdmin...
+Deployed ProxyAdmin at 0x06fe18caA64CE3C25e0b94085AfB0383AcE7Cc18
+Creating proxy to logic contract 0xD0C81a4a66Eb47D8FBdEEAB6CA576c875F8D2adb and initializing by calling initialize with:
+
+Instance created at 0x1943BD00E3a4F46B10e6657dd9236Be95E20398A
+0x1943BD00E3a4F46B10e6657dd9236Be95E20398A
+Updated zos.dev-1550512259795.json
+```
+The `zos.dev-1550512259795.json` file should now include our proxy contracts:
+
+```json
+  "proxies": {
+    "dapp-scsc-solidity/XyStakableToken": [
+      {
+        "address": "0x1943BD00E3a4F46B10e6657dd9236Be95E20398A",
+        "version": "0.1.0",
+        "implementation": "0xD0C81a4a66Eb47D8FBdEEAB6CA576c875F8D2adb"
+      }
+    ]
+  },
+```
+
+As well as a ProxyAdmin address: 
+
+```json
+  "zosversion": "2.2",
+  "version": "0.1.0",
+  "proxyAdmin": {
+    "address": "0x06fe18caA64CE3C25e0b94085AfB0383AcE7Cc18"
+  }
+```
+
+We now have an upgradeable smart contract
