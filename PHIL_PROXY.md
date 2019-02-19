@@ -154,8 +154,10 @@ zos.dev-<some-number>.json
 
 Now we create an instance of the contract (creating a proxy contract from the logic contract)
 
+**Note** Make sure to wrap your arguments with quotation marks! See below:
+
 ```bash
-zos create contractName --init initialize --args (if there are arguments)
+zos create contractName --init initialize --args "args(if multiple no space comma separated in quotation marks)"
 ```
 
 Resulting terminal output
@@ -169,6 +171,19 @@ Instance created at 0x1943BD00E3a4F46B10e6657dd9236Be95E20398A
 0x1943BD00E3a4F46B10e6657dd9236Be95E20398A
 Updated zos.dev-1550512259795.json
 ```
+
+With multiple arguments:
+
+```bash
+Creating proxy to logic contract 0x9000D9c358dC56200000b0E3710E1A9E8985e058 and initializing by calling initialize with:
+ - _resolverAddress (address): "0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1"
+ - _xyERC20 (address): "0x9561c133dd8580860b6b7e504bc5aa500f0f06a7"
+ - _plcr (address): "0x9561c133dd8580860b6b7e504bc5aa500f0f06a7"
+ - _parameters (uint256[]): ["100000000000000000000","1200","1200","1200","1200","50","50","66","0","0","200",300]
+Instance created at 0x098be14CdC727F187B1865cf67a593a3E5f4FBc6
+0x098be14CdC727F187B1865cf67a593a3E5f4FBc6
+Updated zos.dev-1550512259795.json
+```
 The `zos.dev-1550512259795.json` file should now include our proxy contracts:
 
 ```json
@@ -178,6 +193,13 @@ The `zos.dev-1550512259795.json` file should now include our proxy contracts:
         "address": "0x1943BD00E3a4F46B10e6657dd9236Be95E20398A",
         "version": "0.1.0",
         "implementation": "0xD0C81a4a66Eb47D8FBdEEAB6CA576c875F8D2adb"
+      }
+    ],
+    "dapp-scsc-solidity/XyGovernance": [
+      {
+        "address": "0x098be14CdC727F187B1865cf67a593a3E5f4FBc6",
+        "version": "0.1.0",
+        "implementation": "0x9000D9c358dC56200000b0E3710E1A9E8985e058"
       }
     ]
   },
@@ -193,4 +215,4 @@ As well as a ProxyAdmin address:
   }
 ```
 
-We now have an upgradeable smart contract
+We now have an upgradeable smart contract!

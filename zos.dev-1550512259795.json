@@ -531,6 +531,13 @@
         "version": "0.1.0",
         "implementation": "0xD0C81a4a66Eb47D8FBdEEAB6CA576c875F8D2adb"
       }
+    ],
+    "dapp-scsc-solidity/XyGovernance": [
+      {
+        "address": "0x098be14CdC727F187B1865cf67a593a3E5f4FBc6",
+        "version": "0.1.0",
+        "implementation": "0x9000D9c358dC56200000b0E3710E1A9E8985e058"
+      }
     ]
   },
   "zosversion": "2.2",
