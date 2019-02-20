@@ -84,7 +84,7 @@ contract XyStakableToken is ERC721Enumerable, GovernorRole {
     /**
         Expose internal exists function to be used
     */
-    function exists(uint stakee) public returns (bool) {
+    function exists(uint stakee) public view returns (bool) {
         return _exists(stakee);
     }
 

@@ -3,7 +3,11 @@ pragma solidity >=0.5.0 <0.6.0;
 /**
     Interface must be followed in order to receive a proper response from the Consensus Contract
 */
-interface IXyRequester {
+interface IXyRequester {  
+    
+    // Response types for callback
+    enum RequestType { DEFAULT, BOOL, UINT, WITHDRAW }
+
     struct IPFSRequest {
         uint requestId;
         uint weiPayment;
@@ -20,5 +24,5 @@ interface IXyRequester {
         @param requestType Used by scsc to signal what is in the response data
         @param response Response data from scsc
     */
-    function submitResponse(uint requestId, uint8 requestType, bytes calldata response) external;
+    function submitResponse(uint requestId, RequestType requestType, bytes calldata response) external;
 }

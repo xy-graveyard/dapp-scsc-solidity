@@ -13,15 +13,17 @@ contract XyGovernance is XyParameterizer {
 
     address public resolverAddress;
 
-    event NewActionAccepted(bytes32 indexed propId, uint indexed stakee, uint8 actionType, string reason);
-    event ActionResolved(bytes32 indexed propId, uint indexed stakee, uint8 actionType);
+    event NewActionAccepted(bytes32 indexed propId, ActionType actionType);
+    event ActionResolved(bytes32 indexed propId, uint indexed stakee, ActionType actionType);
 
     struct GovernanceAction {
         bytes32 propId;         // proposal id must be unique
         uint stakePenaltyPct;   // amount that is transferred from the active stake to the penalty balance
-        uint8 actionType;       // type of action              
+        ActionType actionType;       // type of action              
         bool accepted;
     }
+
+    enum  ActionType { EOL, UNSTAKE, ADD_BP, REMOVE_BP }
 
     mapping (uint => GovernanceAction[]) public resolutions;
     mapping (uint => GovernanceAction) public actions;
@@ -56,14 +58,12 @@ contract XyGovernance is XyParameterizer {
     function proposeNewAction(
         uint stakee, 
         uint penaltyPct, 
-        uint8 action,
-        string memory reason) public {
+        ActionType action) public {
         require(actions[stakee].propId == 0, "Action in progress");
         bytes32 propId = proposeReparameterization("xyGovernanceAction", stakee);
         GovernanceAction memory a = GovernanceAction(
             propId,
             penaltyPct,
-            reason,                         // optional reason for records
             action,                         // action type
             false
         );
@@ -80,7 +80,7 @@ contract XyGovernance is XyParameterizer {
         require(action.accepted, "cannot resolve an unaccepted action");
         resolutions[stakee].push(action);
         delete actions[stakee];
-        emit ActionResolved(stakee, action.actionType);
+        emit ActionResolved(action.propId, stakee, action.actionType);
     }
 
       /**
@@ -91,7 +91,7 @@ contract XyGovernance is XyParameterizer {
     function set(string memory _name, uint _value) internal {
         if (keccak256(abi.encodePacked(_name)) == keccak256("xyGovernanceAction")) {
             actions[_value].accepted = true;
-            emit NewActionAccepted(_value, actions[_value].actionType, actions[_value].reason);
+            emit NewActionAccepted(actions[_value].propId, actions[_value].actionType);
         } else {
             params[keccak256(abi.encodePacked(_name))] = _value;
         }

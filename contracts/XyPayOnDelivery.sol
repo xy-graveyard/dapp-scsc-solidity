@@ -60,7 +60,7 @@ contract XyPayOnDelivery is IXyRequester {
         require (msg.value >= weiPayOnDelivery, "Not enough payment provided");
         
         uint miningGas = msg.value.sub(weiPayOnDelivery);
-        scsc.submitRequest.value(miningGas)(requestId, xyoBounty, msg.sender, 1);
+        scsc.submitRequest.value(miningGas)(requestId, xyoBounty, msg.sender, IXyRequester.RequestType.BOOL);
         
         if (xyoPayOnDelivery > 0) {
             require (xyoToken.allowance(msg.sender, address(this)) >= xyoPayOnDelivery, "must approve PonD for XYO Payment");
@@ -77,10 +77,9 @@ contract XyPayOnDelivery is IXyRequester {
     /**
         @dev Called by SCSC. If intersection, transfer pay on delivery to beneficiary, delete request
         @param requestId - the hash of the request (first 2 bytes stripped)
-        @param requestType Used by scsc to signal what is in the response data
         @param responseData Response data from scsc
     */
-    function submitResponse(uint requestId, uint8 requestType, bytes memory responseData) public {
+    function submitResponse(uint requestId, IXyRequester.RequestType , bytes memory responseData) public {
         require (msg.sender == address(scsc), "only scsc can complete requests");
         bool intersection = responseData.length > 0 && responseData[0] > 0;
         didIntersect[requestId] = intersection;
