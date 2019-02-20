@@ -16,13 +16,14 @@ contract XyStakingConsensus is XyStakingModel {
         uint xyoBounty,
         uint weiMining,
         address requestSender,
-        uint8 requestType
+        IXyRequester.RequestType requestType
     );
 
     event BlockCreated(
         uint blockHash,
         uint previousBlock,
         uint createdAtBlock,
+        bytes32 payloadHash,
         address blockProducer
     );
 
@@ -36,6 +37,7 @@ contract XyStakingConsensus is XyStakingModel {
     struct Block {
         uint previousBlock;
         uint createdAt;
+        bytes32 supportingData;
         address creator;
     }
 
@@ -44,7 +46,7 @@ contract XyStakingConsensus is XyStakingModel {
         uint weiMining;
         uint createdAt;
         address requestSender;
-        uint8 requestType;
+        IXyRequester.RequestType requestType;
         bool hasResponse;
     }
 
@@ -56,11 +58,6 @@ contract XyStakingConsensus is XyStakingModel {
 
     mapping(uint => Block) public blocks; //The blocks in the blockChain
     uint[] public blockChain; // Store the blockChain as an array
-
-    // Response types for callback
-    uint8 public BoolRequestType = 1;
-    uint8 public UIntRequestType = 2; 
-    uint8 public WithdrawRequestType = 3; 
 
     /**
         @param _token - The ERC20 token to stake with 
@@ -124,7 +121,7 @@ contract XyStakingConsensus is XyStakingModel {
         returns (uint)
     {
         uint requestId = uint(keccak256(abi.encodePacked(msg.sender, xyoBounty, block.number)));
-        submitRequest(requestId, xyoBounty, msg.sender, WithdrawRequestType);
+        submitRequest(requestId, xyoBounty, msg.sender, IXyRequester.RequestType.WITHDRAW);
         return requestId;
     }
 
@@ -141,12 +138,12 @@ contract XyStakingConsensus is XyStakingModel {
         uint request, 
         uint xyoBounty,
         address xyoSender, 
-        uint8 requestType
+        IXyRequester.RequestType requestType
     ) 
         public
         payable
     {
-        require (requestType >= BoolRequestType && requestType <= WithdrawRequestType, "Invalid request type");
+        require (uint8(requestType) >= uint8(IXyRequester.RequestType.BOOL) && uint8(requestType) <= uint8(IXyRequester.RequestType.WITHDRAW), "Invalid request type");
         require (requestsById[request].createdAt == 0, "Duplicate request submitted");
 
         _requireFeesAndTransfer(xyoSender, xyoBounty);
@@ -221,15 +218,15 @@ contract XyStakingConsensus is XyStakingModel {
           if (!q.hasResponse) {
             q.hasResponse = true;
             weiMining = weiMining.add(q.weiMining);
-            uint8 numBytes = q.requestType == BoolRequestType ? 1 : 32;
+            uint8 numBytes = q.requestType == IXyRequester.RequestType.BOOL ? 1 : 32;
 
-            if (q.requestType == BoolRequestType || q.requestType == UIntRequestType) {
+            if (q.requestType == IXyRequester.RequestType.BOOL || q.requestType == IXyRequester.RequestType.UINT) {
                 bytes memory result = new bytes(numBytes);
                 for (uint8 j = 0; j < numBytes; j++) {
                     result[j] = responseData[byteOffset + j];
                 }
                 IXyRequester(q.requestSender).submitResponse(_requests[i], q.requestType, result);
-            } else if (q.requestType == WithdrawRequestType) {
+            } else if (q.requestType == IXyRequester.RequestType.WITHDRAW) {
                 uint amount = _toUint(responseData, byteOffset);
                 require (amount <= totalStakeAndUnstake(q.requestSender), "Withdraw amount more than total staker's stake");
                 emit RewardClaimed(q.requestSender, amount, totalStakeAndUnstake(q.requestSender));
@@ -275,11 +272,11 @@ contract XyStakingConsensus is XyStakingModel {
         require (stake > totalActiveStake.mul(params.get("xyStakeQuorumPct")).div(100), "Not enough stake");
     }
 
-    function _createBlock(uint previousBlock, uint newBlock) private {
-        Block memory b = Block(previousBlock, block.number, msg.sender);
+    function _createBlock(uint previousBlock, uint newBlock, bytes32 payloadHash) private {
+        Block memory b = Block(previousBlock, block.number, payloadHash, msg.sender);
         blockChain.push(newBlock);
         blocks[newBlock] = b;
-        emit BlockCreated(newBlock, previousBlock, block.number, msg.sender);
+        emit BlockCreated(newBlock, previousBlock, block.number, payloadHash, msg.sender);
     }
 
     /**
@@ -321,7 +318,7 @@ contract XyStakingConsensus is XyStakingModel {
 
         uint newBlock = uint(keccak256(m));
         checkSigsAndStakes(newBlock, signers, sigR, sigS, sigV);
-        _createBlock(previousBlock, newBlock);
+        _createBlock(previousBlock, newBlock, payloadData);
 
         return newBlock;
     }
