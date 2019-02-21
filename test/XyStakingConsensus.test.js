@@ -32,7 +32,8 @@ const parameters = [
   params.xyWeiMiningMin,
   params.xyXYORequestBountyMin,
   params.xyStakeCooldown,
-  params.xyUnstakeCooldown
+  params.xyUnstakeCooldown,
+  params.xyProposalsEnabled
 ]
 contract(
   `XyStakingConsensus`,

@@ -29,7 +29,8 @@ const parameters = [
   params.xyWeiMiningMin,
   params.xyXYORequestBountyMin,
   params.xyStakeCooldown,
-  params.xyUnstakeCooldown
+  params.xyUnstakeCooldown,
+  params.xyProposalsEnabled
 ]
 const should = require(`chai`)
   .use(require(`chai-as-promised`))
@@ -42,14 +43,33 @@ contract(
     governanceOwner,
     governanceResolver,
     erc20owner,
-    payOnDeliveryOwner,
-    stakableTokenOwner,
-    stakableContractOwner,
-    payOnDeliveryBeneficiary,
-    responseSubmitter
+    plcrOwner
   ]) => {
-    describe(`stfu`, () => {
-
+    let erc20
+    let governance
+    let plcr
+    before(async () => {
+      erc20 = await ERC20.new(erc20TotalSupply, `XYO Token`, `XYO`, {
+        from: erc20owner
+      })
+      plcr = await PLCR.new({
+        from: plcrOwner
+      })
+      await plcr.init(erc20.address)
+    })
+    beforeEach(async () => {
+      governance = await Governance.new({
+        from: governanceOwner
+      })
+      governance.init(governanceResolver,
+        erc20.address,
+        plcr.address,
+        parameters, { from: governanceOwner })
+    })
+    describe(`Proposing an action`, () => {
+      it(`should allow proposing a new action when minDeposit is 0`, async () => {
+        await governance.proposeNewAction(1, 50, 0).should.be.fulfilled
+      })
     })
   }
 )

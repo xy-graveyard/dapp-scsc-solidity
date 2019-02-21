@@ -20,7 +20,8 @@ const parameters = [
   params.xyWeiMiningMin,
   params.xyXYORequestBountyMin,
   params.xyStakeCooldown,
-  params.xyUnstakeCooldown
+  params.xyUnstakeCooldown,
+  params.xyProposalsEnabled
 ]
 const should = require(`chai`)
   .use(require(`chai-as-promised`))

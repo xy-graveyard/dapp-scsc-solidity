@@ -21,7 +21,8 @@ const parameters = [
   params.xyWeiMiningMin,
   params.xyXYORequestBountyMin,
   params.xyStakeCooldown,
-  params.xyUnstakeCooldown
+  params.xyUnstakeCooldown,
+  params.xyProposalsEnabled
 ]
 
 module.exports = async function (deployer, network, [contractsOwner]) {
