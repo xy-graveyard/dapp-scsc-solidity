@@ -70,6 +70,10 @@ contract(
       it(`should allow proposing a new action when minDeposit is 0`, async () => {
         await governance.proposeNewAction(1, 50, 0).should.be.fulfilled
       })
+      it(`should not allow proposing a new action on stakee if one is in progress`, async () => {
+        await governance.proposeNewAction(1, 50, 0).should.be.fulfilled
+        await governance.proposeNewAction(1, 50, 0).should.not.be.fulfilled
+      })
     })
   }
 )
