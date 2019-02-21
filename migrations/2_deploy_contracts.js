@@ -58,7 +58,7 @@ module.exports = async function (deployer, network, [contractsOwner]) {
   })
   await plcrVoting.init(safeERC20.address)
 
-  await gov.init(
+  await gov.initialize(
     consensus.address,
     erc20.address,
     plcrVoting.address,

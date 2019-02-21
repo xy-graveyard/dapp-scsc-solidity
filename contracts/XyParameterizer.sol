@@ -1,5 +1,6 @@
 pragma solidity ^0.5.0;
 
+import "../node_modules/zos-lib/contracts/Initializable.sol";
 import "./PLCR/PLCRVoting.sol";
 import "./token/ERC20/IERC20.sol";
 import "./utils/SafeMath.sol";

@@ -303,7 +303,7 @@ contract(
       payOnD = await PayOnDelivery.new(consensus.address, erc20.address, {
         from: payOnDeliveryOwner
       })
-      await parameterizer.init(
+      await parameterizer.initialize(
         consensus.address,
         erc20.address,
         plcr.address,

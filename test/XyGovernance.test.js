@@ -18,6 +18,7 @@ const erc20TotalSupply = 1000000
 const fs = require(`fs`)
 const config = JSON.parse(fs.readFileSync(`./config/testParams.json`))
 const params = config.paramDefaults
+
 const parameters = [
   params.pMinDeposit,
   params.pApplyStageLen,

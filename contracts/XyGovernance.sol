@@ -38,7 +38,7 @@ contract XyGovernance is Initializable, XyParameterizer {
         uint[] memory _parameters
     ) initializer public {
         resolverAddress = _resolverAddress;
-        super.init(_xyERC20, _plcr, _parameters);
+        init(_xyERC20, _plcr, _parameters);
     }
     
     /** 
