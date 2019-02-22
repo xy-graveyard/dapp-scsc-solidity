@@ -9,7 +9,7 @@ import "./access/GovernorRole.sol";
     Stakers on these tokens may make reward withdrawels,
 */
 
-contract XyStakableToken is ERC721Enumerable, Initializable {
+contract XyStakableToken is ERC721Enumerable, Initializable, GovernorRole {
     address public governor;
 
     // Keep a list of block producers to publicly show who the BPs are in the system

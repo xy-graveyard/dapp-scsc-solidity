@@ -5,7 +5,6 @@ import { request } from "http"
 
 const abi = require(`ethereumjs-abi`)
 const { toChecksumAddress } = require(`ethereumjs-util`)
-const truffleAssert = require(`truffle-assertions`)
 
 const PayOnDelivery = artifacts.require(`XyPayOnDeliveryMock.sol`)
 const StakingConsensus = artifacts.require(`XyConsensusMock.sol`)

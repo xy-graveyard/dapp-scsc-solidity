@@ -40,7 +40,7 @@ const should = require(`chai`)
   .should()
 
 contract(
-  `XyPayOnDelivery`,
+  `XyGovernance`,
   ([
     governanceOwner,
     governanceResolver,
@@ -63,7 +63,7 @@ contract(
       governance = await Governance.new({
         from: governanceOwner
       })
-      await governance.init(governanceResolver,
+      await governance.initialize(governanceResolver,
         erc20.address,
         plcr.address,
         parameters, { from: governanceOwner })
