@@ -51,7 +51,7 @@ contract XyGovernance is Initializable, XyParameterizer {
     function proposeNewAction(
         uint stakee, 
         uint penaltyPct, 
-        ActionType action) public {
+        ActionType action) public returns (bytes32) {
         require(actions[stakee].propId == 0, "Action in progress");
         bytes32 propId = proposeReparameterization("xyGovernanceAction", stakee);
         GovernanceAction memory a = GovernanceAction(
@@ -61,19 +61,15 @@ contract XyGovernance is Initializable, XyParameterizer {
             false
         );
         actions[stakee] = a;
+        return propId;
     }
 
     function hasUnresolvedAction(uint stakee) public view returns (bool hasAction) {
         return actions[stakee].propId != 0;
     }
 
-    function resolveAction(uint stakee) public {
-        require (msg.sender == resolverAddress);
-        GovernanceAction storage action = actions[stakee];
-        require(action.accepted, "cannot resolve an unaccepted action");
-        resolutions[stakee].push(action);
-        delete actions[stakee];
-        emit ActionResolved(action.propId, stakee, action.actionType);
+    function numResolutions(uint stakee) public view returns (uint) {
+        return resolutions[stakee].length;
     }
 
       /**
@@ -83,17 +79,31 @@ contract XyGovernance is Initializable, XyParameterizer {
     */
     function set(string memory _name, uint _value) internal {
         if (keccak256(abi.encodePacked(_name)) == keccak256("xyGovernanceAction")) {
+            require(actions[_value].propId != 0, "Governance action must be proposed");
             actions[_value].accepted = true;
             emit NewActionAccepted(actions[_value].propId, actions[_value].actionType);
         } else {
             params[keccak256(abi.encodePacked(_name))] = _value;
         }
     }
+
+    /** 
+        Can only be called by resolver after resolution is complete 
+    */
+    function resolveAction(uint stakee) public {
+        require (msg.sender == resolverAddress);
+        GovernanceAction storage action = actions[stakee];
+        require(action.accepted, "cannot resolve an unaccepted action");
+        resolutions[stakee].push(action);
+        delete actions[stakee];
+        emit ActionResolved(action.propId, stakee, action.actionType);
+    }
+
     /** 
         Can only be called by owner and will remove centralization 
         once governance is established
     */
-    function renounceOwner() public {
+    function renounceOwnership() public {
         require (msg.sender == address(get("pOwner")));
         ownershipRenounced = true;
     }
