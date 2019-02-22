@@ -1,14 +1,14 @@
 pragma solidity >=0.5.0 <0.6.0;
 
+import "../node_modules/zos-lib/contracts/Initializable.sol";
 import "./utils/SafeMath.sol";
 import "./XyParameterizer.sol";
-
 
 /**
     @dev Governance contract provides a democratic voting mechanism that will control  
     parameters and actions that govern the XYO Network
  */
-contract XyGovernance is XyParameterizer {
+contract XyGovernance is Initializable, XyParameterizer {
     using SafeMath for uint;
 
     address public resolverAddress;
@@ -30,24 +30,17 @@ contract XyGovernance is XyParameterizer {
 
     // help ease transition into decentralized entity, 
     // and once governance has been established renounce ownership role 
-    bool ownershipRenounced = false;
+    
+    bool ownershipRenounced;
 
-    /**
-        Governance governs parameters and actions
-    */
-    constructor(
-    ) XyParameterizer() 
-    public {
-    }
-
-    function init(
+    function initialize(
         address _resolverAddress,
         address _xyERC20,
         address _plcr,
         uint[] memory _parameters
-    ) public {
+    ) initializer public {
         resolverAddress = _resolverAddress;
-        super.init(_xyERC20, _plcr, _parameters);
+        init(_xyERC20, _plcr, _parameters);
     }
     
     /** 

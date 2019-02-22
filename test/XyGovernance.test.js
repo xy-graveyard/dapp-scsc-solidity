@@ -19,6 +19,7 @@ const erc20TotalSupply = 1000000
 const fs = require(`fs`)
 const config = JSON.parse(fs.readFileSync(`./config/testParams.json`))
 const params = config.paramDefaults
+
 const parameters = [
   params.pMinDeposit,
   params.pApplyStageLen,
@@ -39,7 +40,7 @@ const should = require(`chai`)
   .should()
 
 contract(
-  `XyPayOnDelivery`,
+  `XyGovernance`,
   ([
     governanceOwner,
     governanceResolver,
@@ -62,7 +63,7 @@ contract(
       governance = await Governance.new({
         from: governanceOwner
       })
-      await governance.init(governanceResolver,
+      await governance.initialize(governanceResolver,
         erc20.address,
         plcr.address,
         parameters, { from: governanceOwner })

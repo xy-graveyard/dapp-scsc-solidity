@@ -1,5 +1,6 @@
 pragma solidity ^0.5.0;
 
+import "../node_modules/zos-lib/contracts/Initializable.sol";
 import "./PLCR/PLCRVoting.sol";
 import "./token/ERC20/IERC20.sol";
 import "./utils/SafeMath.sol";
@@ -59,7 +60,7 @@ contract XyParameterizer {
     // Global Variables
     IERC20 public token;
     PLCRVoting public voting;
-    uint public stageBlockLen = 40320; // 7 days
+    uint public stageBlockLen; // 7 days
 
     /**
     @dev Initializer        Can only be called once
@@ -75,6 +76,7 @@ contract XyParameterizer {
         // require(_token != address(0) && address(token) == address(0));
         // require(_plcr != address(0) && address(voting) == address(0));
 
+        stageBlockLen = 40320;
         token = IERC20(_token);
         voting = PLCRVoting(_plcr);
         

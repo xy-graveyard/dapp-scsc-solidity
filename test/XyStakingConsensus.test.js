@@ -282,40 +282,40 @@ contract(
       erc20 = await ERC20.new(erc20TotalSupply, `XYO Token`, `XYO`, {
         from: erc20owner
       })
-      parameterizer = await Governance.new({
-        from: parameterizerOwner
-      })
       plcr = await PLCR.new({
         from: parameterizerOwner
       })
       await plcr.init(erc20.address)
-
       stakableToken = await Stakeable.new(consensusOwner, diviners, {
         from: stakableContractOwner
       })
-    })
-    beforeEach(async () => {
-      consensus = await StakingConsensus.new(
-        diviners,
-        erc20.address,
-        stakableToken.address,
-        parameterizer.address,
-        {
-          from: consensusOwner
-        }
-      )
-      payOnD = await PayOnDelivery.new(consensus.address, erc20.address, {
-        from: payOnDeliveryOwner
+      beforeEach(async () => {
+        parameterizer = await Governance.new({
+          from: parameterizerOwner
+        })
+        consensus = await StakingConsensus.new(
+          diviners,
+          erc20.address,
+          stakableToken.address,
+          parameterizer.address,
+          {
+            from: consensusOwner
+          }
+        )
+        await parameterizer.initialize(
+          consensus.address,
+          erc20.address,
+          plcr.address,
+          parameters,
+          { from: parameterizerOwner }
+        )
+        payOnD = await PayOnDelivery.new(consensus.address, erc20.address, {
+          from: payOnDeliveryOwner
+        })
       })
-      await parameterizer.init(
-        consensus.address,
-        erc20.address,
-        plcr.address,
-        parameters,
-        { from: parameterizerOwner }
-      )
       await advanceBlock()
     })
+
     describe(`Submit Request`, () => {
       it(`Should only allow creating withdraw, uint, and bool request types`, async () => {
         await consensus.submitRequest(1, 0, d1, 1).should.be.fulfilled
@@ -493,6 +493,7 @@ contract(
         })
         await advanceBlock()
       })
+
       it(`should be able to withdraw rewards`, async () => {
         const balanceBefore = await erc20.balanceOf(d1)
         const args = await withdrawSubmitBlockArgs(stakeAmt, d1)

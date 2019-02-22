@@ -5,6 +5,7 @@ import "./attrstore/AttributeStore.sol";
 import "../utils/SafeMath.sol";
 import "../token/ERC20/SafeERC20.sol";
 
+
 /**
 @title Partial-Lock-Commit-Reveal Voting scheme with ERC20 tokens
 @author Team: Aspyn Palatnick, Cem Ozer, Yorke Rhodes
@@ -46,8 +47,8 @@ contract PLCRVoting {
     // STATE VARIABLES:
     // ============
 
-    uint public INITIAL_POLL_NONCE = 0;
     uint public pollNonce;
+    uint public INITIAL_POLL_NONCE;
 
     mapping(uint => Poll) public pollMap; // maps pollID to Poll struct
     mapping(address => uint) public voteTokenBalance; // maps user's address to voteToken balance
@@ -63,7 +64,6 @@ contract PLCRVoting {
     */
     function init(address _token) public {
         require(_token != address(0) && address(token) == address(0));
-
         token = IERC20(_token);
         pollNonce = INITIAL_POLL_NONCE;
     }
