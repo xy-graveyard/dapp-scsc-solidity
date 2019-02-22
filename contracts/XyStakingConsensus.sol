@@ -1,4 +1,6 @@
 pragma solidity >=0.5.0 <0.6.0;
+
+import "../node_modules/zos-lib/contracts/Initializable.sol";
 import "./XyStakingModel.sol";
 import "./IXyRequester.sol";
 
@@ -7,7 +9,7 @@ import "./IXyRequester.sol";
     @dev Manages the Stake for multiple clients in a decentralized consensus 
     system to trustlessly answer requests
   */
-contract XyStakingConsensus is XyStakingModel {
+contract XyStakingConsensus is Initializable, XyStakingModel {
     using SafeMath for uint;
     
     /** EVENTS */
@@ -64,14 +66,14 @@ contract XyStakingConsensus is XyStakingModel {
         @param _stakableToken - The ERC721 token to place stakes on 
         @param _governanceContract - The contract that governs the params and actions of the system
     */
-    constructor(
+    function initialize(
         address _token,
         address _stakableToken,
         address _governanceContract
     )
-        public
-        XyStakingModel(_token, _stakableToken, _governanceContract)
+        initializer public
     {
+        init(_token, _stakableToken, _governanceContract);
     }
 
     /** 

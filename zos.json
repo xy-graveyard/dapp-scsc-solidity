@@ -4,6 +4,9 @@
   "version": "0.1.0",
   "contracts": {
     "XyGovernance": "XyGovernance",
-    "XyStakableToken": "XyStakableToken"
+    "XyStakableToken": "XyStakableToken",
+    "XyStakingConsensus": "XyStakingConsensus",
+    "PLCRVoting": "PLCRVoting",
+    "XyPayOnDelivery": "XyPayOnDelivery"
   }
 }

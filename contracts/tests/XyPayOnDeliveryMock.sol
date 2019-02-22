@@ -9,7 +9,6 @@ contract XyPayOnDeliveryMock is XyPayOnDelivery {
         address _xyo
     )
         public
-    XyPayOnDelivery(_scsc, _xyo)
     {
     }
 
