@@ -1,5 +1,6 @@
 pragma solidity ^0.5.0;
 
+import "../node_modules/zos-lib/contracts/Initializable.sol";
 import "./PLCR/PLCRVoting.sol";
 import "./token/ERC20/IERC20.sol";
 import "./utils/SafeMath.sol";
@@ -59,7 +60,7 @@ contract XyParameterizer {
     // Global Variables
     IERC20 public token;
     PLCRVoting public voting;
-    uint public stageBlockLen = 40320; // 7 days
+    uint public stageBlockLen; // 7 days
 
     /**
     @dev Initializer        Can only be called once
@@ -75,6 +76,7 @@ contract XyParameterizer {
         // require(_token != address(0) && address(token) == address(0));
         // require(_plcr != address(0) && address(voting) == address(0));
 
+        stageBlockLen = 40320;
         token = IERC20(_token);
         voting = PLCRVoting(_plcr);
         
@@ -101,6 +103,7 @@ contract XyParameterizer {
         set("xyXYORequestBountyMin", _parameters[8]);
         set("xyStakeCooldown", _parameters[9]);
         set("xyUnstakeCooldown", _parameters[10]);
+        set("xyProposalsEnabled", _parameters[11]);
 
         set("xySubmissionBlockTime", 8); // every 2 minutes
         set("pOwner", uint(msg.sender)); // temporary owner until voted out
@@ -116,7 +119,7 @@ contract XyParameterizer {
     @param _value the proposed value to set the param to be set
     */
     function proposeReparameterization(string memory _name, uint _value) public returns (bytes32) {
-        require(get("pProposalsEnabled") != 0, "Proposals not yet enabled");
+        require(get("xyProposalsEnabled") != 0, "Proposals not yet enabled");
 
         uint deposit = get("pMinDeposit");
         bytes32 propID = keccak256(abi.encodePacked(_name, _value));
@@ -142,7 +145,9 @@ contract XyParameterizer {
             value: _value
         });
 
-        require(token.transferFrom(msg.sender, address(this), deposit), "Could not escrow tokens"); // escrow tokens (deposit amt)
+        if (deposit > 0) {
+            require(token.transferFrom(msg.sender, address(this), deposit), "Could not escrow tokens"); // escrow tokens (deposit amt)
+        }
 
         emit _ReparameterizationProposal(_name, _value, propID, deposit, proposals[propID].appExpiry, msg.sender);
         return propID;

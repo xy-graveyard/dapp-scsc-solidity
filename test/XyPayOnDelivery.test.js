@@ -28,7 +28,8 @@ const parameters = [
   params.xyWeiMiningMin,
   params.xyXYORequestBountyMin,
   params.xyStakeCooldown,
-  params.xyUnstakeCooldown
+  params.xyUnstakeCooldown,
+  params.xyProposalsEnabled
 ]
 const should = require(`chai`)
   .use(require(`chai-as-promised`))
@@ -58,9 +59,7 @@ contract(
       erc20 = await ERC20.new(erc20TotalSupply, `XYO Token`, `XYO`, {
         from: erc20owner
       })
-      parameterizer = await Governance.new({
-        from: parameterizerOwner
-      })
+
       plcr = await PLCR.new({
         from: parameterizerOwner
       })
@@ -71,6 +70,9 @@ contract(
       })
     })
     beforeEach(async () => {
+      parameterizer = await Governance.new({
+        from: parameterizerOwner
+      })
       consensus = await StakingConsensus.new(
         diviners,
         erc20.address,
@@ -80,7 +82,7 @@ contract(
           from: consensusOwner
         }
       )
-      await parameterizer.init(
+      await parameterizer.initialize(
         consensus.address,
         erc20.address,
         plcr.address,

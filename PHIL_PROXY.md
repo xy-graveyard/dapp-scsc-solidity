@@ -1,0 +1,218 @@
+## Steps to preparing an XYO Smart Contract to be upgradable through proxies using ZOS
+
+**Install Zeppelin OS**
+```bash
+npm install --global zos
+```
+
+**Initiate the SCSC Library**
+```bash
+zos init dapp-scsc-solidity
+```
+
+`zos init` will create a `zos.json` file which should look something like this:
+
+```json
+{
+  "zosversion": "2.2",
+  "name": "dapp-scsc-solidity",
+  "version": "0.1.0",
+  "contracts": {}
+}
+```
+
+The command will see that truffle is already initialized and configured so you shouldn't have to worry about any unecessary `migrations` or `contracts` being created.
+
+For this contract please use the `development` settings from `truffle.js`
+
+Since we are replacing constructors with initializers on any contract that we want to make upgradeable through this ZOS proxy method. We will have to import this specific contract from the ZOS library
+
+```bash
+npm install zos-lib
+```
+
+Then import at the top of your contract .sol file 
+
+```bash
+import "zos-lib/contracts/Initializable.sol";
+```
+
+Now we should make the contract initializable:
+
+Replace the constructor 
+
+```sol
+    constructor(
+    ) XyParameterizer() 
+    public {
+    }
+
+    function init(
+        address _resolverAddress,
+        address _xyERC20,
+        address _plcr,
+        uint[] memory _parameters
+    ) public {
+        resolverAddress = _resolverAddress;
+        super.init(_xyERC20, _plcr, _parameters);
+    }
+```
+
+with this 
+
+```sol
+    function initialize(
+        address _resolverAddress,
+        address _xyERC20,
+        address _plcr,
+        uint[] memory _parameters
+    ) public initializer {
+        resolverAddress = _resolverAddress;
+        super.init(_xyERC20, _plcr, _parameters);
+    }
+```
+
+We also want to update the contracts we are bringing in:
+
+```sol
+contract XyGovernance is XyParameterizer {
+```
+
+to
+
+```sol
+contract XyGovernance is XyParameterizer, Initializable {
+```
+
+Also, we want to remove any unecessary initializations of state variables (including in ancestor contracts)
+
+`XyGovernance.sol`
+```sol 
+bool ownershipRenounced = false;
+```
+change to
+```sol
+bool ownershipRenounced; // this defaults to false anyway
+```
+
+`XyParameterizer.sol`
+
+```sol
+uint public stageBlockLen = 40320;
+```
+
+change to 
+```sol
+uint public stageBlockLen;
+
+//initialize value in the init function (stageBlockLen = 40320;)
+```
+
+Once we set up the contact with this initializer function, we now want to run a ganache environment
+
+```bash
+ganache-cli --port 8545 --deterministic
+```
+
+Now we should grab the last account from our accounts array, since we don't want to run any proxies to close to other accounts that would be used for any interactions with other contracts
+
+Then we set up our ZOS session to prep and deploy our contracts
+
+```bash
+zos session --network development --from 0x1df62f291b2e969fb0849d99d9ce41e2f137006e --expires 3600
+```
+
+Now we add the contract
+
+```bash
+zos add XyGovernance
+```
+Now the `zos.json` file should be upgraded to this
+
+```json
+{
+  "zosversion": "2.2",
+  "name": "dapp-scsc-solidity",
+  "version": "0.1.0",
+  "contracts": {
+    "XyGovernance": "XyGovernance"
+  }
+}
+```
+
+Now that we have linked our contract with the ZeppelinOS project, we deploy it to the development blockchain
+
+```bash
+zos push
+```
+
+After the deployment, there will be a new file that would look something like this:
+
+```
+zos.dev-<some-number>.json
+```
+
+Now we create an instance of the contract (creating a proxy contract from the logic contract)
+
+**Note** Make sure to wrap your arguments with quotation marks! See below:
+
+```bash
+zos create contractName --init initialize --args "args(if multiple no space comma separated in quotation marks)"
+```
+
+Resulting terminal output
+
+```bash
+Deploying new ProxyAdmin...
+Deployed ProxyAdmin at 0x06fe18caA64CE3C25e0b94085AfB0383AcE7Cc18
+Creating proxy to logic contract 0xD0C81a4a66Eb47D8FBdEEAB6CA576c875F8D2adb and initializing by calling initialize with:
+
+Instance created at 0x1943BD00E3a4F46B10e6657dd9236Be95E20398A
+0x1943BD00E3a4F46B10e6657dd9236Be95E20398A
+Updated zos.dev-1550512259795.json
+```
+
+With multiple arguments:
+
+```bash
+Creating proxy to logic contract 0x9000D9c358dC56200000b0E3710E1A9E8985e058 and initializing by calling initialize with:
+ - _resolverAddress (address): "0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1"
+ - _xyERC20 (address): "0x9561c133dd8580860b6b7e504bc5aa500f0f06a7"
+ - _plcr (address): "0x9561c133dd8580860b6b7e504bc5aa500f0f06a7"
+ - _parameters (uint256[]): ["100000000000000000000","1200","1200","1200","1200","50","50","66","0","0","200",300]
+Instance created at 0x098be14CdC727F187B1865cf67a593a3E5f4FBc6
+0x098be14CdC727F187B1865cf67a593a3E5f4FBc6
+Updated zos.dev-1550512259795.json
+```
+The `zos.dev-1550512259795.json` file should now include our proxy contracts:
+
+```json
+  "proxies": {
+    "dapp-scsc-solidity/XyStakableToken": [
+      {
+        "address": "0x1943BD00E3a4F46B10e6657dd9236Be95E20398A",
+        "version": "0.1.0",
+        "implementation": "0xD0C81a4a66Eb47D8FBdEEAB6CA576c875F8D2adb"
+      }
+    ],
+    "dapp-scsc-solidity/XyGovernance": [
+      {
+        "address": "0x098be14CdC727F187B1865cf67a593a3E5f4FBc6",
+        "version": "0.1.0",
+        "implementation": "0x9000D9c358dC56200000b0E3710E1A9E8985e058"
+      }
+    ]
+  },
+```
+
+As well as a ProxyAdmin address: 
+
+```json
+  "zosversion": "2.2",
+  "version": "0.1.0",
+  "proxyAdmin": {
+    "address": "0x06fe18caA64CE3C25e0b94085AfB0383AcE7Cc18"
+  }
+```
+
+We now have an upgradeable smart contract!

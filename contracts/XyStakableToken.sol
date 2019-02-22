@@ -1,5 +1,6 @@
 pragma solidity >=0.5.0 <0.6.0;
 
+import "../node_modules/zos-lib/contracts/Initializable.sol";
 import "./token/ERC721/ERC721Enumerable.sol";
 import "./access/GovernorRole.sol";
 /* 
@@ -7,15 +8,17 @@ import "./access/GovernorRole.sol";
     These token ids are the payment ids that are passed up the XYO origin chains
     Stakers on these tokens may make reward withdrawels,
 */
-contract XyStakableToken is ERC721Enumerable, GovernorRole {
+
+contract XyStakableToken is ERC721Enumerable, Initializable, GovernorRole {
+    address public governor;
 
     // Keep a list of block producers to publicly show who the BPs are in the system
     uint[] public blockProducers;
     // Add mapping of indexes so that we can find a BP by their blockProducers[index[id]]
     mapping(uint => uint) public blockProducerIndexes;
 
-    constructor () 
-        public
+    function initialize () 
+        initializer public
     {
     }
 

@@ -20,7 +20,8 @@ const parameters = [
   params.xyWeiMiningMin,
   params.xyXYORequestBountyMin,
   params.xyStakeCooldown,
-  params.xyUnstakeCooldown
+  params.xyUnstakeCooldown,
+  params.xyProposalsEnabled
 ]
 const should = require(`chai`)
   .use(require(`chai-as-promised`))
@@ -97,7 +98,7 @@ contract(
       stakee3 = await stakableToken.stakeeMocks(2)
       stakee4 = await stakableToken.stakeeMocks(3)
 
-      await parameterizer.init(
+      await parameterizer.initialize(
         staking.address,
         erc20.address,
         plcr.address,
