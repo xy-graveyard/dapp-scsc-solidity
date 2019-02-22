@@ -10,7 +10,7 @@ import "./utils/SafeMath.sol";
 contract XyStakingModel {
     using SafeMath for uint;
     using SafeERC20 for IERC20;
-
+    
     // IERC20 contract for stake denomination
     IERC20 public xyoToken;
 
@@ -23,7 +23,6 @@ contract XyStakingModel {
     uint public stakeCooldown;
     uint public unstakeCooldown;
 
-    enum ActionType { EOL, UNSTAKE, ADD_BP, REMOVE_BP }
 
     // Track the total active stake in XYO
     uint public totalActiveStake;
@@ -161,8 +160,8 @@ contract XyStakingModel {
         }
     }
 
-    function isUnstakeAction(uint8 actionType) pure public returns (bool) {
-        return (actionType == uint(ActionType.UNSTAKE)  || actionType == uint(ActionType.EOL) );
+    function isUnstakeAction(XyGovernance.ActionType actionType) pure public returns (bool) {
+        return (actionType == XyGovernance.ActionType.UNSTAKE  || actionType == XyGovernance.ActionType.EOL);
     }
 
     /** 
@@ -172,20 +171,20 @@ contract XyStakingModel {
         @param batchSize if batchable action, batchSize
     */
     function resolveGovernanceAction(uint stakee, uint startIndex, uint batchSize) public {
-        (,uint penalty,,uint8 actionType, bool accepted) = params.actions(stakee);
+        (,uint penalty,XyGovernance.ActionType actionType,bool accepted) = params.actions(stakee);
         require(accepted == true, "action must be accepted");
         // unstake action
-        if (actionType == uint(ActionType.UNSTAKE)) {
+        if (actionType == XyGovernance.ActionType.UNSTAKE) {
             _unstakeGovernanceAction(stakee, startIndex, batchSize, penalty);
-        } else if (actionType == uint(ActionType.EOL)) {
+        } else if (actionType == XyGovernance.ActionType.EOL) {
             // unstake all with no penalty
             _unstakeGovernanceAction(stakee, startIndex, batchSize, 0);
             // burn stakee 721
             stakableToken.burn(stakee);
-        } else if (actionType == uint(ActionType.ADD_BP)) {
+        } else if (actionType == XyGovernance.ActionType.ADD_BP) {
             stakableToken.enableBlockProducer(stakee, true);
             params.resolveAction(stakee);
-        } else if (actionType == uint(ActionType.REMOVE_BP)) {
+        } else if (actionType == XyGovernance.ActionType.REMOVE_BP) {
             stakableToken.enableBlockProducer(stakee, false);
             params.resolveAction(stakee);
         } 
@@ -207,7 +206,7 @@ contract XyStakingModel {
         returns (uint)
     {
         require(params.hasUnresolvedAction(stakee) == false, "All actions on stakee must be resolved");
-        require(stakableToken.ownerOf(stakee) != address(0), "Stakable token must exist");
+        require(stakableToken.exists(stakee) == true, "Stakable token must exist");
         updateCacheOnStake(amount, stakee);
 
         // random generated token id
@@ -265,6 +264,7 @@ contract XyStakingModel {
         require(data.stakeBlock + params.get("xyStakeCooldown") < block.number, "Staking needs to cooldown");
         require(data.unstakeBlock == 0, "Cannot re-unstake");
         updateCacheOnUnstake(data);
+        data.isActivated = false;
         data.unstakeBlock = block.number;
         emit Unstaked(data.staker, stakingId, data.stakee, data.amount);
     }

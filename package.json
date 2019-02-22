@@ -51,5 +51,6 @@
   "dependencies": {
     "ethereumjs-util": "^6.0.0",
     "zos-lib": "^2.2.0"
+    "ipfs-http-client": "^29.1.1"
   }
 }
