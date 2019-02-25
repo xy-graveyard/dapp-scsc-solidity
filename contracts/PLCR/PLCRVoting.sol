@@ -64,7 +64,7 @@ contract PLCRVoting is Initializable{
     @dev Initializer. Can only be called once.
     @param _token The address where the ERC20 token contract is deployed
     */
-    function initialize(address _token) initializer public {
+    function init(address _token) initializer public {
         // require(_token != address(0) && address(token) == address(0));
         token = IERC20(_token);
         pollNonce = INITIAL_POLL_NONCE;
