@@ -9,6 +9,7 @@ contract XyConsensusMock is XyStakingConsensus {
         address _stakableToken,
         address _governance)
         public
+    XyStakingConsensus()
     {
       uint activeAmount = 1000;
       for (uint i = 0; i < stakees.length; i++) {

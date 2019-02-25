@@ -65,7 +65,7 @@ contract PLCRVoting is Initializable{
     @param _token The address where the ERC20 token contract is deployed
     */
     function init(address _token) initializer public {
-        require(_token != address(0x40) && address(token) == address(0x40));
+        require(_token != address(0) && address(token) == address(0));
         token = IERC20(_token);
         pollNonce = INITIAL_POLL_NONCE;
     }
