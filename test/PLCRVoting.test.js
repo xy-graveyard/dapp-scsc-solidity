@@ -11,7 +11,6 @@ contract(
   `PLCRVoting`,
   ([
     erc20owner,
-    plcrRequester,
     pollId,
     pollIds,
     prevPollId,
@@ -22,14 +21,13 @@ contract(
     prevPollIds
   ]) => {
     let erc20
-    let pollNonce
     before(async () => {
       erc20 = await ERC20.new(erc20TotalSupply, `XYO Token`, `XYO`, {
         from: erc20owner
       })
     })
     beforeEach(async () => {
-      await PLCR.init(erc20.address, pollNonce)
+      await PLCR.initialize(erc20.address)
     })
     describe(`PLCRVoting process`, () => {
       it(`should load ERC20 tokens into the voting contract`, async () => {

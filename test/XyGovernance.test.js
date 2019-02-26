@@ -4,6 +4,7 @@ import { expectEvent } from "openzeppelin-test-helpers"
 import { request } from "http"
 import { expect } from 'chai'
 
+const { encodeCall } = require(`zos-lib`)
 const abi = require(`ethereumjs-abi`)
 const { toChecksumAddress } = require(`ethereumjs-util`)
 const PayOnDeliveryMock = artifacts.require(`XyPayOnDeliveryMock.sol`)
@@ -50,14 +51,22 @@ contract(
     let erc20
     let governance
     let plcr
+    let data
     before(async () => {
+      // data = encodeCall(
+      //   `initialize`,
+      //   [`address`, `address`, `address`, `uint[]`],
+      //   [governanceResolver, erc20.address, plcr.address, parameters, { from: governanceOwner }]
+      // )
+      // const newGovernance = await Governance.new()
+      // await newGovernance.sendTransaction({ data, from: governanceOwner })
       erc20 = await ERC20.new(erc20TotalSupply, `XYO Token`, `XYO`, {
         from: erc20owner
       })
       plcr = await PLCR.new({
         from: plcrOwner
       })
-      await plcr.init(erc20.address)
+      await plcr.initialize(erc20.address)
     })
     beforeEach(async () => {
       governance = await Governance.new({

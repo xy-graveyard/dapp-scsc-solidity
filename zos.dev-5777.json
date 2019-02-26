@@ -1146,7 +1146,39 @@
       "deployedBytecodeHash": "59e8c63ac33cf88a743bf824a441d79b123b4b6e693eae7d05218379af662204"
     }
   },
-  "proxies": {},
+  "proxies": {
+    "dapp-scsc-solidity/XyPayOnDelivery": [
+      {
+        "address": "0x0741fB496E58A1Fbc8cb9Ef9E096393e62582613",
+        "version": "0.1.0",
+        "implementation": "0xEeB3A6143B71b9eBc867479f2cf57DB0bE4604C2"
+      }
+    ],
+    "dapp-scsc-solidity/XyStakingConsensus": [
+      {
+        "address": "0xD8eFF32B3Fa436A3904851A0e95A8cD965c245a5",
+        "version": "0.1.0",
+        "implementation": "0xE204b657F73C61970104c461456f01fcad66813a"
+      }
+    ],
+    "dapp-scsc-solidity/XyGovernance": [
+      {
+        "address": "0x39645fDff0fC2792A0B63734FeC99D9fEE98EeC1",
+        "version": "0.1.0",
+        "implementation": "0x2adf8B30d4Dd24a05Ccd9aFbDc06A5b49C9c758d"
+      }
+    ],
+    "dapp-scsc-solidity/XyStakableToken": [
+      {
+        "address": "0x586643C7D083a83E4b0FCAAE87945D31A21B5E7e",
+        "version": "0.1.0",
+        "implementation": "0x25f96B23947F3e57b29d15760Fd8Af926694Fa81"
+      }
+    ]
+  },
   "zosversion": "2.2",
-  "version": "0.1.0"
+  "version": "0.1.0",
+  "proxyAdmin": {
+    "address": "0x321DD22870b5DF733a30498763a2A43FEda8A5F4"
+  }
 }

@@ -64,7 +64,7 @@ contract(
         from: parameterizerOwner
       })
 
-      await plcr.init(erc20.address)
+      await plcr.initialize(erc20.address)
       stakableToken = await Stakeable.new(stakableTokenOwner, diviners, {
         from: stakableContractOwner
       })
