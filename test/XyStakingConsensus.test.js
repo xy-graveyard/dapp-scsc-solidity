@@ -285,7 +285,7 @@ contract(
       plcr = await PLCR.new({
         from: parameterizerOwner
       })
-      await plcr.init(erc20.address)
+      await plcr.initialize(erc20.address)
       stakableToken = await Stakeable.new(consensusOwner, diviners, {
         from: stakableContractOwner
       })
