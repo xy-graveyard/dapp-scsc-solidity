@@ -302,7 +302,7 @@ contract(
             from: consensusOwner
           }
         )
-        await parameterizer.initialize(
+        await parameterizer.init(
           consensus.address,
           erc20.address,
           plcr.address,
