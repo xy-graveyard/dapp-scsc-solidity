@@ -23,7 +23,8 @@ const parameters = [
   params.xyUnstakeCooldown,
   params.xyProposalsEnabled
 ]
-const should = require(`chai`)
+
+require(`chai`)
   .use(require(`chai-as-promised`))
   .should()
 
