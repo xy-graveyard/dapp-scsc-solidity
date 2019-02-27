@@ -145,60 +145,60 @@ You will now get a returned JSON object with your stake amount, the block it was
 `transfer` 
 - Sends a specific value of tokens from your XYO account to another
 
-**parameters**
-- `address _to`
-- `uint256 _value `
+- **parameters**
+  - `address _to`
+  - `uint256 _value `
 
 `transferFrom`
 - Sends a specific value of tokens from one (not yours) XYO address to another XYO address
 
-**parameters**
-- `address _from`
-- `address _to`
-- `uint256 _value`
+- **parameters**
+  - `address _from`
+  - `address _to`
+  - `uint256 _value`
 
-**returns**
-- `bool success`
+- **returns**
+  - `bool success`
 
 `approve`
 - Sets an allowance for tokens for another address **check out our staking walkthrough for an example**
 
-**parameters**
-- `address _spender`
-- `uint256 _value`
+- **parameters**
+  - `address _spender`
+  - `uint256 _value`
 
-**returns**
-- `bool success`
+- **returns**
+  - `bool success`
 
 `approveAndCall`
 - Sets an allowance for tokens for another address with a notification for the other contract
 
-*parameters*
-- `address _spender`
-- `uint _value`
-- `bytes memory _extraData`
+- *parameters*
+  - `address _spender`
+  - `uint _value`
+  - `bytes memory _extraData`
 
-**returns**
-`bool success` & `approval notification with _value and _extraData`
+- **returns**
+  - `bool success` & `approval notification with _value and _extraData`
 
 `burn`
 - destroys tokens
 
-**parameters**
--  `uint256 _value`
+- **parameters**
+  -  `uint256 _value`
 
-**returns**
-`bool success`
+- **returns**
+  - `bool success`
 
 `burnFrom`
 - Destroys tokens from another account
 
-**parameters**
-- `address _from`
-- `uint256 _value`
+- **parameters**
+  - `address _from`
+  - `uint256 _value`
 
-**returns**
-`bool success`
+- **returns**
+  - `bool success`
 
 #### XyStakableToken
 
@@ -208,38 +208,47 @@ You will now get a returned JSON object with your stake amount, the block it was
 `enableBlockProducer`
 - Allows a contract governor to add and remove a block producer
 
-*parameters*
-- `uint stakee`
-- `bool enable`
+- *parameters*
+  - `uint stakee`
+  - `bool enable`
 
 `mint`
 - Mints a stakable address with the account has as the token id
 **this emits a transfer event to the sender**
 
-**parameters**
-- `address beneficiary`
+- **parameters**
+  - `address beneficiary`
 
 `burn`
 - Burns a token (only a governor can do this)
 - If the token belongs to a block producer, it deletes the token from its listing
 
-**parameters**
-- `uint stakee`
+- **parameters**
+  - `uint stakee`
 
 `exists`
 - A method to view if a stakee exists
 
-**parameters**
-- `uint stakee`
+- **parameters**
+  - `uint stakee`
+
+- **returns**
+  - `stakee`
 
 `isBlockProducer`
 - A method to view if a stakee is a block producer
 
-**parameters**
-- `uint stakee`
+- **parameters**
+  - `uint stakee`
+
+- **returns**
+  - `stakee from the blockProducersIndex`
 
 `numBlockProducers`
 - A method to view the number of block producers
+
+- **returns**
+  - `number of block producers`
 
 ### Maintainers 
 
