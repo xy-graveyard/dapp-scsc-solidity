@@ -2772,6 +2772,19 @@ ethereumjs-util@^6.0.0:
     safe-buffer "^5.1.1"
     secp256k1 "^3.0.1"
 
+ethereumjs-util@^6.1.0:
+  version "6.1.0"
+  resolved "https://registry.yarnpkg.com/ethereumjs-util/-/ethereumjs-util-6.1.0.tgz#e9c51e5549e8ebd757a339cc00f5380507e799c8"
+  integrity sha512-URESKMFbDeJxnAxPppnk2fN6Y3BIatn9fwn76Lm8bQlt+s52TpG8dN9M66MLPuRAiAOIqL3dfwqWJf0sd0fL0Q==
+  dependencies:
+    bn.js "^4.11.0"
+    create-hash "^1.1.2"
+    ethjs-util "0.1.6"
+    keccak "^1.0.2"
+    rlp "^2.0.0"
+    safe-buffer "^5.1.1"
+    secp256k1 "^3.0.1"
+
 ethereumjs-vm@2.3.4:
   version "2.3.4"
   resolved "https://registry.yarnpkg.com/ethereumjs-vm/-/ethereumjs-vm-2.3.4.tgz#f635d7cb047571a1840a6e9a74d29de4488f8ad6"
@@ -2855,7 +2868,7 @@ ethjs-unit@0.1.6:
     bn.js "4.11.6"
     number-to-bn "1.7.0"
 
-ethjs-util@^0.1.3, ethjs-util@^0.1.6:
+ethjs-util@0.1.6, ethjs-util@^0.1.3, ethjs-util@^0.1.6:
   version "0.1.6"
   resolved "https://registry.yarnpkg.com/ethjs-util/-/ethjs-util-0.1.6.tgz#f308b62f185f9fe6237132fb2a9818866a5cd536"
   integrity sha512-CUnVOQq7gSpDHZVVrQW8ExxUETWrnrvXYvYz55wOU8Uj4VCgw56XC2B/fVqQN+f7gmrnRHSLVnFAwsCuNwji8w==
@@ -5285,11 +5298,6 @@ openzeppelin-solidity@^2.1.2:
   resolved "https://registry.yarnpkg.com/openzeppelin-solidity/-/openzeppelin-solidity-2.1.2.tgz#94e2bb92b60e91abb22c6fe27d983d92850fb324"
   integrity sha512-1ggh+AZFpMAgGfgnVMQ8dwYawjD2QN4xuWkQS4FUbeUz1fnCKJpguUl2cyadyfDYjBq1XJ6MA6VkzYpTZtJMqw==
 
-openzeppelin-solidity@~1.10.0:
-  version "1.10.0"
-  resolved "https://registry.yarnpkg.com/openzeppelin-solidity/-/openzeppelin-solidity-1.10.0.tgz#d77eee6653f5958d051318a61ba0b436f92216c0"
-  integrity sha512-igkrumQQ2lrN2zjeQV4Dnb0GpTBj1fzMcd8HPyBUqwI0hhuscX/HzXiqKT6gFQl1j9Wy/ppVVs9fqL/foF7Gmg==
-
 openzeppelin-test-helpers@^0.1.2:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/openzeppelin-test-helpers/-/openzeppelin-test-helpers-0.1.2.tgz#ffef3f3674e7eab6a29a33b98c641c5574bec21d"
@@ -6487,10 +6495,10 @@ solc@^0.4.2:
     semver "^5.3.0"
     yargs "^4.7.1"
 
-solc@^0.5.3:
-  version "0.5.3"
-  resolved "https://registry.yarnpkg.com/solc/-/solc-0.5.3.tgz#bb6d4e8e785b8b3ac0e6d096b9213bf2d0ca15b6"
-  integrity sha512-H9apkutqTa+zEF1T13q5fvAC0aMcbdg6JkUiGXObTJuZydq6Z6EgjI1OS9MGz0y3z4c0Vp1Ww2waEq0jMRm/Rw==
+solc@^0.5.4:
+  version "0.5.4"
+  resolved "https://registry.yarnpkg.com/solc/-/solc-0.5.4.tgz#e91bbea93d607eb0f934b8bc9b3c9a0d999ef768"
+  integrity sha512-Jz3yz2mct0AYzR83/jBgxDqrLXTHhYUg2G2PVJbMMt5Vu+8e3Of1Mn3nvjPw5mh46jrzt8l4fBN7vHqG5ZF0cw==
   dependencies:
     command-exists "^1.2.8"
     fs-extra "^0.30.0"
@@ -7794,10 +7802,10 @@ yauzl@^2.4.2:
     buffer-crc32 "~0.2.3"
     fd-slicer "~1.1.0"
 
-zos-lib@^2.2.0:
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/zos-lib/-/zos-lib-2.2.0.tgz#71e7ccaf0d403685f22e8e849d6c437e8d7eefde"
-  integrity sha512-Hex60MlPT2AFE7G+MRxN/ip9tsVUNjOPOTvl81Qghh/ntLRvDNAxtYJaHxup3/F1xF0DuDBrYCHIRdXkR3rkXQ==
+zos-lib@^2.2.1:
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/zos-lib/-/zos-lib-2.2.1.tgz#40d8e68fc57be35403571ac08d58d87c06623b28"
+  integrity sha512-whdBpt1YneDzFzjw+uUzYVzyboDMJuNG7WOFdxkeC/+XrEbbSmPEyBU4OGc47Rt/jg+ruhbOfxsOImc+Sfnnfg==
   dependencies:
     "@types/web3" "^1.0.14"
     axios "^0.18.0"
@@ -7825,7 +7833,6 @@ zos-lib@^2.2.0:
     lodash.uniq "^4.5.0"
     lodash.values "^4.3.0"
     lodash.without "^4.4.0"
-    openzeppelin-solidity "~1.10.0"
     semver "^5.5.1"
     truffle-flattener "^1.3.0"
     web3 "1.0.0-beta.37"
