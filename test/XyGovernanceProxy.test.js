@@ -4,7 +4,7 @@ const { Contracts, ZWeb3 } = require(`zos-lib`)
 ZWeb3.initialize(web3.currentProvider)
 
 const Governance = Contracts.getFromLocal(`XyGovernance`)
-const ERC20 = Contracts.getFromNodeModules(`openzeppelin-eth`, `ERC20`)
+const ERC20 = artifacts.require(`XyERC20Token.sol`)
 
 require(`chai`).should()
 
