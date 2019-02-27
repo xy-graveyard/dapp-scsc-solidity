@@ -1130,11 +1130,31 @@
       }
     }
   },
-  "solidityLibs": {},
+  "solidityLibs": {
+    "DLL": {
+      "address": "0x6BabdBFfb93dEE35243DB0568Cbd24fFfB6A6aE2",
+      "constructorCode": "610415610030600b82828239805160001a6073146000811461002057610022565bfe5b5030600052607381538281f3fe",
+      "bodyBytecodeHash": "ff3cb78c6e326b317591f74d6df2595ae2b029be398e131d596bb92ac6994dc8",
+      "localBytecodeHash": "f142c51b7f3ef1686b8d9609a17e4ae308d40017342f4a8ef5e2e58bae52a310",
+      "deployedBytecodeHash": "f142c51b7f3ef1686b8d9609a17e4ae308d40017342f4a8ef5e2e58bae52a310"
+    },
+    "AttributeStore": {
+      "address": "0x328BE8A386f1743680829a20f539722F94821867",
+      "constructorCode": "610329610030600b82828239805160001a6073146000811461002057610022565bfe5b5030600052607381538281f3fe",
+      "bodyBytecodeHash": "5b16410e9cb28cfa2a3308b39b226c5c20fc472b54c51cb09daf57f425f4cf2f",
+      "localBytecodeHash": "59e8c63ac33cf88a743bf824a441d79b123b4b6e693eae7d05218379af662204",
+      "deployedBytecodeHash": "59e8c63ac33cf88a743bf824a441d79b123b4b6e693eae7d05218379af662204"
+    }
+  },
   "proxies": {
     "dapp-scsc-solidity/XyGovernance": [
       {
         "address": "0x2adf8B30d4Dd24a05Ccd9aFbDc06A5b49C9c758d",
+        "version": "0.1.0",
+        "implementation": "0x9c62311E2B81AE323716b9783D08DfDBE1802DD4"
+      },
+      {
+        "address": "0x1CF1C7F97FA8c64DeB1fE52239d5f770b1d90b41",
         "version": "0.1.0",
         "implementation": "0x9c62311E2B81AE323716b9783D08DfDBE1802DD4"
       }

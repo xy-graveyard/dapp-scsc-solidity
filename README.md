@@ -71,15 +71,15 @@ This package has been built to streamline the dApp build process for anyone read
 **Requirements:**
 - Watch this video on staking a node in XYO
 - Check out [dApper](https://github.com/XYOracleNetwork/tool-dapper-react)
-  - dApper allows you to interact with the smart contracts from the project on the browser
+  - dApper allows you to interact with the smart contracts from the scsc library on the browser
 
 
 **Suggestions:**
-- 
+- Follow the walkthrough below to familiarize yourself with the scsc in the dApper environment. This is a good starting point to understanding how our scsc interacts with XYO.
 
 ### Walkthrough
 
-# How to add stake on XYO Diviner
+### How to add stake on XYO Diviner
 
 ### Access our SCSC library through IPFS 
 
@@ -139,6 +139,107 @@ You will now get a returned JSON object with your stake amount, the block it was
 **Congratulations! You have activated stake on a diviner!**
 
 ### API
+
+#### XyERC20Token
+
+`transfer` 
+- Sends a specific value of tokens from your XYO account to another
+
+**parameters**
+- `address _to`
+- `uint256 _value `
+
+`transferFrom`
+- Sends a specific value of tokens from one (not yours) XYO address to another XYO address
+
+**parameters**
+- `address _from`
+- `address _to`
+- `uint256 _value`
+
+**returns**
+- `bool success`
+
+`approve`
+- Sets an allowance for tokens for another address **check out our staking walkthrough for an example**
+
+**parameters**
+- `address _spender`
+- `uint256 _value`
+
+**returns**
+- `bool success`
+
+`approveAndCall`
+- Sets an allowance for tokens for another address with a notification for the other contract
+
+*parameters*
+- `address _spender`
+- `uint _value`
+- `bytes memory _extraData`
+
+**returns**
+`bool success` & `approval notification with _value and _extraData`
+
+`burn`
+- destroys tokens
+
+**parameters**
+-  `uint256 _value`
+
+**returns**
+`bool success`
+
+`burnFrom`
+- Destroys tokens from another account
+
+**parameters**
+- `address _from`
+- `uint256 _value`
+
+**returns**
+`bool success`
+
+#### XyStakableToken
+
+**This contract is used to track ownership of stakable addresses in XYO**
+**This contract is upgradeable**
+
+`enableBlockProducer`
+- Allows a contract governor to add and remove a block producer
+
+*parameters*
+- `uint stakee`
+- `bool enable`
+
+`mint`
+- Mints a stakable address with the account has as the token id
+**this emits a transfer event to the sender**
+
+**parameters**
+- `address beneficiary`
+
+`burn`
+- Burns a token (only a governor can do this)
+- If the token belongs to a block producer, it deletes the token from its listing
+
+**parameters**
+- `uint stakee`
+
+`exists`
+- A method to view if a stakee exists
+
+**parameters**
+- `uint stakee`
+
+`isBlockProducer`
+- A method to view if a stakee is a block producer
+
+**parameters**
+- `uint stakee`
+
+`numBlockProducers`
+- A method to view the number of block producers
 
 ### Maintainers 
 
