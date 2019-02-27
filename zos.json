@@ -6,7 +6,6 @@
     "XyGovernance": "XyGovernance",
     "XyStakableToken": "XyStakableToken",
     "XyStakingConsensus": "XyStakingConsensus",
-    "XyPayOnDelivery": "XyPayOnDelivery",
-    "PLCRVoting": "PLCRVoting"
+    "XyPayOnDelivery": "XyPayOnDelivery"
   }
 }

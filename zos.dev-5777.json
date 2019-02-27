@@ -1,7 +1,7 @@
 {
   "contracts": {
     "XyGovernance": {
-      "address": "0x2adf8B30d4Dd24a05Ccd9aFbDc06A5b49C9c758d",
+      "address": "0x9c62311E2B81AE323716b9783D08DfDBE1802DD4",
       "constructorCode": "608060405234801561001057600080fd5b506134d6806100206000396000f3fe",
       "bodyBytecodeHash": "3a27abf5a38dc9961073aa7d54be69804b26a8d5d4a40e677c632b26c123c0b4",
       "localBytecodeHash": "f0dffea801d05e49ec20c2007add324829581da8adcfd6859c3ff4f5f46aaf74",
@@ -544,7 +544,7 @@
       }
     },
     "XyStakingConsensus": {
-      "address": "0xE204b657F73C61970104c461456f01fcad66813a",
+      "address": "0xEeB3A6143B71b9eBc867479f2cf57DB0bE4604C2",
       "constructorCode": "608060405234801561001057600080fd5b50614b83806100206000396000f3fe",
       "bodyBytecodeHash": "e114ea7610b375f785236b247e077e3f9d6b600ae22833c891adb95c0cd4a019",
       "localBytecodeHash": "65a6caffa9016045dfff3c1cb0659d7511468e72cae20d065f1113260c61bf56",
@@ -953,7 +953,7 @@
       }
     },
     "XyPayOnDelivery": {
-      "address": "0xEeB3A6143B71b9eBc867479f2cf57DB0bE4604C2",
+      "address": "0x0741fB496E58A1Fbc8cb9Ef9E096393e62582613",
       "constructorCode": "608060405234801561001057600080fd5b50610fde806100206000396000f3fe",
       "bodyBytecodeHash": "529dade303b6871c130d16458189231ce45b38e1072206c491592d4bbb951a85",
       "localBytecodeHash": "11c77108681ffc2619d71efdfdfedf38284bde281f00bfc2aa8edaac3aba3bc2",
@@ -1130,23 +1130,40 @@
       }
     }
   },
-  "solidityLibs": {
-    "DLL": {
-      "address": "0x9c62311E2B81AE323716b9783D08DfDBE1802DD4",
-      "constructorCode": "610415610030600b82828239805160001a6073146000811461002057610022565bfe5b5030600052607381538281f3fe",
-      "bodyBytecodeHash": "ff3cb78c6e326b317591f74d6df2595ae2b029be398e131d596bb92ac6994dc8",
-      "localBytecodeHash": "f142c51b7f3ef1686b8d9609a17e4ae308d40017342f4a8ef5e2e58bae52a310",
-      "deployedBytecodeHash": "f142c51b7f3ef1686b8d9609a17e4ae308d40017342f4a8ef5e2e58bae52a310"
-    },
-    "AttributeStore": {
-      "address": "0x791c3f20f865c582A204134E0A64030Fc22D2E38",
-      "constructorCode": "610329610030600b82828239805160001a6073146000811461002057610022565bfe5b5030600052607381538281f3fe",
-      "bodyBytecodeHash": "5b16410e9cb28cfa2a3308b39b226c5c20fc472b54c51cb09daf57f425f4cf2f",
-      "localBytecodeHash": "59e8c63ac33cf88a743bf824a441d79b123b4b6e693eae7d05218379af662204",
-      "deployedBytecodeHash": "59e8c63ac33cf88a743bf824a441d79b123b4b6e693eae7d05218379af662204"
-    }
+  "solidityLibs": {},
+  "proxies": {
+    "dapp-scsc-solidity/XyGovernance": [
+      {
+        "address": "0x2adf8B30d4Dd24a05Ccd9aFbDc06A5b49C9c758d",
+        "version": "0.1.0",
+        "implementation": "0x9c62311E2B81AE323716b9783D08DfDBE1802DD4"
+      }
+    ],
+    "dapp-scsc-solidity/XyStakableToken": [
+      {
+        "address": "0xE204b657F73C61970104c461456f01fcad66813a",
+        "version": "0.1.0",
+        "implementation": "0x25f96B23947F3e57b29d15760Fd8Af926694Fa81"
+      }
+    ],
+    "dapp-scsc-solidity/XyStakingConsensus": [
+      {
+        "address": "0x321DD22870b5DF733a30498763a2A43FEda8A5F4",
+        "version": "0.1.0",
+        "implementation": "0xEeB3A6143B71b9eBc867479f2cf57DB0bE4604C2"
+      }
+    ],
+    "dapp-scsc-solidity/XyPayOnDelivery": [
+      {
+        "address": "0xD8eFF32B3Fa436A3904851A0e95A8cD965c245a5",
+        "version": "0.1.0",
+        "implementation": "0x0741fB496E58A1Fbc8cb9Ef9E096393e62582613"
+      }
+    ]
   },
-  "proxies": {},
   "zosversion": "2.2",
-  "version": "0.1.0"
+  "version": "0.1.0",
+  "proxyAdmin": {
+    "address": "0x791c3f20f865c582A204134E0A64030Fc22D2E38"
+  }
 }
