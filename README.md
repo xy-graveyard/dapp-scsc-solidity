@@ -173,7 +173,7 @@ You will now get a returned JSON object with your stake amount, the block it was
 `approveAndCall`
 - Sets an allowance for tokens for another address with a notification for the other contract
 
-- *parameters*
+- **parameters**
   - `address _spender`
   - `uint _value`
   - `bytes memory _extraData`
@@ -208,7 +208,7 @@ You will now get a returned JSON object with your stake amount, the block it was
 `enableBlockProducer`
 - Allows a contract governor to add and remove a block producer
 
-- *parameters*
+- **parameters**
   - `uint stakee`
   - `bool enable`
 
@@ -250,13 +250,181 @@ You will now get a returned JSON object with your stake amount, the block it was
 - **returns**
   - `number of block producers`
 
+#### XYStakingConsensus
+
+**Manages the stake for multiple clients in a decentralized consensus**
+**This contract is upgradeable**
+
+`getLatestBlock`
+- Returns the latest block submitted on the chain
+
+- **returns**
+  - `uint _latest`
+
+`withdrawRewardRequest`
+- Withdraw reward balance 
+
+- **parameters**
+  - `uint xyoBounty`
+
+- **returns**
+  - `uint requestId`
+
+`submitRequest`
+- Escrows eth and XYO to ensure that it covers the answer mining cost
+- Stores the new request in the request pool and emits the submission
+
+- **parameters**
+  - `uint request`
+  - `uint xyoBounty`
+  - `address xyoSender`
+  - `IXyRequester.RequestType requestType`
+
+`submitBlock`
+- Submits a new block at the consensus blockchain, with a verified stake over 51% and returns weiMining for successful creation. 
+
+- **parameters**
+  - `uint blockProducer`
+  - `uint previousBlock`
+  - `uint[] memory _requests`
+  - `bytes32 payloadData`
+  - `bytes memory responses`
+  - `address[] memory signers`
+  - `bytes32[] memory sigR`
+  - `bytes32[] memory sigS`
+  - `uint8[] memory sigV`
+
+- **returns**
+  -  `uint (newBlock)`
+
+`numRequests`
+- A method to view the number of requests in the consensus block
+
+- **returns**
+  - `requestChain.length`
+
+`numBlocks`
+- A method to view the number of blocks in the consensus chain
+
+- **returns**
+  - `blockChain.length`
+
+`XyPayOnDelivery`
+- A Payment on delivery contract, check out our [Payable On Delivery Demo](https://developers.xyo.network/docs/en/payable-demo/) to see how it works
+- **This contract is upgradeable**
+
+`requestPayOnDelivery`
+- Called by the client to request an intersection question (is the item delivered?)
+
+- **parameters**
+  - `uint requestId`
+  - `uint xyoBounty`
+  - `uint xyoPayOnDelivery`
+  - `uint weiPayOnDelivery`
+  - `address payable beneficiary`
+
+`submitResponse`
+- Called by SCSC, if there is an intersection, executes a transfer to beneficiary and deletes the request from the request pool
+
+- **parameters**
+  - `uint requestId`
+  - `IXyRequester.RequestType`
+  - `bytes memory responseData`
+
+`payOnDelivery`
+- This contract is called in `submitResponse` with the request Id and who needs to be paid. In the `submitResponse` contract that is the beneficiary. This contract is a refunding mechanism that is utilized as a payment mechanism upon successful completion of a request/response.
+
+- **parameters**
+  - `uint requestId`
+  - `address payable payee`
+
+`numRequests`
+- Gets the number of requests currently in play
+
+- **returns**
+  - `requests.length`
+
 ### Maintainers 
+- Kevin Weiler
+- Phillip Lorenzo
 
 ### Contributing
 
+If you'd like to contribute to the SCSC as a developer or just run the project from source the directions below should help you get started.
+
+First, clone the repository. And set the branch to the develop branch
+
+```sh
+  git clone -b develop https://github.com/XYOracleNetwork/dapp-scsc-solidity
+```
+
+Then change working directory to that of the repository
+
+```sh
+  cd dapp-scsc-solidity
+```
+
+Download dependencies
+
+```sh
+  yarn install
+```
+
+After installing, go ahead and open in your favorite text editor, ours is [Visual Studio Code](https://code.visualstudio.com/)
+
+```sh
+ ➜ dapp-scsc-solidity code .
+```
+
+Execute these truffle steps:
+
+Set up a local Ganache instance 
+
+```sh
+ganache-cli --port 8545 --deterministic < if you want to set the networkID --networkId idNumber>
+```
+Using the deterministic flag is a good way to keep consistent when in `development` mode
+
+**keep this terminal window open!**
+
+**In another terminal window (or tab)**
+
+Compile the contracts
+
+```sh
+truffle compile
+```
+
+Migrate the contracts 
+
+```sh
+truffle migrate
+```
+
+You will see transactions for each contract in your Ganache instance and their addressess
+
+Test the contracts
+
+```sh
+truffle test
+```
+
+Ganache will work again executing transactions while executing the unit tests.
+**Note** if you did not `compile` or `migrate`, no worries, this command will do that for you. 
+
+We recommend testing after any revisions you make to contracts. 
+
+If you would like to know more about how the contracts are upgradeable, read the [PROXY.md](PROXY.md) file.
+
+## Developer Guide
+
+Developers should conform to git flow workflow. Additionally, we should try to make sure
+every commit builds. Commit messages should be meaningful serve as a meta history for the
+repository. Please squash meaningless commits before submitting a pull-request.
+
 ### License
 
-Only for internal XY Company use at this time
+ISC
 
 ### Credits
 
