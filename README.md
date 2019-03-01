@@ -136,8 +136,6 @@ To check out the data of the stake, select the `stakeData()` function, paste in 
 
 You will now get a returned JSON object with your stake amount, the block it was staked on, the staker, and the stakee.
 
-**Congratulations! You have activated stake on a diviner!**
-
 ### API
 
 #### XyERC20Token
