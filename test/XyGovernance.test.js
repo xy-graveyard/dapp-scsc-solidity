@@ -51,15 +51,7 @@ contract(
     let erc20
     let governance
     let plcr
-    let data
     before(async () => {
-      // data = encodeCall(
-      //   `initialize`,
-      //   [`address`, `address`, `address`, `uint[]`],
-      //   [governanceResolver, erc20.address, plcr.address, parameters, { from: governanceOwner }]
-      // )
-      // const newGovernance = await Governance.new()
-      // await newGovernance.sendTransaction({ data, from: governanceOwner })
       erc20 = await ERC20.new(erc20TotalSupply, `XYO Token`, `XYO`, {
         from: erc20owner
       })

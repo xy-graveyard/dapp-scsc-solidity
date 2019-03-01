@@ -14,15 +14,7 @@ contract(`XyGovernance`, () => {
   })
 
   it(`should create a proxy`, async () => {
-    const proxy = await this.project.createProxy(Governance, {
-      initMethod: `initialize`,
-      initArgs: [
-        `0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1`,
-        `0x9561c133dd8580860b6b7e504bc5aa500f0f06a7`,
-        `0x9561c133dd8580860b6b7e504bc5aa500f0f06a7`,
-        `[ 100000000000000000000, 1200, 1200, 1200, 1200, 50, 50, 66, 0, 0, 200, 300 ]`
-      ]
-    })
+    const proxy = await this.project.createProxy(Governance)
     const result = await proxy.methods.proposeNewAction(1, 50, 0).call()
     result.should.eq(true)
   })

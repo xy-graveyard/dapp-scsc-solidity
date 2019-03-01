@@ -1,5 +1,3 @@
-const abi = require(`ethereumjs-abi`)
-
 const Stakeable = artifacts.require(`XyStakableToken.sol`)
 
 require(`chai`)
