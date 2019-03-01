@@ -74,7 +74,7 @@ contract XyStakableToken is ERC721Enumerable, Initializable, GovernorRole {
     }
 
     /**
-        Only govenor (the scsc) can burn a token
+        Only governor (the scsc) can burn a token
         if blockProducer, delete from blockProducer listing
         @param stakee the stakee to burn 
     */

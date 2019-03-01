@@ -4,6 +4,7 @@ import { expectEvent } from "openzeppelin-test-helpers"
 import { request } from "http"
 import { expect } from 'chai'
 
+const { encodeCall } = require(`zos-lib`)
 const abi = require(`ethereumjs-abi`)
 const { toChecksumAddress } = require(`ethereumjs-util`)
 const PayOnDeliveryMock = artifacts.require(`XyPayOnDeliveryMock.sol`)
@@ -34,7 +35,7 @@ const parameters = [
   params.xyUnstakeCooldown,
   params.xyProposalsEnabled
 ]
-const should = require(`chai`)
+require(`chai`)
   .use(require(`chai-as-promised`))
   .use(require(`chai-bignumber`)(BigNumber))
   .should()
@@ -57,7 +58,7 @@ contract(
       plcr = await PLCR.new({
         from: plcrOwner
       })
-      await plcr.init(erc20.address)
+      await plcr.initialize(erc20.address)
     })
     beforeEach(async () => {
       governance = await Governance.new({

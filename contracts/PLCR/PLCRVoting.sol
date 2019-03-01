@@ -1,4 +1,6 @@
-pragma solidity ^0.5.0;
+pragma solidity >=0.5.0 <0.6.0;
+
+import "../../node_modules/zos-lib/contracts/Initializable.sol";
 import "../token/ERC20/IERC20.sol";
 import "./dll/DLL.sol";
 import "./attrstore/AttributeStore.sol";
@@ -6,11 +8,12 @@ import "../utils/SafeMath.sol";
 import "../token/ERC20/SafeERC20.sol";
 
 
+
 /**
 @title Partial-Lock-Commit-Reveal Voting scheme with ERC20 tokens
 @author Team: Aspyn Palatnick, Cem Ozer, Yorke Rhodes
 */
-contract PLCRVoting {
+contract PLCRVoting is Initializable {
     using SafeERC20 for IERC20;
 
     // ============
@@ -62,8 +65,8 @@ contract PLCRVoting {
     @dev Initializer. Can only be called once.
     @param _token The address where the ERC20 token contract is deployed
     */
-    function init(address _token) public {
-        require(_token != address(0) && address(token) == address(0));
+    function initialize(address _token) initializer public {
+        // require(_token != address(0) && address(token) == address(0));
         token = IERC20(_token);
         pollNonce = INITIAL_POLL_NONCE;
     }
@@ -440,7 +443,7 @@ contract PLCRVoting {
     first node that was found with a value less than or equal to the provided _numTokens.
     @param _voter The voter whose DLL will be searched
     @param _numTokens The value for the numTokens attribute in the node to be inserted
-    @return the node which the propoded node should be inserted after
+    @return the node which the proposed node should be inserted after
     */
     function getInsertPointForNumTokens(address _voter, uint _numTokens, uint _pollID)
     view public returns (uint prevNode) {

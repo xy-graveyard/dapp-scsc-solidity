@@ -23,7 +23,8 @@ const parameters = [
   params.xyUnstakeCooldown,
   params.xyProposalsEnabled
 ]
-const should = require(`chai`)
+
+require(`chai`)
   .use(require(`chai-as-promised`))
   .should()
 
@@ -84,7 +85,7 @@ contract(
       plcr = await PLCR.new({
         from: parameterizerOwner
       })
-      await plcr.init(erc20.address)
+      await plcr.initialize(erc20.address)
       staking = await StakingMock.new(
         erc20.address,
         stakableToken.address,
