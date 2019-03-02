@@ -8,13 +8,14 @@ const ERC20 = artifacts.require(`XyERC20Token.sol`)
 
 require(`chai`).should()
 
-contract(`XyPayOnDelivery`, () => {
+contract(`XyPayOnDeliveryProxy`, () => {
+  let project
   beforeEach(async () => {
-    this.project = await TestHelper()
+    project = await TestHelper()
   })
 
   it(`should create a proxy`, async () => {
-    const proxy = await this.project.createProxy(PayOnDelivery, {
+    const proxy = await project.createProxy(PayOnDelivery, {
       initMethod: `initialize`,
       initArgs: [
         `0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1`,
@@ -27,7 +28,7 @@ contract(`XyPayOnDelivery`, () => {
   })
 
   it(`should create a proxy for the EVM package`, async () => {
-    const proxy = await this.project.createProxy(ERC20, { contractName: `XyPayOnDelivery`, packageName: `openzeppelin-eth` })
+    const proxy = await project.createProxy(ERC20, { contractName: `XyPayOnDelivery`, packageName: `openzeppelin-eth` })
     const result = await proxy.methods.numRequests().call()
     result.should.eq(`number of requests`)
   })

@@ -8,19 +8,20 @@ const ERC20 = artifacts.require(`XyERC20Token.sol`)
 
 require(`chai`).should()
 
-contract(`XyGovernance`, () => {
+contract(`XyGovernanceProxy`, () => {
+  let project
   beforeEach(async () => {
-    this.project = await TestHelper()
+    project = await TestHelper()
   })
 
   it(`should create a proxy`, async () => {
-    const proxy = await this.project.createProxy(Governance)
+    const proxy = await project.createProxy(Governance)
     const result = await proxy.methods.proposeNewAction(1, 50, 0).call()
     result.should.eq(true)
   })
 
   it(`should create a proxy for the EVM package`, async () => {
-    const proxy = await this.project.createProxy(ERC20, { contractName: `XyGovernance`, packageName: `openzeppelin-eth` })
+    const proxy = await project.createProxy(ERC20, { contractName: `XyGovernance`, packageName: `openzeppelin-eth` })
     const result = await proxy.methods.proposeNewAction(1, 50, 0).call()
     result.should.eq(true)
   })
