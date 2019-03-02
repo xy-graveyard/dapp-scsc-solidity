@@ -47,7 +47,7 @@ function advanceBlock () {
 }
 
 contract(
-  `XyStakingToken`,
+  `XyStakingModel`,
   ([
     stakingTokenOwner,
     erc20owner,
