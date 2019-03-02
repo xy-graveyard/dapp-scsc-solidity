@@ -7,7 +7,8 @@ contract XyStakingMock is XyStakingModel {
         address _stakableToken,
         address _governance)
         public
-    XyStakingModel(_token, _stakableToken, _governance)
+    // XyStakingModel(_token, _stakableToken, _governance)
+    XyStakingModel()
     {
 
     }

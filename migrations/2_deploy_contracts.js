@@ -57,7 +57,7 @@ module.exports = async function (deployer, network, [contractsOwner]) {
   await deployer.deploy(PayOnD, consensus.address, erc20.address, {
     from: contractsOwner
   })
-  await plcrVoting.init(safeERC20.address)
+  await plcrVoting.initialize(safeERC20.address)
 
   console.log(`INNITIALIZING WITH PARAMS`, gov.address, parameters)
   await gov.initialize(

@@ -1,6 +1,5 @@
 pragma solidity >=0.5.0 <0.6.0;
 
-import "../node_modules/zos-lib/contracts/Initializable.sol";
 import "./XyStakableToken.sol";
 import "./token/ERC20/IERC20.sol";
 import "./token/ERC20/SafeERC20.sol";
@@ -102,7 +101,7 @@ contract XyStakingModel {
         @param _stakableToken - The ERC721 token to place stakes on 
         @param _governanceContract - The contract that governs the params and actions of the system
     */
-    constructor (
+      function init(
         address _token,
         address _stakableToken,
         address _governanceContract

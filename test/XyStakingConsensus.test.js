@@ -1,7 +1,6 @@
 import { BigNumber } from "bignumber.js"
 
 import { expectEvent } from "openzeppelin-test-helpers"
-import { request } from "http"
 
 const abi = require(`ethereumjs-abi`)
 const { toChecksumAddress } = require(`ethereumjs-util`)
@@ -14,7 +13,7 @@ const Governance = artifacts.require(`XyGovernance.sol`)
 const PLCR = artifacts.require(`PLCRVoting.sol`)
 const erc20TotalSupply = 1000000
 
-const should = require(`chai`)
+require(`chai`)
   .use(require(`chai-as-promised`))
   .use(require(`chai-bignumber`)(BigNumber))
   .should()
@@ -289,7 +288,7 @@ contract(
       plcr = await PLCR.new({
         from: parameterizerOwner
       })
-      await plcr.init(erc20.address)
+      await plcr.initialize(erc20.address)
       stakableToken = await Stakeable.new(consensusOwner, diviners, {
         from: stakableContractOwner
       })
