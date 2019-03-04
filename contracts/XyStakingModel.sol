@@ -234,16 +234,20 @@ contract XyStakingModel {
     }
     
     /**
-        @dev Activate a stake that is past challenge period within XYO
+        @dev Activate stake on a block producer
         @param stakingId - the tokenId of the staking token
      */
     function activateStake(uint stakingId) 
         whenActive
         public 
     {
+
         Stake storage data = stakeData[stakingId];
         require(data.staker == msg.sender, "Only the staker can activate");
         require(data.isActivated == false, "cannot re-activate stake");
+        require(stakableToken.isBlockProducer(data.stakee) == true, "Only block producers have active stake");
+        require(data.unstakeBlock == 0, "Cannot activate unstake");
+
         data.isActivated = true;
         require(data.stakeBlock + params.get("xyStakeCooldown") < block.number, "Not ready to activate stake yet");
         updateCacheOnActivate(data.amount, data.stakee);
@@ -323,7 +327,7 @@ contract XyStakingModel {
         Stake memory data = stakeData[stakingId];
         require(params.hasUnresolvedAction(data.stakee) == false, "All actions on stakee must be resolved");
         require(data.staker == msg.sender, "Only owner can withdraw");
-        require (data.unstakeBlock > 0 && (data.unstakeBlock + params.get("xyUnstakeCooldown")) < block.number, "Not ready for withdraw");
+        require(data.unstakeBlock > 0 && (data.unstakeBlock + params.get("xyUnstakeCooldown")) < block.number, "Not ready for withdraw");
         removeStakeeData(stakingId);
         removeStakerData(stakingId);
         updateCacheOnWithdraw(data.amount, data.stakee);
