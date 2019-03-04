@@ -74,12 +74,18 @@ contract XyStakableToken is ERC721Enumerable, Initializable, GovernorRole {
     }
 
     /**
+<<<<<<< HEAD
         Only governor (the scsc) can burn a token
         if blockProducer, delete from blockProducer listing
+=======
+        Only govenor (the scsc) can burn a BP (because stake needs to be removed)
+>>>>>>> 620765c7701169e11c4f47bd214e00f9ba6bf135
         @param stakee the stakee to burn 
     */
     function burn(uint stakee) public {
-        require(isGovernor(msg.sender) || msg.sender == ownerOf(stakee), "Only owner or govenor can burn account");
+        bool isGovenor = isGovernor(msg.sender);
+        bool isNonBPOwner = !isBlockProducer(stakee) && ownerOf(stakee) == msg.sender;
+        require(isGovenor || isNonBPOwner, "Only owner or govenor can burn account");
         _removeBlockProducer(stakee);
         _burn(ownerOf(stakee), stakee);
     }
@@ -92,7 +98,11 @@ contract XyStakableToken is ERC721Enumerable, Initializable, GovernorRole {
     }
 
     function isBlockProducer(uint stakee) public view returns (bool) {
-        return stakee == blockProducers[blockProducerIndexes[stakee]];
+        uint index = blockProducerIndexes[stakee];
+        if (index < numBlockProducers()) {
+            return (stakee == blockProducers[index]);
+        }
+        return false;
     }
 
     function numBlockProducers() public view returns (uint) {

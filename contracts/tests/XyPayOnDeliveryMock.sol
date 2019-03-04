@@ -12,6 +12,7 @@ contract XyPayOnDeliveryMock is XyPayOnDelivery {
     // XyPayOnDelivery(_scsc, _xyo)
     XyPayOnDelivery()
     {
+      initialize(_scsc,_xyo);
     }
 
     // A sample for a uint style request

@@ -10,7 +10,7 @@ contract XyStakingMock is XyStakingModel {
     // XyStakingModel(_token, _stakableToken, _governance)
     XyStakingModel()
     {
-
+      init(_token, _stakableToken, _governance);
     }
      /** Increase and decrease cached stake amounts */
     function fake_updateCacheOnStake(uint amount, uint stakee) public {

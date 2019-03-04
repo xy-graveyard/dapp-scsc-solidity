@@ -163,11 +163,13 @@ contract(
 
     const createArgs = async (requests, packedResponses, returnHash) => {
       const previous = await consensus.getLatestBlock()
+      const blockHeight = 100
       const responseDataHash = abi.soliditySHA3([`bytes32`], [previous]) // a bogus hash
       const sorted = diviners.map(d => d.toLowerCase()).sort(compareDiviners)
       const promises = sorted.map(async adr => encodeAndSign(
         adr,
         previous,
+        blockHeight,
         requests,
         responseDataHash,
         packedResponses
@@ -188,6 +190,7 @@ contract(
       const args = [
         d1,
         previous,
+        blockHeight,
         requests,
         responseDataHash,
         packedResponses,
@@ -244,6 +247,7 @@ contract(
     const encodeAndSign = async (
       signer,
       previous,
+      blockHeight,
       requests,
       responseDataHash,
       packedResponses
@@ -252,8 +256,8 @@ contract(
 
       const hash = `0x${abi
         .soliditySHA3(
-          [`uint`, ...uintArr, `bytes32`, `bytes`],
-          [previous, ...requests, responseDataHash, packedResponses]
+          [`uint`, `uint`, ...uintArr, `bytes32`, `bytes`],
+          [previous, blockHeight, ...requests, responseDataHash, packedResponses]
         )
         .toString(`hex`)}`
 
@@ -370,9 +374,9 @@ contract(
       it(`should fail if passes responses doesnt match signed data`, async () => {
         const submitParams = await generateArgs()
         const randomIndex = Math.floor(
-          Math.random() * (submitParams[2].length - 1)
+          Math.random() * (submitParams[3].length - 1)
         )
-        submitParams[2][randomIndex] = !submitParams[2][randomIndex]
+        submitParams[3][randomIndex] = !submitParams[3][randomIndex]
         // console.log(`Responses After`, responses)
         await consensus.submitBlock(...submitParams).should.not.be.fulfilled
       })
@@ -441,22 +445,22 @@ contract(
 
         // console.log(`Args`, subParams)
         await consensus.mock_checkSigsAndStakes(
-          subParams[9],
-          subParams[5],
+          subParams[10],
           subParams[6],
           subParams[7],
-          subParams[8]
+          subParams[8],
+          subParams[9]
         ).should.be.fulfilled
       })
 
       it(`should fail if signers not passed in order`, async () => {
         const subParams = await generateArgs(true)
         await consensus.mock_checkSigsAndStakes(
-          subParams[9],
+          subParams[10],
           diviners,
-          subParams[6],
           subParams[7],
-          subParams[8]
+          subParams[8],
+          subParams[9]
         ).should.not.be.fulfilled
       })
 
@@ -473,11 +477,11 @@ contract(
         )
         const subParams = await generateArgs(true)
         await consensus.mock_checkSigsAndStakes(
-          subParams[9],
+          subParams[10],
           sortedQuorum,
-          subParams[6],
           subParams[7],
-          subParams[8]
+          subParams[8],
+          subParams[9]
         ).should.not.be.fulfilled
       })
     })

@@ -38,6 +38,7 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
     /** STRUCTS */
     struct Block {
         uint previousBlock;
+        uint blockHeight;
         uint createdAt;
         bytes32 supportingData;
         address creator;
@@ -201,6 +202,7 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
 
     /** 
         @dev Calls Request interface submitResponse function for each answer.
+        Use for estimating gas of a request
         @param _requests the requests queried
         @param responseData the response data of all the requests
         @return The weiMining for submitting the new block
@@ -274,8 +276,8 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
         require (stake > totalActiveStake.mul(params.get("xyStakeQuorumPct")).div(100), "Not enough stake");
     }
 
-    function _createBlock(uint previousBlock, uint newBlock, bytes32 payloadHash) private {
-        Block memory b = Block(previousBlock, block.number, payloadHash, msg.sender);
+    function _createBlock(uint previousBlock, uint newBlock, bytes32 payloadHash, uint blockHeight) private {
+        Block memory b = Block(previousBlock, blockHeight, block.number, payloadHash, msg.sender);
         blockChain.push(newBlock);
         blocks[newBlock] = b;
         emit BlockCreated(newBlock, previousBlock, block.number, payloadHash, msg.sender);
@@ -299,6 +301,7 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
     (
         uint blockProducer,
         uint previousBlock,
+        uint stakingBlock,
         uint[] memory _requests,
         bytes32 payloadData,
         bytes memory responses,
@@ -313,14 +316,14 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
         require (stakableToken.isBlockProducer(blockProducer), "Only approved BP can submit");
         require (stakableToken.ownerOf(blockProducer) == msg.sender, "Sender does not own BP");
         require (previousBlock == getLatestBlock(), "Incorrect previous block");
-        bytes memory m = abi.encodePacked(previousBlock, _requests, payloadData, responses);
+        bytes memory m = abi.encodePacked(previousBlock, stakingBlock, _requests, payloadData, responses);
 
         uint weiMining = handleResponses(_requests, responses);
         msg.sender.transfer(weiMining);
 
         uint newBlock = uint(keccak256(m));
         checkSigsAndStakes(newBlock, signers, sigR, sigS, sigV);
-        _createBlock(previousBlock, newBlock, payloadData);
+        _createBlock(previousBlock, newBlock, payloadData, stakingBlock);
 
         return newBlock;
     }

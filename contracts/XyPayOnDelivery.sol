@@ -80,7 +80,7 @@ contract XyPayOnDelivery is Initializable, IXyRequester {
         @param requestId - the hash of the request (first 2 bytes stripped)
         @param responseData Response data from scsc
     */
-    function submitResponse(uint requestId, IXyRequester.RequestType , bytes memory responseData) public {
+    function submitResponse(uint requestId, IXyRequester.RequestType, bytes memory responseData) public {
         require (msg.sender == address(scsc), "only scsc can complete requests");
         bool intersection = responseData.length > 0 && responseData[0] > 0;
         didIntersect[requestId] = intersection;

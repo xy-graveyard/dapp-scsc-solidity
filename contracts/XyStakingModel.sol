@@ -61,28 +61,28 @@ contract XyStakingModel {
     
     /** EVENTS */
     event Staked(
-        address indexed staker,
-        uint indexed stakingId,
-        uint indexed stakee,
+        address staker,
+        uint stakingId,
+        uint stakee,
         uint amount
     );
 
     event ActivatedStake(
-        address indexed staker,
-        uint indexed stakingId,
-        uint indexed stakee,
+        address staker,
+        uint stakingId,
+        uint stakee,
         uint amount
     );
 
     event Unstaked(
-        address indexed staker,
-        uint indexed stakingId,
-        uint indexed stakee,
+        address staker,
+        uint stakingId,
+        uint stakee,
         uint amount
     );
 
     event Withdrawl(
-        address indexed staker,
+        address staker,
         uint amount
     );
 
