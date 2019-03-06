@@ -35,6 +35,8 @@ contract XyStakableToken is ERC721Enumerable, Initializable, GovernorRole {
     onlyGovernor
     public 
     {
+        require (_exists(stakee) == true, "token must exist");
+
         if (enable) {
             require (blockProducerIndexes[stakee] == 0, "Producer already enabled");
             blockProducerIndexes[stakee] = blockProducers.length;
