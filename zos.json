@@ -8,5 +8,8 @@
     "XyStakingConsensus": "XyStakingConsensus",
     "XyPayOnDelivery": "XyPayOnDelivery",
     "PLCRVoting": "PLCRVoting"
+  },
+  "dependencies": {
+    "openzeppelin-eth": "^2.1.3"
   }
 }

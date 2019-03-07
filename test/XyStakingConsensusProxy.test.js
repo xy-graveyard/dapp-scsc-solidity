@@ -4,17 +4,17 @@ const { Contracts, ZWeb3 } = require(`zos-lib`)
 ZWeb3.initialize(web3.currentProvider)
 
 const stakingConsensus = Contracts.getFromLocal(`XyStakingConsensus`)
-const ERC20 = artifacts.require(`XyERC20Token.sol`)
+const ERC20 = Contracts.getFromNodeModules(`openzeppelin-eth`, `ERC20`)
 
 require(`chai`).should()
 
-contract(`XyStakingConsensusProxy`, () => {
+contract(`XyStakingConsensus`, () => {
   let project
   beforeEach(async () => {
     project = await TestHelper()
   })
 
-  it(`should create a proxy`, async () => {
+  it(`should create a proxy for the EVM Package`, async () => {
     const proxy = await project.createProxy(stakingConsensus, {
       initMethod: `initialize`,
       initArgs: [
@@ -24,12 +24,6 @@ contract(`XyStakingConsensusProxy`, () => {
       ]
     })
     const result = await proxy.methods.getLatestBlock().call()
-    result.should.eq(`38`)
-  })
-
-  it(`should create a proxy for the EVM package`, async () => {
-    const proxy = await project.createProxy(ERC20, { contractName: `XyStakingConsensus`, packageName: `openzeppelin-eth` })
-    const result = await proxy.methods.getLatestBlock().call()
-    result.should.eq(`38`)
+    result.should.eq(`0`)
   })
 })
