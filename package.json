@@ -1,8 +1,7 @@
 {
   "name": "dapp-scsc-solidity",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "XYO Staked Consensus Smart Contract",
-  "main": "index.js",
   "directories": {
     "test": "test"
   },
@@ -12,7 +11,7 @@
     "chain": "ganache-cli"
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "babel-eslint": "^10.0.1",
     "babel-polyfill": "^6.26.0",
@@ -54,5 +53,12 @@
     "openzeppelin-eth": "^2.1.3",
     "zos": "^2.2.1",
     "zos-lib": "^2.2.1"
-  }
+  },
+  "files": [
+    "build",
+    "contracts",
+    "test",
+    "zos.json",
+    "zos.*.json"    
+  ]
 }
