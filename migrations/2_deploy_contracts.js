@@ -25,25 +25,24 @@ const parameters = [
   params.xyProposalsEnabled
 ]
 
-const setupBP = async function (stakable, consensus, erc20, bpAddress, erc20Owner) {
+const setupBP = async function (stakable, consensus, erc20, bpAddress) {
   const stakeeTx = await stakable.mint(bpAddress)
   const stakee = stakeeTx.logs[0].args.tokenId
   console.log(`New Stakee`, stakee, bpAddress, stakeeTx.logs.args)
 
   await stakable.enableBlockProducer(stakee, true)
-  if (bpAddress !== erc20Owner) {
-    await erc20.transferFrom(erc20Owner, bpAddress, 100000, { from: erc20Owner })
-  }
-  await erc20.approve(consensus.address, 100000, { from: bpAddress })
-  const stakingTx = await consensus.stake(stakee, 10000)
-  const stakingId = stakingTx.logs[0].args.stakingId
-  console.log(`New Staking Id`, stakingId)
 
-  await consensus.activateStake(stakingId)
+  await erc20.approve(consensus.address, 100000, { from: bpAddress })
+  // const stakingTx = await consensus.stake(stakee, 10000)
+  // const stakingId = stakingTx.logs[0].args.stakingId
+  // console.log(`New Staking Id`, stakingId)
+
+  // await consensus.activateStake(stakingId)
 }
 const printAddress = contracts => contracts.map(contract => console.log(`${contract.contractName}: ${contract.address}`))
 
 module.exports = async function (deployer, network, [contractsOwner]) {
+  console.log(`I am `, contractsOwner, network)
   await deployer.deploy(dll)
   await deployer.deploy(attrStore)
 
@@ -90,6 +89,6 @@ module.exports = async function (deployer, network, [contractsOwner]) {
   )
 
   console.log(`INNITIALIZED WITH PARAMS`, parameters)
-  await setupBP(stakableToken, consensus, erc20, contractsOwner, contractsOwner)
+  await setupBP(stakableToken, consensus, erc20, contractsOwner)
   printAddress([SCSC, Governance, XYOERC20, PayOnD, Stakable])
 }
