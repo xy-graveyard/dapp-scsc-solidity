@@ -1,6 +1,6 @@
 pragma solidity >=0.5.0 <0.6.0;
 
-import "../node_modules/zos-lib/contracts/Initializable.sol";
+import "../../zos-lib/contracts/Initializable.sol";
 import "./utils/SafeMath.sol";
 import "./XyParameterizer.sol";
 
@@ -49,7 +49,7 @@ contract XyGovernance is Initializable, XyParameterizer {
         @param penaltyPct the penalty to enforce on stakers
      */
     function proposeNewAction(
-        uint stakee, 
+        uint stakee,
         uint penaltyPct, 
         ActionType action) public returns (bytes32) {
         require(actions[stakee].propId == 0, "Action in progress");

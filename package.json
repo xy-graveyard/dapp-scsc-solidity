@@ -1,6 +1,6 @@
 {
   "name": "dapp-scsc-solidity",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "XYO Staked Consensus Smart Contract",
   "directories": {
     "test": "test"
@@ -10,7 +10,7 @@
     "deploy": "dapploy -p",
     "chain": "ganache-cli"
   },
-  "author": "",
+  "author": "Kevin Weiler",
   "license": "MIT",
   "devDependencies": {
     "babel-eslint": "^10.0.1",
