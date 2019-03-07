@@ -14,7 +14,7 @@ contract XyStakingModel {
     IERC20 public xyoToken;
 
     // 721 contract that we reference for all things staked
-    XyStakableToken stakableToken;
+    XyStakableToken public stakableToken;
 
     XyGovernance public params;
 
@@ -101,12 +101,12 @@ contract XyStakingModel {
         @param _stakableToken - The ERC721 token to place stakes on 
         @param _governanceContract - The contract that governs the params and actions of the system
     */
-      function init(
+    function init(
         address _token,
         address _stakableToken,
         address _governanceContract
     )
-        public
+        internal
     {
         xyoToken = IERC20(_token);
         stakableToken = XyStakableToken(_stakableToken);

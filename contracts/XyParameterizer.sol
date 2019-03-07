@@ -105,7 +105,6 @@ contract XyParameterizer {
         set("xyProposalsEnabled", _parameters[11]);
 
         set("xyBlockProducerRewardPct", 20); // plock producers get 20 percent of reward based on their stake
-        set("xySubmissionBlockTime", 8); // every 2 minutes
         set("pOwner", uint(msg.sender)); // temporary owner until voted out
     }
 
