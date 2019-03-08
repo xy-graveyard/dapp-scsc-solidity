@@ -9,8 +9,10 @@ contract XyPayOnDeliveryMock is XyPayOnDelivery {
         address _xyo
     )
         public
-    XyPayOnDelivery(_scsc, _xyo)
+    // XyPayOnDelivery(_scsc, _xyo)
+    XyPayOnDelivery()
     {
+      initialize(_scsc,_xyo);
     }
 
     // A sample for a uint style request

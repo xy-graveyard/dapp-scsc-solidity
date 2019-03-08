@@ -4,6 +4,12 @@
   "version": "0.1.0",
   "contracts": {
     "XyGovernance": "XyGovernance",
-    "XyStakableToken": "XyStakableToken"
+    "XyStakableToken": "XyStakableToken",
+    "XyStakingConsensus": "XyStakingConsensus",
+    "XyPayOnDelivery": "XyPayOnDelivery",
+    "PLCRVoting": "PLCRVoting"
+  },
+  "dependencies": {
+    "openzeppelin-eth": "^2.1.3"
   }
 }

@@ -7,9 +7,10 @@ contract XyStakingMock is XyStakingModel {
         address _stakableToken,
         address _governance)
         public
-    XyStakingModel(_token, _stakableToken, _governance)
+    // XyStakingModel(_token, _stakableToken, _governance)
+    XyStakingModel()
     {
-
+      init(_token, _stakableToken, _governance);
     }
      /** Increase and decrease cached stake amounts */
     function fake_updateCacheOnStake(uint amount, uint stakee) public {

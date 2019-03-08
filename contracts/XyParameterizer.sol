@@ -1,6 +1,5 @@
 pragma solidity ^0.5.0;
 
-import "../node_modules/zos-lib/contracts/Initializable.sol";
 import "./PLCR/PLCRVoting.sol";
 import "./token/ERC20/IERC20.sol";
 import "./utils/SafeMath.sol";
@@ -105,7 +104,7 @@ contract XyParameterizer {
         set("xyUnstakeCooldown", _parameters[10]);
         set("xyProposalsEnabled", _parameters[11]);
 
-        set("xySubmissionBlockTime", 8); // every 2 minutes
+        set("xyBlockProducerRewardPct", 20); // plock producers get 20 percent of reward based on their stake
         set("pOwner", uint(msg.sender)); // temporary owner until voted out
     }
 

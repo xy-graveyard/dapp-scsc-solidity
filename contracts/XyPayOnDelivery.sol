@@ -1,5 +1,6 @@
 pragma solidity >=0.5.0 <0.6.0;
 
+import "../../zos-lib/contracts/Initializable.sol";
 import "./utils/SafeMath.sol";
 import "./XyStakingConsensus.sol";
 import "./token/ERC20/IERC20.sol";
@@ -11,7 +12,7 @@ import "./token/ERC20/SafeERC20.sol";
  * @title A Payment on delivery contract
  * @dev Will escrow funds until an item is marked as delivered .
  */
-contract XyPayOnDelivery is IXyRequester {
+contract XyPayOnDelivery is Initializable, IXyRequester {
     using SafeERC20 for IERC20;
     using SafeMath for uint;
 
@@ -28,11 +29,11 @@ contract XyPayOnDelivery is IXyRequester {
     /* 
         Construct a Pay Delivery contract
     */
-    constructor (
+    function initialize (
         address stakingConsensus, 
         address _xyoToken
     )
-        public 
+        initializer public 
     {
         scsc = XyStakingConsensus(stakingConsensus);
         xyoToken = IERC20(_xyoToken);
@@ -79,7 +80,7 @@ contract XyPayOnDelivery is IXyRequester {
         @param requestId - the hash of the request (first 2 bytes stripped)
         @param responseData Response data from scsc
     */
-    function submitResponse(uint requestId, IXyRequester.RequestType , bytes memory responseData) public {
+    function submitResponse(uint requestId, IXyRequester.RequestType, bytes memory responseData) public {
         require (msg.sender == address(scsc), "only scsc can complete requests");
         bool intersection = responseData.length > 0 && responseData[0] > 0;
         didIntersect[requestId] = intersection;

@@ -1,6 +1,5 @@
 pragma solidity >=0.5.0 <0.6.0;
 
-import "../node_modules/zos-lib/contracts/Initializable.sol";
 import "./XyStakableToken.sol";
 import "./token/ERC20/IERC20.sol";
 import "./token/ERC20/SafeERC20.sol";
@@ -15,7 +14,7 @@ contract XyStakingModel {
     IERC20 public xyoToken;
 
     // 721 contract that we reference for all things staked
-    XyStakableToken stakableToken;
+    XyStakableToken public stakableToken;
 
     XyGovernance public params;
 
@@ -62,28 +61,28 @@ contract XyStakingModel {
     
     /** EVENTS */
     event Staked(
-        address indexed staker,
-        uint indexed stakingId,
-        uint indexed stakee,
+        address staker,
+        uint stakingId,
+        uint stakee,
         uint amount
     );
 
     event ActivatedStake(
-        address indexed staker,
-        uint indexed stakingId,
-        uint indexed stakee,
+        address staker,
+        uint stakingId,
+        uint stakee,
         uint amount
     );
 
     event Unstaked(
-        address indexed staker,
-        uint indexed stakingId,
-        uint indexed stakee,
+        address staker,
+        uint stakingId,
+        uint stakee,
         uint amount
     );
 
     event Withdrawl(
-        address indexed staker,
+        address staker,
         uint amount
     );
 
@@ -102,12 +101,12 @@ contract XyStakingModel {
         @param _stakableToken - The ERC721 token to place stakes on 
         @param _governanceContract - The contract that governs the params and actions of the system
     */
-    constructor (
+    function init(
         address _token,
         address _stakableToken,
         address _governanceContract
     )
-        public
+        internal
     {
         xyoToken = IERC20(_token);
         stakableToken = XyStakableToken(_stakableToken);
@@ -235,16 +234,20 @@ contract XyStakingModel {
     }
     
     /**
-        @dev Activate a stake that is past challenge period within XYO
+        @dev Activate stake on a block producer
         @param stakingId - the tokenId of the staking token
      */
     function activateStake(uint stakingId) 
         whenActive
         public 
     {
+
         Stake storage data = stakeData[stakingId];
         require(data.staker == msg.sender, "Only the staker can activate");
         require(data.isActivated == false, "cannot re-activate stake");
+        require(stakableToken.isBlockProducer(data.stakee) == true, "Only block producers have active stake");
+        require(data.unstakeBlock == 0, "Cannot activate unstake");
+
         data.isActivated = true;
         require(data.stakeBlock + params.get("xyStakeCooldown") < block.number, "Not ready to activate stake yet");
         updateCacheOnActivate(data.amount, data.stakee);
@@ -324,7 +327,7 @@ contract XyStakingModel {
         Stake memory data = stakeData[stakingId];
         require(params.hasUnresolvedAction(data.stakee) == false, "All actions on stakee must be resolved");
         require(data.staker == msg.sender, "Only owner can withdraw");
-        require (data.unstakeBlock > 0 && (data.unstakeBlock + params.get("xyUnstakeCooldown")) < block.number, "Not ready for withdraw");
+        require(data.unstakeBlock > 0 && (data.unstakeBlock + params.get("xyUnstakeCooldown")) < block.number, "Not ready for withdraw");
         removeStakeeData(stakingId);
         removeStakerData(stakingId);
         updateCacheOnWithdraw(data.amount, data.stakee);

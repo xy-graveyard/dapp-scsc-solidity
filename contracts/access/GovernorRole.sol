@@ -3,12 +3,12 @@ pragma solidity >=0.5.0 <0.6.0;
 import "./Roles.sol";
 
 contract GovernorRole {
+
   using Roles for Roles.Role;
+  Roles.Role private minters;
 
   event GovernorAdded(address indexed account);
   event GovernorRemoved(address indexed account);
-
-  Roles.Role private minters;
 
   constructor() internal {
     _addGovernor(msg.sender);
@@ -40,4 +40,5 @@ contract GovernorRole {
     minters.remove(account);
     emit GovernorRemoved(account);
   }
+  
 }

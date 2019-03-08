@@ -13,5 +13,20 @@
     "xyStakeCooldown": 200,
     "xyUnstakeCooldown": 300,
     "xyProposalsEnabled": 1
+  },
+  "integrationTests": {
+    "pMinDeposit": "0",
+    "pApplyStageLen": 1200,
+    "pCommitStageLen": 1200,
+    "pRevealStageLen": 1200,
+    "pRevealStageLength": 1200,
+    "pDispensationPct": 50,
+    "pVoteQuorum": 50,
+    "xyStakeQuorumPct": 25,
+    "xyWeiMiningMin": "0",
+    "xyXYORequestBountyMin": "0",
+    "xyStakeCooldown": 0,
+    "xyUnstakeCooldown": 0,
+    "xyProposalsEnabled": 1
   }
 }

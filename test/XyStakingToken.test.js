@@ -23,7 +23,8 @@ const parameters = [
   params.xyUnstakeCooldown,
   params.xyProposalsEnabled
 ]
-const should = require(`chai`)
+
+require(`chai`)
   .use(require(`chai-as-promised`))
   .should()
 
@@ -47,7 +48,7 @@ function advanceBlock () {
 }
 
 contract(
-  `XyStakingToken`,
+  `XyStakingModel`,
   ([
     stakingTokenOwner,
     erc20owner,
@@ -84,7 +85,7 @@ contract(
       plcr = await PLCR.new({
         from: parameterizerOwner
       })
-      await plcr.init(erc20.address)
+      await plcr.initialize(erc20.address)
       staking = await StakingMock.new(
         erc20.address,
         stakableToken.address,
@@ -538,7 +539,7 @@ contract(
             await stakeCompare(stakerStake(withdrawStaker), [
               0,
               0,
-              stakingTokens * 100
+              (stakingTokens - 2) * 100
             ])
             const blockNumber2 = await web3.eth.getBlockNumber()
             await advanceToBlock(blockNumber2 + cooldownUnstake)
@@ -548,7 +549,7 @@ contract(
             await stakeCompare(stakerStake(withdrawStaker), [
               0,
               0,
-              stakingTokens * 100 - 5 * 100
+              (stakingTokens - 7) * 100
             ])
             await staking.withdrawManyStake(15, { from: withdrawStaker }).should.be
               .fulfilled

@@ -1,4 +1,6 @@
 pragma solidity >=0.5.0 <0.6.0;
+
+import "../../zos-lib/contracts/Initializable.sol";
 import "./XyStakingModel.sol";
 import "./IXyRequester.sol";
 
@@ -7,7 +9,7 @@ import "./IXyRequester.sol";
     @dev Manages the Stake for multiple clients in a decentralized consensus 
     system to trustlessly answer requests
   */
-contract XyStakingConsensus is XyStakingModel {
+contract XyStakingConsensus is Initializable, XyStakingModel {
     using SafeMath for uint;
     
     /** EVENTS */
@@ -36,6 +38,7 @@ contract XyStakingConsensus is XyStakingModel {
     /** STRUCTS */
     struct Block {
         uint previousBlock;
+        uint blockHeight;
         uint createdAt;
         bytes32 supportingData;
         address creator;
@@ -64,14 +67,14 @@ contract XyStakingConsensus is XyStakingModel {
         @param _stakableToken - The ERC721 token to place stakes on 
         @param _governanceContract - The contract that governs the params and actions of the system
     */
-    constructor(
+    function initialize(
         address _token,
         address _stakableToken,
         address _governanceContract
     )
-        public
-        XyStakingModel(_token, _stakableToken, _governanceContract)
+        initializer public
     {
+        init(_token, _stakableToken, _governanceContract);
     }
 
     /** 
@@ -199,6 +202,7 @@ contract XyStakingConsensus is XyStakingModel {
 
     /** 
         @dev Calls Request interface submitResponse function for each answer.
+        Use for estimating gas of a request
         @param _requests the requests queried
         @param responseData the response data of all the requests
         @return The weiMining for submitting the new block
@@ -272,8 +276,8 @@ contract XyStakingConsensus is XyStakingModel {
         require (stake > totalActiveStake.mul(params.get("xyStakeQuorumPct")).div(100), "Not enough stake");
     }
 
-    function _createBlock(uint previousBlock, uint newBlock, bytes32 payloadHash) private {
-        Block memory b = Block(previousBlock, block.number, payloadHash, msg.sender);
+    function _createBlock(uint previousBlock, uint newBlock, bytes32 payloadHash, uint blockHeight) private {
+        Block memory b = Block(previousBlock, blockHeight, block.number, payloadHash, msg.sender);
         blockChain.push(newBlock);
         blocks[newBlock] = b;
         emit BlockCreated(newBlock, previousBlock, block.number, payloadHash, msg.sender);
@@ -297,6 +301,7 @@ contract XyStakingConsensus is XyStakingModel {
     (
         uint blockProducer,
         uint previousBlock,
+        uint stakingBlock,
         uint[] memory _requests,
         bytes32 payloadData,
         bytes memory responses,
@@ -311,14 +316,14 @@ contract XyStakingConsensus is XyStakingModel {
         require (stakableToken.isBlockProducer(blockProducer), "Only approved BP can submit");
         require (stakableToken.ownerOf(blockProducer) == msg.sender, "Sender does not own BP");
         require (previousBlock == getLatestBlock(), "Incorrect previous block");
-        bytes memory m = abi.encodePacked(previousBlock, _requests, payloadData, responses);
+        bytes memory m = abi.encodePacked(previousBlock, stakingBlock, _requests, payloadData, responses);
 
         uint weiMining = handleResponses(_requests, responses);
         msg.sender.transfer(weiMining);
 
         uint newBlock = uint(keccak256(m));
         checkSigsAndStakes(newBlock, signers, sigR, sigS, sigV);
-        _createBlock(previousBlock, newBlock, payloadData);
+        _createBlock(previousBlock, newBlock, payloadData, stakingBlock);
 
         return newBlock;
     }

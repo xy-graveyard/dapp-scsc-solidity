@@ -6,13 +6,13 @@ library AttributeStore {
     }
 
     function getAttribute(Data storage self, bytes32 _UUID, string memory _attrName)
-    public view returns (uint) {
+    internal view returns (uint) {
         bytes32 key = keccak256(abi.encodePacked(_UUID, _attrName));
         return self.store[key];
     }
 
     function setAttribute(Data storage self, bytes32 _UUID, string memory _attrName, uint _attrVal)
-    public {
+    internal {
         bytes32 key = keccak256(abi.encodePacked(_UUID, _attrName));
         self.store[key] = _attrVal;
     }

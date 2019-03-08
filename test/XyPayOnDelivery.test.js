@@ -31,7 +31,7 @@ const parameters = [
   params.xyUnstakeCooldown,
   params.xyProposalsEnabled
 ]
-const should = require(`chai`)
+require(`chai`)
   .use(require(`chai-as-promised`))
   .use(require(`chai-bignumber`)(BigNumber))
   .should()
@@ -64,7 +64,7 @@ contract(
         from: parameterizerOwner
       })
 
-      await plcr.init(erc20.address)
+      await plcr.initialize(erc20.address)
       stakableToken = await Stakeable.new(stakableTokenOwner, diviners, {
         from: stakableContractOwner
       })
@@ -92,9 +92,10 @@ contract(
     })
     describe(`Submitting Requests`, () => {
       beforeEach(async () => {
-        payOnD = await PayOnDelivery.new(consensus.address, erc20.address, {
+        payOnD = await PayOnDelivery.new({
           from: payOnDeliveryOwner
         })
+        await payOnD.initialize(consensus.address, erc20.address)
       })
       it(`should create requests`, async () => {
         await payOnD.requestPayOnDelivery(`123`, 0, 0, 0, payOnDeliveryBeneficiary)
@@ -199,9 +200,10 @@ contract(
     })
     describe(`submitting responses`, async () => {
       beforeEach(async () => {
-        payOnD = await PayOnDelivery.new(consensus.address, erc20.address, {
+        payOnD = await PayOnDelivery.new({
           from: payOnDeliveryOwner
         })
+        await payOnD.initialize(consensus.address, erc20.address)
 
         await erc20.approve(payOnD.address, 500, { from: erc20owner })
 
