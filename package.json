@@ -1,6 +1,6 @@
 {
   "name": "dapp-scsc-solidity",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "XYO Staked Consensus Smart Contract",
   "directories": {
     "test": "test"
