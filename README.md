@@ -422,7 +422,7 @@ repository. Please squash meaningless commits before submitting a pull-request.
 
 ### License
 
-ISC
+MIT
 
 ### Credits
 
