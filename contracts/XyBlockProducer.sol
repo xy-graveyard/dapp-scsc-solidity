@@ -10,6 +10,16 @@ import "./access/GovernorRole.sol";
 */
 contract XyBlockProducer is Initializable, GovernorRole {
 
+    event BlockProducerCreated(
+        address bp,
+        address creator
+    );
+
+    event BlockProducerRemoved(
+        address bp,
+        address creator
+    );
+
     address public governor;
 
     // Keep a list of block producers to publicly show who the BPs are in the system
@@ -28,13 +38,14 @@ contract XyBlockProducer is Initializable, GovernorRole {
         Emits transfer event to sender
         msg.sender - new account creator
     */
-    function create(address blockProducer) 
+    function create(address bp) 
         onlyGovernor 
         public
     {
-        require(exists(blockProducer) == false, "This BP exists");
-        blockProducerIndexes[blockProducer] = blockProducers.length;
-        blockProducers.push(blockProducer);
+        require(exists(bp) == false, "This BP exists");
+        blockProducerIndexes[bp] = blockProducers.length;
+        blockProducers.push(bp);
+        emit BlockProducerCreated(bp, msg.sender);
     }
 
     /**
@@ -55,6 +66,7 @@ contract XyBlockProducer is Initializable, GovernorRole {
         
         blockProducers[index] = lastBP;
         blockProducerIndexes[lastBP] = index;
+        emit BlockProducerRemoved(bp, msg.sender);
     }
 
     /**

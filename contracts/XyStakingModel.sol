@@ -290,7 +290,7 @@ contract XyStakingModel {
         stakingStakeeIndex[lastStakeeId] = stakeeIndex;
     }
 
-       /** 
+    /** 
         Internally used to remove token and adjust state array with no iterating 
         @param stakingId - the stakingId to remove
     */

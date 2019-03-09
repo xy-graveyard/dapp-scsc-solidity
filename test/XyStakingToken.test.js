@@ -1,4 +1,4 @@
-const Staking = artifacts.require(`XyStakableToken.sol`)
+const Staking = artifacts.require(`XyBlockProducer.sol`)
 const ERC20 = artifacts.require(`XyERC20Token.sol`)
 const Stakeable = artifacts.require(`XyBlockProducerMock.sol`)
 const Governance = artifacts.require(`XyGovernance.sol`)
