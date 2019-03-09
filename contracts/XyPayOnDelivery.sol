@@ -1,6 +1,6 @@
 pragma solidity >=0.5.0 <0.6.0;
 
-import "../../zos-lib/contracts/Initializable.sol";
+import "./utils/Initializable.sol";
 import "./utils/SafeMath.sol";
 import "./XyStakingConsensus.sol";
 import "./token/ERC20/IERC20.sol";
