@@ -1,6 +1,6 @@
 const Staking = artifacts.require(`XyStakableToken.sol`)
 const ERC20 = artifacts.require(`XyERC20Token.sol`)
-const Stakeable = artifacts.require(`XyStakableMock.sol`)
+const Stakeable = artifacts.require(`XyBlockProducerMock.sol`)
 const Governance = artifacts.require(`XyGovernance.sol`)
 const StakingMock = artifacts.require(`XyStakingMock.sol`)
 const PLCR = artifacts.require(`PLCRVoting.sol`)
@@ -70,7 +70,7 @@ contract(
       stakee4
 
     before(async () => {
-      stakableToken = await Stakeable.new(15, stakableTokenOwner, {
+      stakableToken = await Stakeable.new([15], {
         from: stakableContractOwner
       })
       erc20 = await ERC20.new(erc20TotalSupply, `XYO Token`, `XYO`, {

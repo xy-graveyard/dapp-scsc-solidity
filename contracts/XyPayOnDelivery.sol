@@ -19,11 +19,11 @@ contract XyPayOnDelivery is Initializable, IXyRequester {
     XyStakingConsensus public scsc;
     IERC20 public xyoToken;
 
-    event IntersectResponse(uint requestId, uint weiPayment, uint xyoPayment, address payable beneficiary, bool didIntersect);
+    event IntersectResponse(bytes32 requestId, uint weiPayment, uint xyoPayment, address payable beneficiary, bool didIntersect);
 
     // Check that 
-    mapping (uint => bool) public didIntersect;
-    mapping (uint => uint) public requestIndex;
+    mapping (bytes32 => bool) public didIntersect;
+    mapping (bytes32 => uint) public requestIndex;
     IPFSRequest[] public requests;
 
     /* 
@@ -48,7 +48,7 @@ contract XyPayOnDelivery is Initializable, IXyRequester {
         @param beneficiary The destination address of the funds.
     */
     function requestPayOnDelivery(
-        uint requestId, 
+        bytes32 requestId, 
         uint xyoBounty, 
         uint xyoPayOnDelivery, 
         uint weiPayOnDelivery, 
@@ -80,7 +80,7 @@ contract XyPayOnDelivery is Initializable, IXyRequester {
         @param requestId - the hash of the request (first 2 bytes stripped)
         @param responseData Response data from scsc
     */
-    function submitResponse(uint requestId, IXyRequester.RequestType, bytes memory responseData) public {
+    function submitResponse(bytes32 requestId, IXyRequester.RequestType, bytes memory responseData) public {
         require (msg.sender == address(scsc), "only scsc can complete requests");
         bool intersection = responseData.length > 0 && responseData[0] > 0;
         didIntersect[requestId] = intersection;
@@ -100,7 +100,7 @@ contract XyPayOnDelivery is Initializable, IXyRequester {
         @param requestId - the requestId hash to be deleted
         @param payee - who to pay
     */
-    function payOnDelivery(uint requestId, address payable payee) internal {
+    function payOnDelivery(bytes32 requestId, address payable payee) internal {
         IPFSRequest memory q = requests[requestIndex[requestId]];
         if (q.weiPayment > 0) {
             payee.transfer(q.weiPayment);
@@ -115,7 +115,7 @@ contract XyPayOnDelivery is Initializable, IXyRequester {
         @param requestId - the requestId hash to be deleted
         @param refundee Who to pay the escrow balance too
     */
-    function deleteRequestAndRefund(uint requestId, address payable refundee) internal {
+    function deleteRequestAndRefund(bytes32 requestId, address payable refundee) internal {
         payOnDelivery(requestId, refundee);
         _deleteRequest(requestId);
     }
@@ -124,7 +124,7 @@ contract XyPayOnDelivery is Initializable, IXyRequester {
         Will delete the request and remove the request index
         @param requestId - the requestId hash to be deleted
     */
-    function _deleteRequest(uint requestId) private {
+    function _deleteRequest(bytes32 requestId) private {
         uint qIndex = requestIndex[requestId];
         uint lastQIndex = requests.length.sub(1);
         IPFSRequest memory lastRequest = requests[lastQIndex];

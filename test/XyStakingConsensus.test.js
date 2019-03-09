@@ -8,7 +8,7 @@ const { toChecksumAddress } = require(`ethereumjs-util`)
 const PayOnDelivery = artifacts.require(`XyPayOnDeliveryMock.sol`)
 const StakingConsensus = artifacts.require(`XyConsensusMock.sol`)
 const ERC20 = artifacts.require(`XyERC20Token.sol`)
-const Stakeable = artifacts.require(`XyStakableAddressMock.sol`)
+const Stakeable = artifacts.require(`XyBlockProducerMock.sol`)
 const Governance = artifacts.require(`XyGovernance.sol`)
 const PLCR = artifacts.require(`PLCRVoting.sol`)
 const erc20TotalSupply = 1000000
@@ -54,17 +54,10 @@ contract(
     let parameterizer
     let plcr
     const diviners = [
-      d1,
-      d2,
-      d3,
-      d4,
-      stakableContractOwner,
-      stakableTokenOwner,
-      parameterizerOwner,
-      payOnDeliveryOwner
+      d1
     ]
     const numDiviners = diviners.length
-    const numRequests = 2
+    const numRequests = 1
     let payOnD
     const xyoPayment = 200
     const xyoBounty = 0
@@ -263,8 +256,8 @@ contract(
 
       const packedBytes = `0x${abi
         .solidityPack(
-          [`uint`, ...uintArr, `bytes32`, `bytes`],
-          [previous, ...requests, responseDataHash, packedResponses]
+          [`uint`, `uint`, ...uintArr, `bytes32`, `bytes`],
+          [previous, blockHeight, ...requests, responseDataHash, packedResponses]
         )
         .toString(`hex`)}`
 
@@ -289,7 +282,7 @@ contract(
         from: parameterizerOwner
       })
       await plcr.initialize(erc20.address)
-      stakableToken = await Stakeable.new(consensusOwner, diviners, {
+      stakableToken = await Stakeable.new(diviners, {
         from: stakableContractOwner
       })
       beforeEach(async () => {
@@ -355,9 +348,13 @@ contract(
       })
     })
     describe(`Submitting blocks`, () => {
-      it(`should allow creating a block by consensus of at least 4 diviners`, async () => {
-        const tx = await consensus.submitBlock(...(await generateArgs())).should
-          .be.fulfilled
+      it.only(`should allow creating a block by consensus of at least 4 diviners`, async () => {
+        const args = await generateArgs()
+        // args[9] = [29]
+        console.log(`THE ARGS`, args)
+        const tx = await consensus.submitBlock(...args)
+        console.log(`THE TX`, tx)
+
         expectEvent.inLogs(tx.logs, `BlockCreated`)
       })
 

@@ -33,11 +33,11 @@ const setupBP = async function (stakable, consensus, erc20, bpAddress) {
   await stakable.enableBlockProducer(stakee, true)
 
   await erc20.approve(consensus.address, 100000, { from: bpAddress })
-  // const stakingTx = await consensus.stake(stakee, 10000)
-  // const stakingId = stakingTx.logs[0].args.stakingId
-  // console.log(`New Staking Id`, stakingId)
+  const stakingTx = await consensus.stake(stakee, 10000)
+  const stakingId = stakingTx.logs[0].args.stakingId
+  console.log(`New Staking Id`, stakingId)
 
-  // await consensus.activateStake(stakingId)
+  await consensus.activateStake(stakingId)
 }
 const printAddress = contracts => contracts.map(contract => console.log(`${contract.contractName}: ${contract.address}`))
 

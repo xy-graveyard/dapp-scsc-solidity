@@ -9,7 +9,7 @@ const { toChecksumAddress } = require(`ethereumjs-util`)
 const PayOnDelivery = artifacts.require(`XyPayOnDelivery.sol`)
 const StakingConsensus = artifacts.require(`XyConsensusMock2.sol`)
 const ERC20 = artifacts.require(`XyERC20Token.sol`)
-const Stakeable = artifacts.require(`XyStakableAddressMock.sol`)
+const Stakeable = artifacts.require(`XyBlockProducerMock.sol`)
 const Governance = artifacts.require(`XyGovernance.sol`)
 const PLCR = artifacts.require(`PLCRVoting.sol`)
 const stripHexPrefix = require(`strip-hex-prefix`)
@@ -65,7 +65,7 @@ contract(
       })
 
       await plcr.initialize(erc20.address)
-      stakableToken = await Stakeable.new(stakableTokenOwner, diviners, {
+      stakableToken = await Stakeable.new(diviners, {
         from: stakableContractOwner
       })
     })
