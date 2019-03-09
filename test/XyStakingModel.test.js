@@ -7,7 +7,6 @@ const PLCR = artifacts.require(`PLCRVoting.sol`)
 const fs = require(`fs`)
 const config = JSON.parse(fs.readFileSync(`./config/params.json`))
 const params = config.paramDefaults
-const BN = web3.utils.BN
 
 const parameters = [
   params.pMinDeposit,
@@ -51,10 +50,12 @@ contract(
   `XyStakingModel`,
   ([
     stakingTokenOwner,
-    erc20owner,
     stakableContractOwner,
     parameterizerOwner,
-    stakableTokenOwner,
+    stakee1,
+    stakee2,
+    stakee3,
+    stakee4,
     staker1,
     staker2,
     withdrawStaker
@@ -63,18 +64,13 @@ contract(
       staking,
       stakableToken,
       parameterizer,
-      plcr,
-      stakee1,
-      stakee2,
-      stakee3,
-      stakee4
-
+      plcr
     before(async () => {
-      stakableToken = await Stakeable.new([15], {
+      stakableToken = await Stakeable.new([stakee1, stakee2, stakee3, stakee4], {
         from: stakableContractOwner
       })
       erc20 = await ERC20.new(erc20TotalSupply, `XYO Token`, `XYO`, {
-        from: erc20owner
+        from: stakingTokenOwner
       })
     })
 
@@ -94,10 +90,6 @@ contract(
           from: stakingTokenOwner
         }
       )
-      stakee1 = await stakableToken.stakeeMocks(0)
-      stakee2 = await stakableToken.stakeeMocks(1)
-      stakee3 = await stakableToken.stakeeMocks(2)
-      stakee4 = await stakableToken.stakeeMocks(3)
 
       await parameterizer.initialize(
         staking.address,
@@ -242,10 +234,10 @@ contract(
       }
       beforeEach(async () => {
         await erc20.transfer(staker1, stakingQty, {
-          from: erc20owner
+          from: stakingTokenOwner
         })
         await erc20.transfer(staker2, stakingQty, {
-          from: erc20owner
+          from: stakingTokenOwner
         })
 
         await erc20.approve(staking.address, stakingQty, { from: staker1 })
@@ -419,10 +411,10 @@ contract(
             await staking.unstake(stakingToken2, { from: staker1 }).should.be
               .fulfilled
             const avUnStakee = await staking.getAvailableStakeeUnstake.call(
-              stakingToken
+              stakee3
             )
             const avUnStakee2 = await staking.getAvailableStakeeUnstake.call(
-              stakingToken2
+              stakee4
             )
             const avUnStaker = await staking.getAvailableStakerUnstake.call(
               staker1
@@ -451,7 +443,7 @@ contract(
         describe(`Withdrawing`, async () => {
           beforeEach(async () => {
             await erc20.transfer(withdrawStaker, stakingQty * 30, {
-              from: erc20owner
+              from: stakingTokenOwner
             })
             await erc20.approve(staking.address, stakingQty * 30, {
               from: withdrawStaker
@@ -501,12 +493,11 @@ contract(
           const stakeMany = async (staker, amounts, numToStake) => {
             const tokens = []
             for (let i = 0; i < numToStake; i++) {
-              const stakee = await stakableToken.stakeeMocks(i)
-              const response = await staking.stake.call(stakee, amounts, {
+              const response = await staking.stake.call(stakee1, amounts, {
                 from: staker
               })
               tokens.push(response)
-              await createStake(staker, stakee, amounts)
+              await createStake(staker, stakee1, amounts)
             }
             return tokens
           }

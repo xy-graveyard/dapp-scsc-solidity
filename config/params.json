@@ -10,8 +10,8 @@
     "xyStakeQuorumPct": 66,
     "xyWeiMiningMin": "100000000000000000",
     "xyXYORequestBountyMin": "10000000000000000000",
-    "xyStakeCooldown": 10, 
-    "xyUnstakeCooldown": 10,
+    "xyStakeCooldown": 20, 
+    "xyUnstakeCooldown": 20,
     "xyProposalsEnabled": 1
 	}
 }
