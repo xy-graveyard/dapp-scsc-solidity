@@ -1,6 +1,6 @@
 pragma solidity >=0.5.0 <0.6.0;
 
-import "../node_modules/zos-lib/contracts/Initializable.sol";
+import "../../zos-lib/contracts/Initializable.sol";
 import "./XyStakingModel.sol";
 import "./IXyRequester.sol";
 
