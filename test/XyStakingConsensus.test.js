@@ -256,18 +256,18 @@ contract(
       responseDataHash,
       packedResponses
     ) => {
-      const uintArr = requests.map(() => `uint`)
+      const bytes32Arr = requests.map(() => `bytes32`)
 
       const hash = `0x${abi
         .soliditySHA3(
-          [`uint`, `uint`, ...uintArr, `bytes32`, `bytes`],
+          [`bytes32`, `uint`, ...bytes32Arr, `bytes32`, `bytes`],
           [previous, blockHeight, ...requests, responseDataHash, packedResponses]
         )
         .toString(`hex`)}`
 
       const packedBytes = `0x${abi
         .solidityPack(
-          [`uint`, `uint`, ...uintArr, `bytes32`, `bytes`],
+          [`bytes32`, `uint`, ...bytes32Arr, `bytes32`, `bytes`],
           [previous, blockHeight, ...requests, responseDataHash, packedResponses]
         )
         .toString(`hex`)}`
@@ -359,7 +359,7 @@ contract(
       })
     })
     describe(`Submitting blocks`, () => {
-      it.only(`should allow creating a block by consensus of at least 4 diviners`, async () => {
+      it(`should allow creating a block by consensus of at least 4 diviners`, async () => {
         const args = await generateArgs()
         // args[9] = [29]
         console.log(`THE ARGS`, args)
