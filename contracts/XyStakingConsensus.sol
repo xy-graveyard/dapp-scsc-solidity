@@ -287,6 +287,7 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
         Submit a new block to the consensus blockChain. Verifies stake in consensus is over 51% of the network. 
         calls requests' callbacks with responses.  Creates new block and returns weiMining for successful creation.
         @param previousBlock the prior block to maintain the 
+        @param stakingBlock the block number diviners get staking data for
         @param _requests list of the request ids (minus first 2 bytes)
         @param payloadData the hash of the supporting block data
         @param responses byte array of responses

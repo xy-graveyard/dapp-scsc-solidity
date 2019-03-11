@@ -54,7 +54,8 @@ contract(
     let parameterizer
     let plcr
     const diviners = [
-      d1
+      consensusOwner,
+      d1, d2, d3, d4
     ]
     const numDiviners = diviners.length
     const numRequests = 1
@@ -109,7 +110,7 @@ contract(
     }
 
     const requestPayOnDeliveries = async () => {
-      const requests = [...Array(numRequests).keys()].map(r => r + 1)
+      const requests = [...Array(numRequests).keys()].map(r => `0x${r + 1}`)
       await erc20.approve(payOnD.address, numRequests * xyoPayment, {
         from: erc20owner
       })
@@ -131,7 +132,7 @@ contract(
     }
 
     const submitUintRequest = async () => {
-      const requests = [...Array(numRequests).keys()].map(r => r + 1)
+      const requests = [...Array(numRequests).keys()].map(r => `0x${r + 1}`)
       await erc20.approve(payOnD.address, numRequests * xyoPayment, {
         from: erc20owner
       })
@@ -153,7 +154,18 @@ contract(
     }
 
     const compareDiviners = (a, b) => a > b
-
+    const SubmitArgsEnum = {
+      PREVIOUS: 0,
+      STAKING: 1,
+      REQUESTS: 2,
+      DATAHASH: 3,
+      RESPONSES: 4,
+      SIGNERS: 5,
+      R: 6,
+      S: 7,
+      V: 8,
+      SIGHASH: 9
+    }
     const createArgs = async (requests, packedResponses, returnHash) => {
       const previous = await consensus.getLatestBlock()
       const blockHeight = 100
@@ -181,7 +193,6 @@ contract(
         hash = sig[4]
       })
       const args = [
-        d1,
         previous,
         blockHeight,
         requests,
@@ -314,15 +325,15 @@ contract(
 
     describe(`Submit Request`, () => {
       it(`Should only allow creating withdraw, uint, and bool request types`, async () => {
-        await consensus.submitRequest(1, 0, d1, 1).should.be.fulfilled
-        await consensus.submitRequest(2, 0, d1, 2).should.be.fulfilled
-        await consensus.submitRequest(3, 0, d1, 3).should.be.fulfilled
-        await consensus.submitRequest(4, 0, d1, 4).should.not.be.fulfilled
-        await consensus.submitRequest(5, 0, d1, 0).should.not.be.fulfilled
+        await consensus.submitRequest(`0x1`, 0, d1, 1).should.be.fulfilled
+        await consensus.submitRequest(`0x2`, 0, d1, 2).should.be.fulfilled
+        await consensus.submitRequest(`0x3`, 0, d1, 3).should.be.fulfilled
+        await consensus.submitRequest(`0x4`, 0, d1, 4).should.not.be.fulfilled
+        await consensus.submitRequest(`0x5`, 0, d1, 0).should.not.be.fulfilled
       })
       it(`Should not allow duplicate requests`, async () => {
-        await consensus.submitRequest(1, 0, d1, 1).should.be.fulfilled
-        await consensus.submitRequest(1, 0, d1, 2).should.not.be.fulfilled
+        await consensus.submitRequest(`0x1`, 0, d1, 1).should.be.fulfilled
+        await consensus.submitRequest(`0x1`, 0, d1, 2).should.not.be.fulfilled
       })
       it(`Should not allow requests under minimum bounty if in place`, async () => {
         const min = 100
@@ -334,13 +345,13 @@ contract(
         })
         await erc20.transfer(d1, 500, { from: erc20owner })
         await erc20.approve(consensus.address, 500, { from: d1 })
-        await consensus.submitRequest(1, 0, d1, 1, { from: d1 }).should.not.be
+        await consensus.submitRequest(`0x1`, 0, d1, 1, { from: d1 }).should.not.be
           .fulfilled
-        await consensus.submitRequest(1, 0, d1, 1, { from: d1, value: min })
+        await consensus.submitRequest(`0x1`, 0, d1, 1, { from: d1, value: min })
           .should.not.be.fulfilled
-        await consensus.submitRequest(1, min, d1, 1, { from: d1, value: 99 })
+        await consensus.submitRequest(`0x1`, min, d1, 1, { from: d1, value: 99 })
           .should.not.be.fulfilled
-        await consensus.submitRequest(1, min, d1, 1, { from: d1, value: min })
+        await consensus.submitRequest(`0x1`, min, d1, 1, { from: d1, value: min })
           .should.be.fulfilled
 
         const contractBalance = await erc20.balanceOf(consensus.address)
@@ -442,23 +453,25 @@ contract(
 
         // console.log(`Args`, subParams)
         await consensus.mock_checkSigsAndStakes(
-          subParams[10],
-          subParams[6],
-          subParams[7],
-          subParams[8],
-          subParams[9]
+          subParams[SubmitArgsEnum.SIGHASH],
+          subParams[SubmitArgsEnum.SIGNERS],
+          subParams[SubmitArgsEnum.R],
+          subParams[SubmitArgsEnum.S],
+          subParams[SubmitArgsEnum.V]
         ).should.be.fulfilled
       })
 
       it(`should fail if signers not passed in order`, async () => {
         const subParams = await generateArgs(true)
-        await consensus.mock_checkSigsAndStakes(
-          subParams[10],
-          diviners,
-          subParams[7],
-          subParams[8],
-          subParams[9]
-        ).should.not.be.fulfilled
+        if (diviners !== diviners.map(d => d.toLowerCase()).sort(compareDiviners)) {
+          await consensus.mock_checkSigsAndStakes(
+            subParams[SubmitArgsEnum.SIGHASH],
+            diviners,
+            subParams[SubmitArgsEnum.R],
+            subParams[SubmitArgsEnum.S],
+            subParams[SubmitArgsEnum.V]
+          ).should.not.be.fulfilled
+        }
       })
 
       it(`should fail if quorum not met`, async () => {
@@ -474,11 +487,11 @@ contract(
         )
         const subParams = await generateArgs(true)
         await consensus.mock_checkSigsAndStakes(
-          subParams[10],
+          subParams[SubmitArgsEnum.SIGHASH],
           sortedQuorum,
-          subParams[7],
-          subParams[8],
-          subParams[9]
+          subParams[SubmitArgsEnum.R],
+          subParams[SubmitArgsEnum.S],
+          subParams[SubmitArgsEnum.V]
         ).should.not.be.fulfilled
       })
     })
