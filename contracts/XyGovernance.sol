@@ -1,6 +1,6 @@
 pragma solidity >=0.5.0 <0.6.0;
 
-import "../node_modules/zos-lib/contracts/Initializable.sol";
+import "./utils/Initializable.sol";
 import "./utils/SafeMath.sol";
 import "./XyParameterizer.sol";
 
@@ -14,7 +14,7 @@ contract XyGovernance is Initializable, XyParameterizer {
     address public resolverAddress;
 
     event NewActionAccepted(bytes32 indexed propId, ActionType actionType);
-    event ActionResolved(bytes32 indexed propId, uint indexed stakee, ActionType actionType);
+    event ActionResolved(bytes32 indexed propId, address stakee, ActionType actionType);
 
     struct GovernanceAction {
         bytes32 propId;         // proposal id must be unique
@@ -23,10 +23,10 @@ contract XyGovernance is Initializable, XyParameterizer {
         bool accepted;
     }
 
-    enum  ActionType { EOL, UNSTAKE, ADD_BP, REMOVE_BP }
+    enum  ActionType { UNSTAKE, ADD_BP, REMOVE_BP }
 
-    mapping (uint => GovernanceAction[]) public resolutions;
-    mapping (uint => GovernanceAction) public actions;
+    mapping (address => GovernanceAction[]) public resolutions;
+    mapping (address => GovernanceAction) public actions;
 
     // help ease transition into decentralized entity, 
     // and once governance has been established renounce ownership role 
@@ -49,11 +49,11 @@ contract XyGovernance is Initializable, XyParameterizer {
         @param penaltyPct the penalty to enforce on stakers
      */
     function proposeNewAction(
-        uint stakee, 
+        address stakee, 
         uint penaltyPct, 
         ActionType action) public returns (bytes32) {
         require(actions[stakee].propId == 0, "Action in progress");
-        bytes32 propId = proposeReparameterization("xyGovernanceAction", stakee);
+        bytes32 propId = proposeReparameterization("xyGovernanceAction", uint(stakee));
         GovernanceAction memory a = GovernanceAction(
             propId,
             penaltyPct,
@@ -64,11 +64,11 @@ contract XyGovernance is Initializable, XyParameterizer {
         return propId;
     }
 
-    function hasUnresolvedAction(uint stakee) public view returns (bool hasAction) {
+    function hasUnresolvedAction(address stakee) public view returns (bool hasAction) {
         return actions[stakee].propId != 0;
     }
 
-    function numResolutions(uint stakee) public view returns (uint) {
+    function numResolutions(address stakee) public view returns (uint) {
         return resolutions[stakee].length;
     }
 
@@ -79,9 +79,10 @@ contract XyGovernance is Initializable, XyParameterizer {
     */
     function set(string memory _name, uint _value) internal {
         if (keccak256(abi.encodePacked(_name)) == keccak256("xyGovernanceAction")) {
-            require(actions[_value].propId != 0, "Governance action must be proposed");
-            actions[_value].accepted = true;
-            emit NewActionAccepted(actions[_value].propId, actions[_value].actionType);
+            address converted = address(_value);
+            require(actions[address(converted)].propId != 0, "Governance action must be proposed");
+            actions[converted].accepted = true;
+            emit NewActionAccepted(actions[converted].propId, actions[converted].actionType);
         } else {
             params[keccak256(abi.encodePacked(_name))] = _value;
         }
@@ -90,7 +91,7 @@ contract XyGovernance is Initializable, XyParameterizer {
     /** 
         Can only be called by resolver after resolution is complete 
     */
-    function resolveAction(uint stakee) public {
+    function resolveAction(address stakee) public {
         require (msg.sender == resolverAddress);
         GovernanceAction storage action = actions[stakee];
         require(action.accepted, "cannot resolve an unaccepted action");

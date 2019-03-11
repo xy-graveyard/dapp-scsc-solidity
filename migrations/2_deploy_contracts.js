@@ -2,7 +2,7 @@ const PLCR = artifacts.require(`PLCRVoting.sol`)
 const attrStore = artifacts.require(`AttributeStore.sol`)
 const dll = artifacts.require(`DLL.sol`)
 const XYOERC20 = artifacts.require(`XyERC20Token.sol`)
-const Stakable = artifacts.require(`XyStakableToken.sol`)
+const Stakable = artifacts.require(`XyBlockProducer.sol`)
 const SCSC = artifacts.require(`XyStakingConsensus.sol`)
 const Governance = artifacts.require(`XyGovernance.sol`)
 const PayOnD = artifacts.require(`XyPayOnDelivery.sol`)
@@ -26,18 +26,15 @@ const parameters = [
 ]
 
 const setupBP = async function (stakable, consensus, erc20, bpAddress) {
-  const stakeeTx = await stakable.mint(bpAddress)
-  const stakee = stakeeTx.logs[0].args.tokenId
-  console.log(`New Stakee`, stakee, bpAddress, stakeeTx.logs.args)
-
-  await stakable.enableBlockProducer(stakee, true)
+  const stakeeTx = await stakable.create(bpAddress)
+  console.log(`New Stakee`, bpAddress, stakeeTx.logs.args)
 
   await erc20.approve(consensus.address, 100000, { from: bpAddress })
-  // const stakingTx = await consensus.stake(stakee, 10000)
-  // const stakingId = stakingTx.logs[0].args.stakingId
-  // console.log(`New Staking Id`, stakingId)
+  const stakingTx = await consensus.stake(bpAddress, 10000)
+  const stakingId = stakingTx.logs[0].args.stakingId
+  console.log(`New Staking Id`, stakingId)
 
-  // await consensus.activateStake(stakingId)
+  await consensus.activateStake(stakingId)
 }
 const printAddress = contracts => contracts.map(contract => console.log(`${contract.contractName}: ${contract.address}`))
 

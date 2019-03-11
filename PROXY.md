@@ -188,7 +188,7 @@ The `zos.dev-1550512259795.json` file should now include our proxy contracts:
 
 ```json
   "proxies": {
-    "dapp-scsc-solidity/XyStakableToken": [
+    "dapp-scsc-solidity/XyBlockProducer": [
       {
         "address": "0x1943BD00E3a4F46B10e6657dd9236Be95E20398A",
         "version": "0.1.0",

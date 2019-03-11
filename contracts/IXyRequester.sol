@@ -9,7 +9,7 @@ interface IXyRequester {
     enum RequestType { DEFAULT, BOOL, UINT, WITHDRAW }
 
     struct IPFSRequest {
-        uint requestId;
+        bytes32 requestId;
         uint weiPayment;
         uint xyoPayment;
         uint createdAt;
@@ -24,5 +24,5 @@ interface IXyRequester {
         @param requestType Used by scsc to signal what is in the response data
         @param response Response data from scsc
     */
-    function submitResponse(uint requestId, RequestType requestType, bytes calldata response) external;
+    function submitResponse(bytes32 requestId, RequestType requestType, bytes calldata response) external;
 }

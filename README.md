@@ -109,7 +109,7 @@ Go through metamask to submit the transaction. You have now approved stake, let'
 
 The diviner is represented by a **Stakable token**
 
-- Mint one token with your wallet address by selecting the XyStakableToken and the address below
+- Mint one token with your wallet address by selecting the XyBlockProducer and the address below
 
 - Select the `mint()` function and paste your wallet address into the `beneficiary` field
 
@@ -198,7 +198,7 @@ You will now get a returned JSON object with your stake amount, the block it was
 - **returns**
   - `bool success`
 
-#### XyStakableToken
+#### XyBlockProducer
 
 **This contract is used to track ownership of stakable addresses in XYO**
 **This contract is upgradeable**
@@ -422,7 +422,7 @@ repository. Please squash meaningless commits before submitting a pull-request.
 
 ### License
 
-ISC
+MIT
 
 ### Credits
 

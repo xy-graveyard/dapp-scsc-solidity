@@ -2,7 +2,7 @@ pragma solidity >=0.5.0 <0.6.0;
 import "../XyPayonDelivery.sol";
 
 contract XyPayOnDeliveryMock is XyPayOnDelivery {
-    event UintResponse(uint requestId, uint response);
+    event UintResponse(bytes32 requestId, uint response);
 
     constructor(
         address _scsc,
@@ -17,7 +17,7 @@ contract XyPayOnDeliveryMock is XyPayOnDelivery {
 
     // A sample for a uint style request
     function submitUintRequest(
-    uint requestId, 
+    bytes32 requestId, 
     uint xyoBounty, 
     uint xyoPayOnDelivery, 
     uint weiPayOnDelivery, 
@@ -38,7 +38,7 @@ contract XyPayOnDeliveryMock is XyPayOnDelivery {
       requests.push(q);
     } 
 
-    function submitResponse(uint requestId, IXyRequester.RequestType requestType, bytes memory responseData) public {
+    function submitResponse(bytes32 requestId, IXyRequester.RequestType requestType, bytes memory responseData) public {
       if (requestType == IXyRequester.RequestType.BOOL) {
         super.submitResponse(requestId, requestType, responseData);
       } else if (requestType == IXyRequester.RequestType.UINT) {
