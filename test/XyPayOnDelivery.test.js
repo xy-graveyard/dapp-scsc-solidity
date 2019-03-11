@@ -4,7 +4,7 @@ import { expectEvent } from "openzeppelin-test-helpers"
 import { request } from "http"
 
 const abi = require(`ethereumjs-abi`)
-const { toChecksumAddress } = require(`ethereumjs-util`)
+const { toBuffer } = require(`ethereumjs-util`)
 
 const PayOnDelivery = artifacts.require(`XyPayOnDelivery.sol`)
 const StakingConsensus = artifacts.require(`XyConsensusMock2.sol`)
@@ -98,20 +98,20 @@ contract(
         await payOnD.initialize(consensus.address, erc20.address)
       })
       it(`should create requests`, async () => {
-        await payOnD.requestPayOnDelivery(`123`, 0, 0, 0, payOnDeliveryBeneficiary)
+        await payOnD.requestPayOnDelivery(`0x123`, 0, 0, 0, payOnDeliveryBeneficiary)
           .should.be.fulfilled
       })
       it(`should not allow duplicate requests`, async () => {
-        await payOnD.requestPayOnDelivery(`123`, 0, 0, 0, payOnDeliveryBeneficiary)
+        await payOnD.requestPayOnDelivery(`0x123`, 0, 0, 0, payOnDeliveryBeneficiary)
           .should.be.fulfilled
-        await payOnD.requestPayOnDelivery(`123`, 0, 0, 0, payOnDeliveryBeneficiary)
+        await payOnD.requestPayOnDelivery(`0x123`, 0, 0, 0, payOnDeliveryBeneficiary)
           .should.not.be.fulfilled
       })
 
       it(`should escrow funds for pay on delivery`, async () => {
         await erc20.approve(payOnD.address, 90, { from: erc20owner })
         await payOnD.requestPayOnDelivery(
-          `123`,
+          `0x123`,
           0,
           20,
           90,
@@ -133,7 +133,7 @@ contract(
         await erc20.approve(payOnD.address, 500, { from: erc20owner })
         await erc20.approve(consensus.address, 500, { from: erc20owner })
         await payOnD.requestPayOnDelivery(
-          `123`,
+          `0x123`,
           20,
           90,
           0,
@@ -141,7 +141,7 @@ contract(
           { value: 90, from: erc20owner }
         ).should.not.be.fulfilled
         await payOnD.requestPayOnDelivery(
-          `1232`,
+          `0x1232`,
           200,
           90,
           0,
@@ -149,7 +149,7 @@ contract(
           { value: 90, from: erc20owner }
         ).should.not.be.fulfilled
         await payOnD.requestPayOnDelivery(
-          `1233`,
+          `0x1233`,
           90,
           200,
           0,
@@ -157,7 +157,7 @@ contract(
           { value: 90, from: erc20owner }
         ).should.not.be.fulfilled
         await payOnD.requestPayOnDelivery(
-          `1253`,
+          `0x1253`,
           300,
           200,
           0,
@@ -168,12 +168,13 @@ contract(
       it(`should store requests in array`, async () => {
         await erc20.approve(payOnD.address, 500, { from: erc20owner })
 
-        await payOnD.requestPayOnDelivery(`123`, 0, 0, 0, payOnDeliveryBeneficiary)
+        await payOnD.requestPayOnDelivery(`0x123`, 0, 0, 0, payOnDeliveryBeneficiary)
           .should.be.fulfilled
-        await payOnD.requestPayOnDelivery(`2`, 0, 0, 0, payOnDeliveryBeneficiary)
+        await payOnD.requestPayOnDelivery(`0x2`, 0, 0, 0, payOnDeliveryBeneficiary)
           .should.be.fulfilled
+        const requestId = web3.utils.randomHex(32)
         await payOnD.requestPayOnDelivery(
-          `3`,
+          requestId,
           0,
           10,
           100,
@@ -183,14 +184,14 @@ contract(
             value: 100
           }
         ).should.be.fulfilled
-        await payOnD.requestPayOnDelivery(`4`, 0, 0, 0, payOnDeliveryBeneficiary)
+        await payOnD.requestPayOnDelivery(`0x4`, 0, 0, 0, payOnDeliveryBeneficiary)
           .should.be.fulfilled
-        await payOnD.requestPayOnDelivery(`5`, 0, 0, 0, payOnDeliveryBeneficiary)
+        await payOnD.requestPayOnDelivery(`0x5`, 0, 0, 0, payOnDeliveryBeneficiary)
           .should.be.fulfilled
         const numReqs = await payOnD.numRequests()
         numReqs.toNumber().should.be.equal(5)
         const req2 = await payOnD.requests(2)
-        req2.requestId.toNumber().should.be.equal(3)
+        req2.requestId.should.be.equal(requestId)
         req2.beneficiary.should.be.equal(payOnDeliveryBeneficiary)
         req2.asker.should.be.equal(erc20owner)
         req2.xyoPayment.toNumber().should.be.equal(10)
@@ -207,7 +208,7 @@ contract(
 
         await erc20.approve(payOnD.address, 500, { from: erc20owner })
 
-        await payOnD.requestPayOnDelivery(`1`, 0, 0, 0, payOnDeliveryBeneficiary)
+        await payOnD.requestPayOnDelivery(`0x1`, 0, 0, 0, payOnDeliveryBeneficiary)
           .should.be.fulfilled
       })
 
@@ -219,8 +220,8 @@ contract(
           .solidityPack([`bytes`], [byteResponses])
           .toString(`hex`)}`
 
-        await payOnD.submitResponse(`1`, 1, packedBytes).should.not.be.fulfilled
-        await consensus.submitResponse(`1`, 1, packedBytes, payOnD.address, {
+        await payOnD.submitResponse(`0x1`, 1, packedBytes).should.not.be.fulfilled
+        await consensus.submitResponse(`0x1`, 1, packedBytes, payOnD.address, {
           from: responseSubmitter
         }).should.be.fulfilled
       })
