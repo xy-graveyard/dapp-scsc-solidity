@@ -525,12 +525,13 @@ contract(
               0,
               stakingTokens * 100
             ])
+            // not within unstaking cooldown, so should not withdraw
             await staking.withdrawManyStake(2, { from: withdrawStaker }).should.be
               .fulfilled
             await stakeCompare(stakerStake(withdrawStaker), [
               0,
               0,
-              (stakingTokens - 2) * 100
+              (stakingTokens) * 100
             ])
             const blockNumber2 = await web3.eth.getBlockNumber()
             await advanceToBlock(blockNumber2 + cooldownUnstake)
@@ -540,7 +541,7 @@ contract(
             await stakeCompare(stakerStake(withdrawStaker), [
               0,
               0,
-              (stakingTokens - 7) * 100
+              (stakingTokens - 5) * 100
             ])
             await staking.withdrawManyStake(15, { from: withdrawStaker }).should.be
               .fulfilled
