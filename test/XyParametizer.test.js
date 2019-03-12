@@ -62,10 +62,11 @@ contract(
       parameterizer = await Parameterizer.new({
         from: governanceOwner
       })
-      await parameterizer.initialize(governanceResolver,
+      await parameterizer.init(
         erc20.address,
         plcr.address,
-        parameters, { from: governanceOwner })
+        parameters, { from: governanceOwner }
+      )
     })
     describe(`Function: proposeReparameterization`, (accounts) => {
       beforeEach(async () => {

@@ -71,7 +71,7 @@ contract XyParameterizer {
         address _token,
         address _plcr,
         uint[] memory _parameters
-    ) internal {
+    ) public {
         // require(_token != address(0) && address(token) == address(0));
         // require(_plcr != address(0) && address(voting) == address(0));
 
