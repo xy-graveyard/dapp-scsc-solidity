@@ -70,17 +70,17 @@ contract(
     })
     describe(`Proposing an action`, () => {
       it(`should allow proposing a new action when minDeposit is 0`, async () => {
-        await governance.proposeNewAction(1, 50, 0).should.be.fulfilled
-        const hasAction = await governance.hasUnresolvedAction(1)
+        await governance.proposeNewAction(`0x28a8746e75304c0780e011bed21c72cd78cd535e`, 50, 0).should.be.fulfilled
+        const hasAction = await governance.hasUnresolvedAction(`0x28a8746e75304c0780e011bed21c72cd78cd535e`)
         hasAction.should.be.equal(true)
       })
       it(`should not allow proposing a new action on stakee if one is in progress`, async () => {
-        await governance.proposeNewAction(1, 50, 0).should.be.fulfilled
-        await governance.proposeNewAction(1, 50, 0).should.not.be.fulfilled
+        await governance.proposeNewAction(`0x28a8746e75304c0780e011bed21c72cd78cd535e`, 50, 0).should.be.fulfilled
+        await governance.proposeNewAction(`0x123`, 50, 0).should.not.be.fulfilled
       })
       it(`should allow proposing a new action on seperate stakee if one is in progress`, async () => {
-        await governance.proposeNewAction(1, 50, 0).should.be.fulfilled
-        await governance.proposeNewAction(2, 50, 0).should.be.fulfilled
+        await governance.proposeNewAction(`0x28a8746e75304c0780e011bed21c72cd78cd535e`, 50, 0).should.be.fulfilled
+        await governance.proposeNewAction(`0x3e5e9111ae8eb78fe1cc3bb8915d5d461f3ef9a9`, 50, 0).should.be.fulfilled
       })
     })
     describe(`owner setting`, () => {
@@ -103,9 +103,9 @@ contract(
       })
     })
     describe(`resolving actions`, () => {
-      const stakee = 234
-      const stakee1 = 2345
-      const stakee2 = 2345234
+      const stakee = `0x28a8746e75304c0780e011bed21c72cd78cd535e`
+      const stakee1 = `0x3e5e9111ae8eb78fe1cc3bb8915d5d461f3ef9a9`
+      const stakee2 = `0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1`
       beforeEach(async () => {
         await governance.proposeNewAction(stakee, 50, 0).should.be.fulfilled
         await governance.proposeNewAction(stakee1, 50, 1).should.be.fulfilled
