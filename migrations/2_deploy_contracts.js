@@ -6,6 +6,7 @@ const Stakable = artifacts.require(`XyBlockProducer.sol`)
 const SCSC = artifacts.require(`XyStakingConsensus.sol`)
 const Governance = artifacts.require(`XyGovernance.sol`)
 const PayOnD = artifacts.require(`XyPayOnDelivery.sol`)
+const base58 = require('bs58')
 
 const fs = require(`fs`)
 const config = JSON.parse(fs.readFileSync(`../config/testParams.json`))
@@ -35,6 +36,18 @@ const setupBP = async function (stakable, consensus, erc20, bpAddress) {
   console.log(`New Staking Id`, stakingId)
 
   await consensus.activateStake(stakingId)
+}
+
+const getBytes32FromIpfsHash = (ipfsListing)  => {
+  return "0x" + base58.decode(ipfsListing).slice(2).toString('hex')
+}
+
+const addRequest = async function (pOnD, requesterAddress) {
+  const IpfsHash = "QmZyycMiLogkpoA2C8Nz44KCvFbY6vZBAkYKUBz8hMab7Q"
+  const bytesStr = getBytes32FromIpfsHash(IpfsHash)
+  let tx = await pOnD.requestPayOnDelivery(web3.utils.padLeft(bytesStr, 64), 0, 0, 0, requesterAddress, {from: requesterAddress})
+  console.log("Submitted Request", tx.logs[0].args.requestId)
+  return true
 }
 const printAddress = contracts => contracts.map(contract => console.log(`${contract.contractName}: ${contract.address}`))
 
@@ -88,4 +101,5 @@ module.exports = async function (deployer, network, [contractsOwner]) {
   console.log(`INNITIALIZED WITH PARAMS`, parameters)
   await setupBP(stakableToken, consensus, erc20, contractsOwner)
   printAddress([SCSC, Governance, XYOERC20, PayOnD, Stakable])
+  await addRequest(pOnD, contractsOwner)
 }

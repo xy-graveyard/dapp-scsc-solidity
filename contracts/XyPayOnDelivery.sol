@@ -20,6 +20,7 @@ contract XyPayOnDelivery is Initializable, IXyRequester {
     IERC20 public xyoToken;
 
     event IntersectResponse(bytes32 requestId, uint weiPayment, uint xyoPayment, address payable beneficiary, bool didIntersect);
+    event NewPayOnDeliveryRequest(bytes32 requestId, address requester, uint weiPayment, uint xyoPayment, address payable beneficiary);
 
     // Check that 
     mapping (bytes32 => bool) public didIntersect;
@@ -73,6 +74,7 @@ contract XyPayOnDelivery is Initializable, IXyRequester {
         );
         requestIndex[requestId] = requests.length;
         requests.push(q);
+        emit NewPayOnDeliveryRequest(requestId, msg.sender, weiPayOnDelivery, xyoPayOnDelivery, beneficiary);
     }
 
     /**
