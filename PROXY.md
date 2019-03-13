@@ -216,3 +216,39 @@ As well as a ProxyAdmin address:
 ```
 
 We now have an upgradeable smart contract!
+
+
+## Testing the proxies
+
+Our test suite includes unit testing apart from testing the upgradeability of the scsc. To test the Proxies, you need to take these steps:
+
+Make sure that you have a current `zos session` running:
+```sh
+zos session --network development --from 0x1df62f291b2e969fb0849d99d9ce41e2f137006e --expires 3600
+```
+Push the contracts to the session
+
+```sh
+zos push
+```
+
+Add openzeppelin-eth to your local zos.dev file under `dependencies`
+
+```json
+    "openzeppelin-eth": {
+      "package": "0xb6f8f11b166d526932ee04ffe4d25b810f619e34",
+      "version": "2.1.3"
+    }
+```
+
+Link openzeppelin-eth to your zos session
+
+```sh
+zos link openzeppelin-eth
+```
+
+You may get an error that you do not have `zos-lib` installed, so simply `yarn add zos-lib`
+
+Then you can run `truffle compile` then `truffle test` and all of the unit tests and proxy tests should run.
+
+**DO NOT RUN** `truffle migrate` when running proxy tests
