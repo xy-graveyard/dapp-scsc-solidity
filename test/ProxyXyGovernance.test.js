@@ -16,7 +16,7 @@ contract(`XyGovernance`, () => {
 
   it(`should create a proxy for the EVM Package`, async () => {
     const proxy = await project.createProxy(Governance)
-    const result = await proxy.methods.numResolutions(`1`).call()
+    const result = await proxy.methods.numResolutions(`0x28a8746e75304c0780e011bed21c72cd78cd535e`).call()
     result.should.eq(`0`)
   })
 })

@@ -24,6 +24,6 @@ contract(`XyStakingConsensus`, () => {
       ]
     })
     const result = await proxy.methods.getLatestBlock().call()
-    result.should.eq(`0`)
+    result.should.eq(`0x0000000000000000000000000000000000000000000000000000000000000000`)
   })
 })
