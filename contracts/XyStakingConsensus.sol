@@ -218,19 +218,20 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
         uint byteOffset = 0;
         uint weiMining = 0;
         for (uint i = 0; i < _requests.length; i++) {
-          Request storage q = requestsById[_requests[i]];
-          if (!q.hasResponse) {
-            q.hasResponse = true;
-            weiMining = weiMining.add(q.weiMining);
+            Request storage q = requestsById[_requests[i]];
             uint8 numBytes = q.requestType == IXyRequester.RequestType.BOOL ? 1 : 32;
-
+            bool isFirstResponse = !q.hasResponse;
+            if (isFirstResponse) {
+                q.hasResponse = true;
+                weiMining = weiMining.add(q.weiMining);
+            }
             if (q.requestType == IXyRequester.RequestType.BOOL || q.requestType == IXyRequester.RequestType.UINT) {
                 bytes memory result = new bytes(numBytes);
                 for (uint8 j = 0; j < numBytes; j++) {
                     result[j] = responseData[byteOffset + j];
                 }
                 IXyRequester(q.requestSender).submitResponse(_requests[i], q.requestType, result);
-            } else if (q.requestType == IXyRequester.RequestType.WITHDRAW) {
+            } else if (isFirstResponse && q.requestType == IXyRequester.RequestType.WITHDRAW) {
                 uint amount = _toUint(responseData, byteOffset);
                 require (amount <= totalStakeAndUnstake(q.requestSender), "Withdraw amount more than total staker's stake");
                 emit RewardClaimed(q.requestSender, amount, totalStakeAndUnstake(q.requestSender));
@@ -239,8 +240,8 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
                 assert(false);
             }
             byteOffset += numBytes;
-          }
         }
+        
         return weiMining;
     }
 
@@ -263,10 +264,11 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
         view
         internal 
     {
+        bytes32 prefixedHash = prefixed(messageHash);
         address lastStakee = address(0);
         uint stake = 0;
         for (uint i = 0; i < signers.length; i++) {
-            address signer = ecrecover(prefixed(messageHash), uint8(sigV[i]), sigR[i], sigS[i]);
+            address signer = ecrecover(prefixedHash, sigV[i], sigR[i], sigS[i]);
             require(signers[i] > lastStakee , "Signers array must be ascending");
             lastStakee = signers[i];
             require(signers[i] == signer, "Signature mis-match");
@@ -281,6 +283,35 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
         blockChain.push(newBlock);
         blocks[newBlock] = b;
         emit BlockCreated(newBlock, previousBlock, block.number, payloadHash, msg.sender);
+    }
+
+    event LogTest(bytes packedBytes, bytes32 newBlockHash, bool wasMatch, address lastSigner, bytes32 prefixedHash, uint stake);
+    function testSubmit
+    (
+        bytes32 previousBlock,
+        uint stakingBlock,
+        bytes32[] memory _requests,
+        bytes32 payloadData,
+        bytes memory responses,
+        address[] memory signers,
+        bytes32[] memory sigR,
+        bytes32[] memory sigS,
+        uint8[] memory sigV
+    )
+        public
+    {
+        bytes memory packedBytes = abi.encodePacked(previousBlock, stakingBlock, _requests, payloadData, responses);
+        bytes32 newBlock = keccak256(packedBytes);
+        bytes32 prefixedHash = prefixed(newBlock);
+        address lastSigner = address(0);
+        uint stake = 0;
+        bool wasMatch = false;
+        for (uint i = 0; i < signers.length; i++) {
+            lastSigner = signers[i];
+            wasMatch = lastSigner == ecrecover(prefixedHash, sigV[i], sigR[i], sigS[i]);
+            stake = stake.add(stakeeStake[lastSigner].activeStake);
+        }
+        emit LogTest(packedBytes, newBlock, wasMatch, lastSigner, prefixedHash, stake);
     }
 
     /**

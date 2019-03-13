@@ -296,33 +296,32 @@ contract(
       stakableToken = await Stakeable.new(diviners, {
         from: stakableContractOwner
       })
-      beforeEach(async () => {
-        parameterizer = await Governance.new({
-          from: parameterizerOwner
-        })
-        consensus = await StakingConsensus.new(
-          diviners,
-          erc20.address,
-          stakableToken.address,
-          parameterizer.address,
-          {
-            from: consensusOwner
-          }
-        )
-        await parameterizer.initialize(
-          consensus.address,
-          erc20.address,
-          plcr.address,
-          parameters,
-          { from: parameterizerOwner }
-        )
-        payOnD = await PayOnDelivery.new(consensus.address, erc20.address, {
-          from: payOnDeliveryOwner
-        })
-      })
       await advanceBlock()
     })
-
+    beforeEach(async () => {
+      parameterizer = await Governance.new({
+        from: parameterizerOwner
+      })
+      consensus = await StakingConsensus.new(
+        diviners,
+        erc20.address,
+        stakableToken.address,
+        parameterizer.address,
+        {
+          from: consensusOwner
+        }
+      )
+      await parameterizer.initialize(
+        consensus.address,
+        erc20.address,
+        plcr.address,
+        parameters,
+        { from: parameterizerOwner }
+      )
+      payOnD = await PayOnDelivery.new(consensus.address, erc20.address, {
+        from: payOnDeliveryOwner
+      })
+    })
     describe(`Submit Request`, () => {
       it(`Should only allow creating withdraw, uint, and bool request types`, async () => {
         await consensus.submitRequest(`0x1`, 0, d1, 1).should.be.fulfilled
@@ -361,11 +360,7 @@ contract(
     describe(`Submitting blocks`, () => {
       it(`should allow creating a block by consensus of at least 4 diviners`, async () => {
         const args = await generateArgs()
-        // args[9] = [29]
-        console.log(`THE ARGS`, args)
         const tx = await consensus.submitBlock(...args)
-        console.log(`THE TX`, tx)
-
         expectEvent.inLogs(tx.logs, `BlockCreated`)
       })
 
