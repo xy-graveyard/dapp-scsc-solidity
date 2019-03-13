@@ -514,5 +514,22 @@ contract(
         await consensus.submitBlock(...args).should.not.be.fulfilled
       })
     })
+    describe(`blockForRequest and supportingDataForRequest`, () => {
+      beforeEach(async () => {
+        const args = await generateArgs()
+        await consensus.submitBlock(...args)
+      })
+      it(`should be able to grab block for request that exists`, async () => {
+        const blockForRequest = await consensus.blockForRequest(`0x1`)
+        blockForRequest.creator.should.be.equal(consensusOwner)
+      })
+      it(`should not be able to grab block for request that exists`, async () => {
+        await consensus.blockForRequest(`0x1adfdf`).should.not.be.fulfilled
+      })
+      it(`should be able to grab block data for request that exists`, async () => {
+        const blockData = await consensus.supportingDataForRequest(`0x1`)
+        blockData.should.be.equal(`0x290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e563`)
+      })
+    })
   }
 )
