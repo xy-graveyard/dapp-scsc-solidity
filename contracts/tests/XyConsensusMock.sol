@@ -14,20 +14,20 @@ contract XyConsensusMock is XyStakingConsensus {
       initialize(_token, _stakableToken, _governance);
       uint activeAmount = 1000;
       for (uint i = 0; i < stakees.length; i++) {
-        uint stakee = uint(stakees[i]);
-        updateCacheOnStake(activeAmount, stakee);
-        updateCacheOnActivate(activeAmount, stakee);
+        updateCacheOnStake(activeAmount, stakees[i]);
+        updateCacheOnActivate(activeAmount, stakees[i]);
       }
 
     }
-    function mock_handleResponses(uint[] memory _requests, bytes memory responses)
+    function mock_handleResponses(bytes32[] memory _requests, bytes memory responses)
         public 
         returns (uint)
     {
       return handleResponses(_requests, responses);
     }
+
     function mock_checkSigsAndStakes(
-        uint messageHash,
+        bytes32 messageHash,
         address[] memory signers,
         bytes32[] memory sigR,
         bytes32[] memory sigS,
@@ -39,10 +39,10 @@ contract XyConsensusMock is XyStakingConsensus {
     {
       checkSigsAndStakes(messageHash, signers, sigR, sigS, sigV);
     }
-    function fake_updateCacheOnStake(uint amount, uint stakee) public {
+    function fake_updateCacheOnStake(uint amount, address stakee) public {
       updateCacheOnStake(amount, stakee);
     }
-    function fake_updateCacheOnActivate(uint amount, uint stakee) public {
+    function fake_updateCacheOnActivate(uint amount, address stakee) public {
       updateCacheOnActivate(amount, stakee);
     }
 }

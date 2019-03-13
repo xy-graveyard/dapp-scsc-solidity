@@ -331,7 +331,7 @@
         "uninitializedBaseContracts": []
       }
     },
-    "XyStakableToken": {
+    "XyBlockProducer": {
       "address": "0xFE3bc5Fd43d655Ef44DDEb5224abA08CB02D90B7",
       "constructorCode": "6080604052620000387f01ffc9a700000000000000000000000000000000000000000000000000000000640100000000620000ba810204565b6200006c7f80ac58cd00000000000000000000000000000000000000000000000000000000640100000000620000ba810204565b620000a07f780e9d6300000000000000000000000000000000000000000000000000000000640100000000620000ba810204565b620000b43364010000000062000127810204565b6200020c565b7fffffffff000000000000000000000000000000000000000000000000000000008082161415620000ea57600080fd5b7fffffffff00000000000000000000000000000000000000000000000000000000166000908152602081905260409020805460ff19166001179055565b62000142603c82640100000000620015ea6200017982021704565b604051600160a060020a038216907fdc5a48d79e2e147530ff63ecdbed5a5a66adb9d5cf339384d5d076da197c40b590600090a250565b600160a060020a03811615156200018f57600080fd5b620001a48282640100000000620001d4810204565b15620001af57600080fd5b600160a060020a0316600090815260209190915260409020805460ff19166001179055565b6000600160a060020a0382161515620001ec57600080fd5b50600160a060020a03166000908152602091909152604090205460ff1690565b611878806200021c6000396000f3fe",
       "bodyBytecodeHash": "17ed0b8e6494847659821331081f85170215fe349353b3460e9747652a4a9567",
@@ -511,24 +511,24 @@
           "src": "113:26:12"
         },
         {
-          "contract": "XyStakableToken",
-          "path": "contracts/XyStakableToken.sol",
+          "contract": "XyBlockProducer",
+          "path": "contracts/XyBlockProducer.sol",
           "label": "governor",
           "astId": 3819,
           "type": "t_address",
           "src": "478:23:9"
         },
         {
-          "contract": "XyStakableToken",
-          "path": "contracts/XyStakableToken.sol",
+          "contract": "XyBlockProducer",
+          "path": "contracts/XyBlockProducer.sol",
           "label": "blockProducers",
           "astId": 3822,
           "type": "t_array:dyn<t_uint256>",
           "src": "593:28:9"
         },
         {
-          "contract": "XyStakableToken",
-          "path": "contracts/XyStakableToken.sol",
+          "contract": "XyBlockProducer",
+          "path": "contracts/XyBlockProducer.sol",
           "label": "blockProducerIndexes",
           "astId": 3826,
           "type": "t_mapping<t_uint256>",

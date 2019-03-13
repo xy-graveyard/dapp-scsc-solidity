@@ -16,7 +16,7 @@ contract XyConsensusMock2 is XyConsensusMock {
    
 
     function submitResponse(
-        uint requestId, 
+        bytes32 requestId, 
         IXyRequester.RequestType requestType, 
         bytes memory responseData,
         address pOnDAddress

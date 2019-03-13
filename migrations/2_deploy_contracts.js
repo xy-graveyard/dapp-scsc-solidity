@@ -2,10 +2,11 @@ const PLCR = artifacts.require(`PLCRVoting.sol`)
 const attrStore = artifacts.require(`AttributeStore.sol`)
 const dll = artifacts.require(`DLL.sol`)
 const XYOERC20 = artifacts.require(`XyERC20Token.sol`)
-const Stakable = artifacts.require(`XyStakableToken.sol`)
+const Stakable = artifacts.require(`XyBlockProducer.sol`)
 const SCSC = artifacts.require(`XyStakingConsensus.sol`)
 const Governance = artifacts.require(`XyGovernance.sol`)
 const PayOnD = artifacts.require(`XyPayOnDelivery.sol`)
+const base58 = require('bs58')
 
 const fs = require(`fs`)
 const config = JSON.parse(fs.readFileSync(`../config/testParams.json`))
@@ -26,18 +27,27 @@ const parameters = [
 ]
 
 const setupBP = async function (stakable, consensus, erc20, bpAddress) {
-  const stakeeTx = await stakable.mint(bpAddress)
-  const stakee = stakeeTx.logs[0].args.tokenId
-  console.log(`New Stakee`, stakee, bpAddress, stakeeTx.logs.args)
-
-  await stakable.enableBlockProducer(stakee, true)
+  const stakeeTx = await stakable.create(bpAddress)
+  console.log(`New Stakee`, bpAddress, stakeeTx.logs.args)
 
   await erc20.approve(consensus.address, 100000, { from: bpAddress })
-  // const stakingTx = await consensus.stake(stakee, 10000)
-  // const stakingId = stakingTx.logs[0].args.stakingId
-  // console.log(`New Staking Id`, stakingId)
+  const stakingTx = await consensus.stake(bpAddress, 10000)
+  const stakingId = stakingTx.logs[0].args.stakingId
+  console.log(`New Staking Id`, stakingId)
 
-  // await consensus.activateStake(stakingId)
+  await consensus.activateStake(stakingId)
+}
+
+const getBytes32FromIpfsHash = (ipfsListing)  => {
+  return "0x" + base58.decode(ipfsListing).slice(2).toString('hex')
+}
+
+const addRequest = async function (pOnD, requesterAddress) {
+  const IpfsHash = "QmZyycMiLogkpoA2C8Nz44KCvFbY6vZBAkYKUBz8hMab7Q"
+  const bytesStr = getBytes32FromIpfsHash(IpfsHash)
+  let tx = await pOnD.requestPayOnDelivery(web3.utils.padLeft(bytesStr, 64), 0, 0, 0, requesterAddress, {from: requesterAddress})
+  console.log("Submitted Request", tx.logs[0].args.requestId)
+  return true
 }
 const printAddress = contracts => contracts.map(contract => console.log(`${contract.contractName}: ${contract.address}`))
 
@@ -91,4 +101,5 @@ module.exports = async function (deployer, network, [contractsOwner]) {
   console.log(`INNITIALIZED WITH PARAMS`, parameters)
   await setupBP(stakableToken, consensus, erc20, contractsOwner)
   printAddress([SCSC, Governance, XYOERC20, PayOnD, Stakable])
+  await addRequest(pOnD, contractsOwner)
 }

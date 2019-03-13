@@ -1,10 +1,10 @@
 pragma solidity >=0.5.0 <0.6.0;
 
-import "../../node_modules/zos-lib/contracts/Initializable.sol";
 import "../token/ERC20/IERC20.sol";
 import "./dll/DLL.sol";
 import "./attrstore/AttributeStore.sol";
 import "../utils/SafeMath.sol";
+import "../utils/Initializable.sol";
 import "../token/ERC20/SafeERC20.sol";
 
 

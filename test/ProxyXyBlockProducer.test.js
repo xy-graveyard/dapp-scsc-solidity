@@ -3,11 +3,11 @@ const { Contracts, ZWeb3 } = require(`zos-lib`)
 
 ZWeb3.initialize(web3.currentProvider)
 
-const stakableToken = Contracts.getFromLocal(`XyStakableToken`)
+const stakableToken = Contracts.getFromLocal(`XyBlockProducer`)
 
 require(`chai`).should()
 
-contract(`XyStakableToken`, () => {
+contract(`XyBlockProducer`, () => {
   let project
   beforeEach(async () => {
     project = await TestHelper()

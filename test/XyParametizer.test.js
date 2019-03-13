@@ -11,7 +11,6 @@ const PayOnDeliveryMock = artifacts.require(`XyPayOnDeliveryMock.sol`)
 const PayOnDelivery = artifacts.require(`XyPayOnDelivery.sol`)
 const StakingConsensus = artifacts.require(`XyConsensusMock2.sol`)
 const ERC20 = artifacts.require(`XyERC20Token.sol`)
-const Stakeable = artifacts.require(`XyStakableAddressMock.sol`)
 const Parameterizer = artifacts.require(`XyParameterizer.sol`)
 const PLCR = artifacts.require(`PLCRVoting.sol`)
 const stripHexPrefix = require(`strip-hex-prefix`)
@@ -63,10 +62,11 @@ contract(
       parameterizer = await Parameterizer.new({
         from: governanceOwner
       })
-      await parameterizer.initialize(governanceResolver,
+      await parameterizer.init(
         erc20.address,
         plcr.address,
-        parameters, { from: governanceOwner })
+        parameters, { from: governanceOwner }
+      )
     })
     describe(`Function: proposeReparameterization`, (accounts) => {
       beforeEach(async () => {

@@ -1,6 +1,6 @@
 pragma solidity >=0.5.0 <0.6.0;
 
-import "../../zos-lib/contracts/Initializable.sol";
+import "./utils/Initializable.sol";
 import "./XyStakingModel.sol";
 import "./IXyRequester.sol";
 
@@ -14,7 +14,7 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
     
     /** EVENTS */
     event RequestSubmitted(
-        uint request,
+        bytes32 request,
         uint xyoBounty,
         uint weiMining,
         address requestSender,
@@ -22,14 +22,14 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
     );
 
     event BlockCreated(
-        uint blockHash,
-        uint previousBlock,
+        bytes32 blockHash,
+        bytes32 previousBlock,
+        bytes32 supportingData,
         uint createdAtBlock,
-        bytes32 payloadHash,
         address blockProducer
     );
 
-    event RewardClaimed(
+    event WithdrawClaimed(
         address beneficiary,
         uint amount,
         uint stakerStake
@@ -37,10 +37,10 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
 
     /** STRUCTS */
     struct Block {
-        uint previousBlock;
-        uint blockHeight;
-        uint createdAt;
+        bytes32 previousBlock;
         bytes32 supportingData;
+        uint stakingBlock;
+        uint createdAt;
         address creator;
     }
 
@@ -48,33 +48,33 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
         uint xyoBounty;
         uint weiMining;
         uint createdAt;
+        uint responseBlockNumber;
         address requestSender;
         IXyRequester.RequestType requestType;
-        bool hasResponse;
     }
 
     // id should be unique (ie ipfs hash) maps to Request data
-    mapping(uint => Request) public requestsById; 
+    mapping(bytes32 => Request) public requestsById; 
 
     // an array of the requests useful for diviner reading
-    uint[] public requestChain;
+    bytes32[] public requestChain;
 
-    mapping(uint => Block) public blocks; //The blocks in the blockChain
-    uint[] public blockChain; // Store the blockChain as an array
+    mapping(bytes32 => Block) public blocks; //The blocks in the blockChain
+    bytes32[] public blockChain; // Store the blockChain as an array
 
     /**
         @param _token - The ERC20 token to stake with 
-        @param _stakableToken - The ERC721 token to place stakes on 
-        @param _governanceContract - The contract that governs the params and actions of the system
+        @param _blockProducerContract - The block producers 
+        @param _governanceContract - The contract that governs the blockProducer and actions of the system
     */
     function initialize(
         address _token,
-        address _stakableToken,
+        address _blockProducerContract,
         address _governanceContract
     )
         initializer public
     {
-        init(_token, _stakableToken, _governanceContract);
+        init(_token, _blockProducerContract, _governanceContract);
     }
 
     /** 
@@ -83,10 +83,10 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
     function getLatestBlock() 
         public 
         view 
-        returns (uint _latest) 
+        returns (bytes32) 
     {
         if (blockChain.length == 0) {
-            return 0;
+            return 0x0;
         }
         return blockChain[blockChain.length-1];
     }
@@ -99,8 +99,8 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
     function _requireFeesAndTransfer(address xyoSender, uint xyoBounty) 
         private 
     {
-        uint weiMiningMin = params.get("xyWeiMiningMin");
-        uint xyoMiningMin = params.get("xyXYORequestBountyMin");
+        uint weiMiningMin = govContract.get("xyWeiMiningMin");
+        uint xyoMiningMin = govContract.get("xyXYORequestBountyMin");
         if (weiMiningMin > 0) {
             require (msg.value >= weiMiningMin, "Not enough wei to cover mining");
         }
@@ -121,9 +121,9 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
     ) 
         public
         payable
-        returns (uint)
+        returns (bytes32)
     {
-        uint requestId = uint(keccak256(abi.encodePacked(msg.sender, xyoBounty, block.number)));
+        bytes32 requestId = keccak256(abi.encodePacked(msg.sender, xyoBounty, block.number));
         submitRequest(requestId, xyoBounty, msg.sender, IXyRequester.RequestType.WITHDRAW);
         return requestId;
     }
@@ -138,7 +138,7 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
     */
     function submitRequest
     (
-        uint request, 
+        bytes32 request, 
         uint xyoBounty,
         address xyoSender, 
         IXyRequester.RequestType requestType
@@ -155,9 +155,9 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
             xyoBounty,
             msg.value, 
             block.number,
+            0,
             msg.sender,
-            requestType,
-            false
+            requestType
         );
 
         requestsById[request] = q;
@@ -204,13 +204,14 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
         @dev Calls Request interface submitResponse function for each answer.
         Use for estimating gas of a request
         @param _requests the requests queried
-        @param responseData the response data of all the requests
+        @param responses the response data of all the requests
         @return The weiMining for submitting the new block
+        Will revert if the request does not exist, or the withdraw request is more htna the staker stake
     */
     function handleResponses
     (
-        uint[] memory _requests, 
-        bytes memory responseData
+        bytes32[] memory _requests, 
+        bytes memory responses
     )
         internal 
         returns (uint)
@@ -218,43 +219,40 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
         uint byteOffset = 0;
         uint weiMining = 0;
         for (uint i = 0; i < _requests.length; i++) {
-          Request storage q = requestsById[_requests[i]];
-          if (!q.hasResponse) {
-            q.hasResponse = true;
-            weiMining = weiMining.add(q.weiMining);
+            Request storage q = requestsById[_requests[i]];
+            require (q.createdAt > 0, "Passed a request that does not exist");
             uint8 numBytes = q.requestType == IXyRequester.RequestType.BOOL ? 1 : 32;
-
+            q.responseBlockNumber = numBlocks() + 1;
+            weiMining = weiMining.add(q.weiMining);
             if (q.requestType == IXyRequester.RequestType.BOOL || q.requestType == IXyRequester.RequestType.UINT) {
                 bytes memory result = new bytes(numBytes);
                 for (uint8 j = 0; j < numBytes; j++) {
-                    result[j] = responseData[byteOffset + j];
+                    result[j] = responses[byteOffset + j];
                 }
                 IXyRequester(q.requestSender).submitResponse(_requests[i], q.requestType, result);
             } else if (q.requestType == IXyRequester.RequestType.WITHDRAW) {
-                uint amount = _toUint(responseData, byteOffset);
+                uint amount = _toUint(responses, byteOffset);
                 require (amount <= totalStakeAndUnstake(q.requestSender), "Withdraw amount more than total staker's stake");
-                emit RewardClaimed(q.requestSender, amount, totalStakeAndUnstake(q.requestSender));
+                emit WithdrawClaimed(q.requestSender, amount, totalStakeAndUnstake(q.requestSender));
                 xyoToken.safeTransfer(q.requestSender, amount);
-            } else {
-                assert(false);
-            }
+            } 
             byteOffset += numBytes;
-          }
         }
+        
         return weiMining;
     }
 
     /** 
         @dev checks a message hash was signed by a list of signers via their sigs
         @param messageHash The hash of the message that was signed
-        @param signers The in-order list of signers of the messgae
+        @param signers The in-order list of signers of the message
         @param sigR R values in signatures
         @param sigS S values in signatures
         @param sigV V values in signatures
     */
     function checkSigsAndStakes
     (
-        uint messageHash,
+        bytes32 messageHash,
         address[] memory signers,
         bytes32[] memory sigR,
         bytes32[] memory sigS,
@@ -263,33 +261,63 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
         view
         internal 
     {
+        bytes32 prefixedHash = prefixed(messageHash);
         address lastStakee = address(0);
         uint stake = 0;
         for (uint i = 0; i < signers.length; i++) {
-            address signer = ecrecover(prefixed(bytes32(messageHash)), sigV[i], sigR[i], sigS[i]);
+            address signer = ecrecover(prefixedHash, sigV[i], sigR[i], sigS[i]);
             require(signers[i] > lastStakee , "Signers array must be ascending");
             lastStakee = signers[i];
-            require(signers[i] == signer, "Invalid Signer");
-            stake = stake.add(stakeeStake[uint(signer)].activeStake);
+            require(signers[i] == signer, "Signature mis-match");
+            stake = stake.add(stakeeStake[lastStakee].activeStake);
         }
         // check sufficient stake by stakees subitted
-        require (stake > totalActiveStake.mul(params.get("xyStakeQuorumPct")).div(100), "Not enough stake");
+        require (stake > totalActiveStake.mul(govContract.get("xyStakeQuorumPct")).div(100), "Not enough stake");
     }
 
-    function _createBlock(uint previousBlock, uint newBlock, bytes32 payloadHash, uint blockHeight) private {
-        Block memory b = Block(previousBlock, blockHeight, block.number, payloadHash, msg.sender);
+    function _createBlock(bytes32 previousBlock, bytes32 newBlock, bytes32 supportingData, uint stakingBlock) private {
+        Block memory b = Block(previousBlock, supportingData, stakingBlock, block.number,  msg.sender);
         blockChain.push(newBlock);
         blocks[newBlock] = b;
-        emit BlockCreated(newBlock, previousBlock, block.number, payloadHash, msg.sender);
+        emit BlockCreated(newBlock, previousBlock, supportingData, block.number, msg.sender);
+    }
+
+    event LogTest(bytes packedBytes, bytes32 newBlockHash, bool wasMatch, address lastSigner, bytes32 prefixedHash, uint stake);
+    function testSubmit
+    (
+        bytes32 previousBlock,
+        uint stakingBlock,
+        bytes32[] memory _requests,
+        bytes32 supportingData,
+        bytes memory responses,
+        address[] memory signers,
+        bytes32[] memory sigR,
+        bytes32[] memory sigS,
+        uint8[] memory sigV
+    )
+        public
+    {
+        bytes memory packedBytes = abi.encodePacked(previousBlock, stakingBlock, _requests, supportingData, responses);
+        bytes32 newBlock = keccak256(packedBytes);
+        bytes32 prefixedHash = prefixed(newBlock);
+        address lastSigner = address(0);
+        uint stake = 0;
+        bool wasMatch = false;
+        for (uint i = 0; i < signers.length; i++) {
+            lastSigner = signers[i];
+            wasMatch = lastSigner == ecrecover(prefixedHash, sigV[i], sigR[i], sigS[i]);
+            stake = stake.add(stakeeStake[lastSigner].activeStake);
+        }
+        emit LogTest(packedBytes, newBlock, wasMatch, lastSigner, prefixedHash, stake);
     }
 
     /**
         Submit a new block to the consensus blockChain. Verifies stake in consensus is over 51% of the network. 
         calls requests' callbacks with responses.  Creates new block and returns weiMining for successful creation.
-        @param blockProducer the id of the stakable diviner in stakable tokens 
         @param previousBlock the prior block to maintain the 
+        @param stakingBlock the block number diviners get staking data for
         @param _requests list of the request ids (minus first 2 bytes)
-        @param payloadData the hash of the supporting block data
+        @param supportingData the hash of the supporting block data
         @param responses byte array of responses
         @param signers Stakees, aka diviners and must be passed in ascending order to check for dups
         @param sigR R values in signatures
@@ -299,11 +327,10 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
     */
     function submitBlock
     (
-        uint blockProducer,
-        uint previousBlock,
+        bytes32 previousBlock,
         uint stakingBlock,
-        uint[] memory _requests,
-        bytes32 payloadData,
+        bytes32[] memory _requests,
+        bytes32 supportingData,
         bytes memory responses,
         address[] memory signers,
         bytes32[] memory sigR,
@@ -311,27 +338,50 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
         uint8[] memory sigV
     ) 
         public 
-        returns (uint)
+        returns (bytes32)
     {
-        require (stakableToken.isBlockProducer(blockProducer), "Only approved BP can submit");
-        require (stakableToken.ownerOf(blockProducer) == msg.sender, "Sender does not own BP");
+        require (blockProducerContract.exists(msg.sender), "Only approved BP can submit");
         require (previousBlock == getLatestBlock(), "Incorrect previous block");
-        bytes memory m = abi.encodePacked(previousBlock, stakingBlock, _requests, payloadData, responses);
-
+        
+        bytes32 newBlock = keccak256(abi.encodePacked(previousBlock, stakingBlock, _requests, supportingData, responses));
         uint weiMining = handleResponses(_requests, responses);
         msg.sender.transfer(weiMining);
 
-        uint newBlock = uint(keccak256(m));
         checkSigsAndStakes(newBlock, signers, sigR, sigS, sigV);
-        _createBlock(previousBlock, newBlock, payloadData, stakingBlock);
+        _createBlock(previousBlock, newBlock, supportingData, stakingBlock);
 
         return newBlock;
     }
 
-    /** Public array length getters */
+    function blockForRequest(bytes32 requestId) 
+        public view 
+        returns (
+            bytes32 previousBlock,
+            bytes32 supportingData,
+            uint stakingBlock,
+            uint createdAt,
+            address creator
+        ) 
+    {
+        Request memory r = requestsById[requestId];
+        require (r.responseBlockNumber > 0, "No Response For Request");
+        bytes32 blockId = blockChain[r.responseBlockNumber.sub(1)];
+        require (blockId != 0, "No block at index");
+        previousBlock = blocks[blockId].previousBlock;
+        supportingData = blocks[blockId].supportingData;
+        stakingBlock = blocks[blockId].stakingBlock;
+        createdAt = blocks[blockId].createdAt;
+        creator = blocks[blockId].creator;
+    }
+
+    function supportingDataForRequest(bytes32 requestId) public view returns (bytes32 supportingData) {
+        (,supportingData,,,) = blockForRequest(requestId);
+    }
+
     function numRequests() public view returns (uint) {
         return requestChain.length;
     }
+    
     function numBlocks() public view returns (uint) {
         return blockChain.length;
     }
