@@ -1,12 +1,12 @@
 const PLCR = artifacts.require(`PLCRVoting.sol`)
 const attrStore = artifacts.require(`AttributeStore.sol`)
 const dll = artifacts.require(`DLL.sol`)
-const XYOERC20 = artifacts.require(`XyERC20Token.sol`)
+const XYOERC20 = artifacts.require(`XyFaucet.sol`)
 const Stakable = artifacts.require(`XyBlockProducer.sol`)
 const SCSC = artifacts.require(`XyStakingConsensus.sol`)
 const Governance = artifacts.require(`XyGovernance.sol`)
 const PayOnD = artifacts.require(`XyPayOnDelivery.sol`)
-const base58 = require('bs58')
+const base58 = require(`bs58`)
 
 const fs = require(`fs`)
 const config = JSON.parse(fs.readFileSync(`../config/testParams.json`))
@@ -26,6 +26,8 @@ const parameters = [
   params.xyProposalsEnabled
 ]
 
+const isMatrixDeploy = true
+
 const setupBP = async function (stakable, consensus, erc20, bpAddress) {
   const stakeeTx = await stakable.create(bpAddress)
   console.log(`New Stakee`, bpAddress, stakeeTx.logs.args)
@@ -38,20 +40,28 @@ const setupBP = async function (stakable, consensus, erc20, bpAddress) {
   await consensus.activateStake(stakingId)
 }
 
-const getBytes32FromIpfsHash = (ipfsListing)  => {
-  return "0x" + base58.decode(ipfsListing).slice(2).toString('hex')
-}
+const getBytes32FromIpfsHash = ipfsListing => `0x${base58
+  .decode(ipfsListing)
+  .slice(2)
+  .toString(`hex`)}`
 
 const addRequest = async function (pOnD, requesterAddress) {
-  const IpfsHash = "QmZyycMiLogkpoA2C8Nz44KCvFbY6vZBAkYKUBz8hMab7Q"
+  const IpfsHash = `QmZyycMiLogkpoA2C8Nz44KCvFbY6vZBAkYKUBz8hMab7Q`
   const bytesStr = getBytes32FromIpfsHash(IpfsHash)
-  let tx = await pOnD.requestPayOnDelivery(web3.utils.padLeft(bytesStr, 64), 0, 0, 0, requesterAddress, {from: requesterAddress})
-  console.log("Submitted Request", tx.logs[0].args.requestId)
+  const tx = await pOnD.requestPayOnDelivery(
+    web3.utils.padLeft(bytesStr, 64),
+    0,
+    0,
+    0,
+    requesterAddress,
+    { from: requesterAddress }
+  )
+  console.log(`Submitted Request`, tx.logs[0].args.requestId)
   return true
 }
 const printAddress = contracts => contracts.map(contract => console.log(`${contract.contractName}: ${contract.address}`))
 
-module.exports = async function (deployer, network, [contractsOwner]) {
+module.exports = async function (deployer, network, [contractsOwner, bp2]) {
   console.log(`I am `, contractsOwner, network)
   await deployer.deploy(dll)
   await deployer.deploy(attrStore)
@@ -60,34 +70,33 @@ module.exports = async function (deployer, network, [contractsOwner]) {
   await deployer.link(dll, PLCR)
 
   const plcrVoting = await deployer.deploy(PLCR)
+  const totalSupply = 10000000000
   const erc20 = await deployer.deploy(
     XYOERC20,
-    100000000 * 1 ** 18,
+    totalSupply,
     `XYO Token`,
     `XYO`,
     {
       from: contractsOwner
     }
   )
+  if (isMatrixDeploy) {
+    await erc20.approve(erc20.address, totalSupply * 1 ** 18, {
+      from: contractsOwner
+    })
+  }
   const gov = await deployer.deploy(Governance)
   const stakableToken = await deployer.deploy(Stakable)
 
-  const consensus = await deployer.deploy(
-    SCSC,
-    {
-      from: contractsOwner
-    }
-  )
+  const consensus = await deployer.deploy(SCSC, {
+    from: contractsOwner
+  })
   const pOnD = await deployer.deploy(PayOnD, {
     from: contractsOwner
   })
   await pOnD.initialize(consensus.address, erc20.address)
   await plcrVoting.initialize(erc20.address)
-  await consensus.initialize(
-    erc20.address,
-    stakableToken.address,
-    gov.address
-  )
+  await consensus.initialize(erc20.address, stakableToken.address, gov.address)
   await gov.initialize(
     consensus.address,
     erc20.address,
@@ -100,6 +109,10 @@ module.exports = async function (deployer, network, [contractsOwner]) {
 
   console.log(`INNITIALIZED WITH PARAMS`, parameters)
   await setupBP(stakableToken, consensus, erc20, contractsOwner)
+  await setupBP(stakableToken, consensus, erc20, bp2)
+  console.log(`Created BPs`, contractsOwner, bp2)
   printAddress([SCSC, Governance, XYOERC20, PayOnD, Stakable])
-  await addRequest(pOnD, contractsOwner)
+  if (!isMatrixDeploy) {
+    await addRequest(pOnD, contractsOwner)
+  }
 }

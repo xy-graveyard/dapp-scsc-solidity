@@ -12,28 +12,7 @@ import "./IXyRequester.sol";
 contract XyStakingConsensus is Initializable, XyStakingModel {
     using SafeMath for uint;
     
-    /** EVENTS */
-    event RequestSubmitted(
-        bytes32 request,
-        uint xyoBounty,
-        uint weiMining,
-        address requestSender,
-        IXyRequester.RequestType requestType
-    );
-
-    event BlockCreated(
-        bytes32 blockHash,
-        bytes32 previousBlock,
-        bytes32 supportingData,
-        uint createdAtBlock,
-        address blockProducer
-    );
-
-    event WithdrawClaimed(
-        address beneficiary,
-        uint amount,
-        uint stakerStake
-    );
+    
 
     /** STRUCTS */
     struct Block {
@@ -50,7 +29,7 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
         uint createdAt;
         uint responseBlockNumber;
         address requestSender;
-        IXyRequester.RequestType requestType;
+        uint8 requestType;
     }
 
     // id should be unique (ie ipfs hash) maps to Request data
@@ -62,6 +41,34 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
     mapping(bytes32 => Block) public blocks; //The blocks in the blockChain
     bytes32[] public blockChain; // Store the blockChain as an array
 
+    /** EVENTS */
+    event RequestSubmitted(
+        bytes32 request,
+        uint xyoBounty,
+        uint weiMining,
+        address requestSender,
+        uint8 requestType
+    );
+
+    event BlockCreated(
+        bytes32 blockHash,
+        bytes32 previousBlock,
+        bytes32 supportingData,
+        uint createdAtBlock,
+        address blockProducer
+    );
+
+    event WithdrawClaimed(
+        address beneficiary,
+        uint amount,
+        uint stakerStake
+    );
+
+    event UnhandledResponse(
+        bytes32 request,
+        uint responseBlock,
+        uint8 responseType
+    );
     /**
         @param _token - The ERC20 token to stake with 
         @param _blockProducerContract - The block producers 
@@ -124,7 +131,7 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
         returns (bytes32)
     {
         bytes32 requestId = keccak256(abi.encodePacked(msg.sender, xyoBounty, block.number));
-        submitRequest(requestId, xyoBounty, msg.sender, IXyRequester.RequestType.WITHDRAW);
+        submitRequest(requestId, xyoBounty, msg.sender, uint8(IXyRequester.RequestType.WITHDRAW));
         return requestId;
     }
 
@@ -141,12 +148,11 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
         bytes32 request, 
         uint xyoBounty,
         address xyoSender, 
-        IXyRequester.RequestType requestType
+        uint8 requestType
     ) 
         public
         payable
     {
-        require (uint8(requestType) >= uint8(IXyRequester.RequestType.BOOL) && uint8(requestType) <= uint8(IXyRequester.RequestType.WITHDRAW), "Invalid request type");
         require (requestsById[request].createdAt == 0, "Duplicate request submitted");
 
         _requireFeesAndTransfer(xyoSender, xyoBounty);
@@ -221,21 +227,23 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
         for (uint i = 0; i < _requests.length; i++) {
             Request storage q = requestsById[_requests[i]];
             require (q.createdAt > 0, "Passed a request that does not exist");
-            uint8 numBytes = q.requestType == IXyRequester.RequestType.BOOL ? 1 : 32;
-            q.responseBlockNumber = numBlocks() + 1;
+            uint numBytes = q.requestType == uint8(IXyRequester.RequestType.BOOL) ? 1 : 32;
+            q.responseBlockNumber = numBlocks().add(1);
             weiMining = weiMining.add(q.weiMining);
-            if (q.requestType == IXyRequester.RequestType.BOOL || q.requestType == IXyRequester.RequestType.UINT) {
+            if (q.requestType == uint8(IXyRequester.RequestType.BOOL) || q.requestType == uint8(IXyRequester.RequestType.UINT)) {
                 bytes memory result = new bytes(numBytes);
-                for (uint8 j = 0; j < numBytes; j++) {
+                for (uint j = 0; j < numBytes; j++) {
                     result[j] = responses[byteOffset + j];
                 }
                 IXyRequester(q.requestSender).submitResponse(_requests[i], q.requestType, result);
-            } else if (q.requestType == IXyRequester.RequestType.WITHDRAW) {
+            } else if (q.requestType == uint8(IXyRequester.RequestType.WITHDRAW)) {
                 uint amount = _toUint(responses, byteOffset);
                 require (amount <= totalStakeAndUnstake(q.requestSender), "Withdraw amount more than total staker's stake");
                 emit WithdrawClaimed(q.requestSender, amount, totalStakeAndUnstake(q.requestSender));
                 xyoToken.safeTransfer(q.requestSender, amount);
-            } 
+            } else {
+                emit UnhandledResponse(_requests[i], q.responseBlockNumber, q.requestType);
+            }
             byteOffset += numBytes;
         }
         
@@ -342,6 +350,7 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
     {
         require (blockProducerContract.exists(msg.sender), "Only approved BP can submit");
         require (previousBlock == getLatestBlock(), "Incorrect previous block");
+        require (_requests.length > 0, "No requests in block");
         
         bytes32 newBlock = keccak256(abi.encodePacked(previousBlock, stakingBlock, _requests, supportingData, responses));
         uint weiMining = handleResponses(_requests, responses);
@@ -364,14 +373,16 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
         ) 
     {
         Request memory r = requestsById[requestId];
-        require (r.responseBlockNumber > 0, "No Response For Request");
-        bytes32 blockId = blockChain[r.responseBlockNumber.sub(1)];
-        require (blockId != 0, "No block at index");
-        previousBlock = blocks[blockId].previousBlock;
-        supportingData = blocks[blockId].supportingData;
-        stakingBlock = blocks[blockId].stakingBlock;
-        createdAt = blocks[blockId].createdAt;
-        creator = blocks[blockId].creator;
+        if (r.responseBlockNumber > 0) {
+            bytes32 blockId = blockChain[r.responseBlockNumber.sub(1)];
+            if (blockId != 0) {
+                previousBlock = blocks[blockId].previousBlock;
+                supportingData = blocks[blockId].supportingData;
+                stakingBlock = blocks[blockId].stakingBlock;
+                createdAt = blocks[blockId].createdAt;
+                creator = blocks[blockId].creator;
+            }
+        }
     }
 
     function supportingDataForRequest(bytes32 requestId) public view returns (bytes32 supportingData) {

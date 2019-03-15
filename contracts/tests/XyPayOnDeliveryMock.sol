@@ -27,7 +27,7 @@ contract XyPayOnDeliveryMock is XyPayOnDelivery {
     {
       require (requestIndex[requestId] == 0, "Duplicate request submitted");
       // remainder of value is stored on this address
-      scsc.submitRequest.value(msg.value.sub(weiPayOnDelivery))(requestId, xyoBounty, msg.sender, IXyRequester.RequestType.UINT);
+      scsc.submitRequest.value(msg.value.sub(weiPayOnDelivery))(requestId, xyoBounty, msg.sender, uint8(IXyRequester.RequestType.UINT));
       if (xyoPayOnDelivery > 0) {
         xyoToken.transferFrom(msg.sender, address(this), xyoPayOnDelivery);
       }
@@ -38,10 +38,10 @@ contract XyPayOnDeliveryMock is XyPayOnDelivery {
       requests.push(q);
     } 
 
-    function submitResponse(bytes32 requestId, IXyRequester.RequestType requestType, bytes memory responseData) public {
-      if (requestType == IXyRequester.RequestType.BOOL) {
-        super.submitResponse(requestId, requestType, responseData);
-      } else if (requestType == IXyRequester.RequestType.UINT) {
+    function submitResponse(bytes32 requestId, uint8 requestType, bytes memory responseData) public {
+      if (requestType == uint8(IXyRequester.RequestType.BOOL)) {
+        super.submitResponse(requestId, uint8(requestType), responseData);
+      } else if (requestType == uint8(IXyRequester.RequestType.UINT)) {
         uint result;
         for (uint i = 0; i < responseData.length; i++) {
             result = result + uint(uint8(responseData[i]))*(2**(8*(responseData.length-(i+1))));

@@ -24,5 +24,5 @@ interface IXyRequester {
         @param requestType Used by scsc to signal what is in the response data
         @param response Response data from scsc
     */
-    function submitResponse(bytes32 requestId, RequestType requestType, bytes calldata response) external;
+    function submitResponse(bytes32 requestId, uint8 requestType, bytes calldata response) external;
 }

@@ -34,6 +34,7 @@ const parameters = [
   params.xyUnstakeCooldown,
   params.xyProposalsEnabled
 ]
+
 contract(
   `XyStakingConsensus`,
   ([
@@ -53,10 +54,7 @@ contract(
     let stakableToken
     let parameterizer
     let plcr
-    const diviners = [
-      consensusOwner,
-      d1, d2, d3, d4
-    ]
+    const diviners = [consensusOwner, d1, d2, d3, d4]
     const numDiviners = diviners.length
     const numRequests = 1
     let payOnD
@@ -261,14 +259,26 @@ contract(
       const hash = `0x${abi
         .soliditySHA3(
           [`bytes32`, `uint`, ...bytes32Arr, `bytes32`, `bytes`],
-          [previous, blockHeight, ...requests, responseDataHash, packedResponses]
+          [
+            previous,
+            blockHeight,
+            ...requests,
+            responseDataHash,
+            packedResponses
+          ]
         )
         .toString(`hex`)}`
 
       const packedBytes = `0x${abi
         .solidityPack(
           [`bytes32`, `uint`, ...bytes32Arr, `bytes32`, `bytes`],
-          [previous, blockHeight, ...requests, responseDataHash, packedResponses]
+          [
+            previous,
+            blockHeight,
+            ...requests,
+            responseDataHash,
+            packedResponses
+          ]
         )
         .toString(`hex`)}`
 
@@ -323,12 +333,12 @@ contract(
       })
     })
     describe(`Submit Request`, () => {
-      it(`Should only allow creating withdraw, uint, and bool request types`, async () => {
+      it(`Should allow creating requests with many request types`, async () => {
         await consensus.submitRequest(`0x1`, 0, d1, 1).should.be.fulfilled
         await consensus.submitRequest(`0x2`, 0, d1, 2).should.be.fulfilled
         await consensus.submitRequest(`0x3`, 0, d1, 3).should.be.fulfilled
-        await consensus.submitRequest(`0x4`, 0, d1, 4).should.not.be.fulfilled
-        await consensus.submitRequest(`0x5`, 0, d1, 0).should.not.be.fulfilled
+        await consensus.submitRequest(`0x4`, 0, d1, 4).should.be.fulfilled
+        await consensus.submitRequest(`0x5`, 0, d1, 0).should.be.fulfilled
       })
       it(`Should not allow duplicate requests`, async () => {
         await consensus.submitRequest(`0x1`, 0, d1, 1).should.be.fulfilled
@@ -344,14 +354,18 @@ contract(
         })
         await erc20.transfer(d1, 500, { from: erc20owner })
         await erc20.approve(consensus.address, 500, { from: d1 })
-        await consensus.submitRequest(`0x1`, 0, d1, 1, { from: d1 }).should.not.be
-          .fulfilled
+        await consensus.submitRequest(`0x1`, 0, d1, 1, { from: d1 }).should.not
+          .be.fulfilled
         await consensus.submitRequest(`0x1`, 0, d1, 1, { from: d1, value: min })
           .should.not.be.fulfilled
-        await consensus.submitRequest(`0x1`, min, d1, 1, { from: d1, value: 99 })
-          .should.not.be.fulfilled
-        await consensus.submitRequest(`0x1`, min, d1, 1, { from: d1, value: min })
-          .should.be.fulfilled
+        await consensus.submitRequest(`0x1`, min, d1, 1, {
+          from: d1,
+          value: 99
+        }).should.not.be.fulfilled
+        await consensus.submitRequest(`0x1`, min, d1, 1, {
+          from: d1,
+          value: min
+        }).should.be.fulfilled
 
         const contractBalance = await erc20.balanceOf(consensus.address)
         contractBalance.toNumber().should.be.equal(min)
@@ -458,7 +472,9 @@ contract(
 
       it(`should fail if signers not passed in order`, async () => {
         const subParams = await generateArgs(true)
-        if (diviners !== diviners.map(d => d.toLowerCase()).sort(compareDiviners)) {
+        if (
+          diviners !== diviners.map(d => d.toLowerCase()).sort(compareDiviners)
+        ) {
           await consensus.mock_checkSigsAndStakes(
             subParams[SubmitArgsEnum.SIGHASH],
             diviners,
@@ -524,11 +540,16 @@ contract(
         blockForRequest.creator.should.be.equal(consensusOwner)
       })
       it(`should not be able to grab block for request that exists`, async () => {
-        await consensus.blockForRequest(`0x1adfdf`).should.not.be.fulfilled
+        const blockForRequest = await consensus.blockForRequest(`0x1adfdf`)
+        blockForRequest.creator.should.be.equal(web3.utils.padLeft(`0x0`, 40))
+        const blockData = await consensus.supportingDataForRequest(`0x1adfdf`)
+        blockData.should.be.equal(web3.utils.padLeft(`0x0`, 64))
       })
       it(`should be able to grab block data for request that exists`, async () => {
         const blockData = await consensus.supportingDataForRequest(`0x1`)
-        blockData.should.be.equal(`0x290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e563`)
+        blockData.should.be.equal(
+          `0x290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e563`
+        )
       })
     })
   }
