@@ -28,16 +28,38 @@ const parameters = [
 
 const isMatrixDeploy = true
 
-const setupBP = async function (stakable, consensus, erc20, bpAddress) {
-  const stakeeTx = await stakable.create(bpAddress)
-  console.log(`New Stakee`, bpAddress, stakeeTx.logs.args)
+const setupBP = async function (
+  stakable,
+  consensus,
+  erc20,
+  bpAddress,
+  ercOwner
+) {
+  const stakeAmt = 10000
+  await stakable.create(bpAddress)
+  console.log(`New BP Stakee`, bpAddress)
 
-  await erc20.approve(consensus.address, 100000, { from: bpAddress })
-  const stakingTx = await consensus.stake(bpAddress, 10000)
+  if (bpAddress !== ercOwner) {
+    await erc20.transfer(bpAddress, stakeAmt, {
+      from: ercOwner
+    })
+  }
+
+  const allowance = await erc20.allowance(bpAddress, consensus.address)
+  const curAllowance = allowance.toNumber()
+  await erc20.approve(consensus.address, curAllowance + stakeAmt, {
+    from: bpAddress
+  })
+  const newAllowance = await erc20.allowance(bpAddress, consensus.address)
+  const newA = newAllowance.toNumber()
+  console.log(`New allowance of consensus`, newA, bpAddress, consensus.address)
+  const stakingTx = await consensus.stake(bpAddress, stakeAmt, {
+    from: bpAddress
+  })
   const stakingId = stakingTx.logs[0].args.stakingId
   console.log(`New Staking Id`, stakingId)
 
-  await consensus.activateStake(stakingId)
+  await consensus.activateStake(stakingId, { from: bpAddress })
 }
 
 const getBytes32FromIpfsHash = ipfsListing => `0x${base58
@@ -108,8 +130,8 @@ module.exports = async function (deployer, network, [contractsOwner, bp2]) {
   )
 
   console.log(`INNITIALIZED WITH PARAMS`, parameters)
-  await setupBP(stakableToken, consensus, erc20, contractsOwner)
-  await setupBP(stakableToken, consensus, erc20, bp2)
+  await setupBP(stakableToken, consensus, erc20, contractsOwner, contractsOwner)
+  await setupBP(stakableToken, consensus, erc20, bp2, contractsOwner)
   console.log(`Created BPs`, contractsOwner, bp2)
   printAddress([SCSC, Governance, XYOERC20, PayOnD, Stakable])
   if (!isMatrixDeploy) {
