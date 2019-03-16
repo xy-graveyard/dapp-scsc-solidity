@@ -13,17 +13,21 @@ const config = JSON.parse(fs.readFileSync(`../config/testParams.json`))
 const params = config.integrationTests
 const parameters = [
   params.pMinDeposit,
-  params.pApplyStageLen,
-  params.pCommitStageLen,
-  params.pRevealStageLen,
+  params.pApplyStageSec,
+  params.pCommitStageSec,
+  params.pRevealStageSec,
   params.pDispensationPct,
+  params.pMinChallenge,
+  params.pVoteSuccessRate,
   params.pVoteQuorum,
-  params.xyStakeQuorumPct,
+  params.pChallengeSuccessPct,
+  params.xyStakeSuccessPct,
   params.xyWeiMiningMin,
   params.xyXYORequestBountyMin,
   params.xyStakeCooldown,
   params.xyUnstakeCooldown,
-  params.xyProposalsEnabled
+  params.xyProposalsEnabled,
+  params.xyBlockProducerRewardPct
 ]
 
 const isMatrixDeploy = true

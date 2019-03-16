@@ -280,7 +280,7 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
             stake = stake.add(stakeeStake[lastStakee].activeStake);
         }
         // check sufficient stake by stakees subitted
-        require (stake > totalActiveStake.mul(govContract.get("xyStakeQuorumPct")).div(100), "Not enough stake");
+        require (stake > totalActiveStake.mul(govContract.get("xyStakeSuccessPct")).div(100), "Not enough stake");
     }
 
     function _createBlock(bytes32 previousBlock, bytes32 newBlock, bytes32 supportingData, uint stakingBlock) private {

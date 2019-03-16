@@ -81,31 +81,38 @@ contract XyParameterizer {
         
         // minimum deposit to propose a reparameterization
         set("pMinDeposit", _parameters[0]);
-
         // period over which reparmeterization proposals wait to be processed
-        set("pApplyStageLen", _parameters[1]);
-        
+        set("pApplyStageSec", _parameters[1]);
         // length of commit period for voting in parameterizer
-        set("pCommitStageLen", _parameters[2]);
-
+        set("pCommitStageSec", _parameters[2]);
         // length of reveal period for voting in parameterizer
-        set("pRevealStageLen", _parameters[3]);
-
+        set("pRevealStageSec", _parameters[3]);
         // percentage of losing party's deposit distributed to winning party in parameterizer
         set("pDispensationPct", _parameters[4]);
-
-        // type of majority out of 100 necessary for proposal success in parameterizer
-        set("pVoteQuorum", _parameters[5]);
-
-        set("xyStakeQuorumPct", _parameters[6]);
-        set("xyWeiMiningMin", _parameters[7]);
-        set("xyXYORequestBountyMin", _parameters[8]);
-        set("xyStakeCooldown", _parameters[9]);
-        set("xyUnstakeCooldown", _parameters[10]);
-        set("xyProposalsEnabled", _parameters[11]);
-
-        set("xyBlockProducerRewardPct", 20); // plock producers get 20 percent of reward based on their stake
-        set("pOwner", uint(msg.sender)); // temporary owner until voted out
+        // min deposit to challenge a param
+        set("pMinChallenge", _parameters[5]);
+        // majority for proposal success in parameterizer
+        set("pVoteSuccessRate", _parameters[6]);
+        // percentage majority for challenge success
+        set("pVoteQuorum", _parameters[7]);
+        // percent vote yes on challenge to pass
+        set("pChallengeSuccessPct", _parameters[8]);
+        // percentage active stake to produce a block
+        set("xyStakeSuccessPct", _parameters[9]);
+        // minimum mining cost for request
+        set("xyWeiMiningMin", _parameters[10]);
+        // minimum bounty cost for request
+        set("xyXYORequestBountyMin", _parameters[11]);
+        // blocks to pass before cooldown stake
+        set("xyStakeCooldown", _parameters[12]);
+        // blocks to pass before cooldown unstake
+        set("xyUnstakeCooldown", _parameters[13]);
+        // enable voting on reparameterization
+        set("xyProposalsEnabled", _parameters[14]);
+        // Block producers get percent of XYO bounty based on their stake
+        set("xyBlockProducerRewardPct", _parameters[15]); 
+        // Temporary owner of the governance contract
+        set("pOwner", uint(msg.sender)); 
     }
 
     // -----------------------
@@ -132,14 +139,14 @@ contract XyParameterizer {
 
         // attach name and value to pollID
         proposals[propID] = ParamProposal({
-            appExpiry: now.add(get("pApplyStageLen")),
+            appExpiry: now.add(get("pApplyStageSec")),
             challengeID: 0,
             deposit: deposit,
             name: _name,
             owner: msg.sender,
-            processBy: now.add(get("pApplyStageLen"))
-                .add(get("pCommitStageLen"))
-                .add(get("pRevealStageLen"))
+            processBy: now.add(get("pApplyStageSec"))
+                .add(get("pCommitStageSec"))
+                .add(get("pRevealStageSec"))
                 .add(stageBlockLen),
             value: _value
         });
@@ -164,9 +171,9 @@ contract XyParameterizer {
 
         //start poll
         uint pollID = voting.startPoll(
-            get("pVoteQuorum"),
-            get("pCommitStageLen"),
-            get("pRevealStageLen")
+            get("pApplyStageSec"),
+            get("pCommitStageSec"),
+            get("pRevealStageSec")
         );
 
         challenges[pollID] = Challenge({
@@ -224,9 +231,9 @@ contract XyParameterizer {
         assert(get("pDispensationPct") <= 100);
 
         // verify that future proposal appExpiry and processBy times will not overflow
-        now.add(get("pApplyStageLen"))
-            .add(get("pCommitStageLen"))
-            .add(get("pRevealStageLen"))
+        now.add(get("pApplyStageSec"))
+            .add(get("pCommitStageSec"))
+            .add(get("pRevealStageSec"))
             .add(stageBlockLen);
 
         delete proposals[_propID];

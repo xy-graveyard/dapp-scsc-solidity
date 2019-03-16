@@ -22,17 +22,21 @@ const params = config.paramDefaults
 
 const parameters = [
   params.pMinDeposit,
-  params.pApplyStageLen,
-  params.pCommitStageLen,
-  params.pRevealStageLen,
+  params.pApplyStageSec,
+  params.pCommitStageSec,
+  params.pRevealStageSec,
   params.pDispensationPct,
+  params.pMinChallenge,
+  params.pVoteSuccessRate,
   params.pVoteQuorum,
-  params.xyStakeQuorumPct,
+  params.pChallengeSuccessPct,
+  params.xyStakeSuccessPct,
   params.xyWeiMiningMin,
   params.xyXYORequestBountyMin,
   params.xyStakeCooldown,
   params.xyUnstakeCooldown,
-  params.xyProposalsEnabled
+  params.xyProposalsEnabled,
+  params.xyBlockProducerRewardPct
 ]
 require(`chai`)
   .use(require(`chai-as-promised`))

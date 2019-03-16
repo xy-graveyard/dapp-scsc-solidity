@@ -22,17 +22,21 @@ const config = JSON.parse(fs.readFileSync(`./config/testParams.json`))
 const params = config.paramDefaults
 const parameters = [
   params.pMinDeposit,
-  params.pApplyStageLen,
-  params.pCommitStageLen,
-  params.pRevealStageLen,
+  params.pApplyStageSec,
+  params.pCommitStageSec,
+  params.pRevealStageSec,
   params.pDispensationPct,
+  params.pMinChallenge,
+  params.pVoteSuccessRate,
   params.pVoteQuorum,
-  params.xyStakeQuorumPct,
+  params.pChallengeSuccessPct,
+  params.xyStakeSuccessPct,
   params.xyWeiMiningMin,
   params.xyXYORequestBountyMin,
   params.xyStakeCooldown,
   params.xyUnstakeCooldown,
-  params.xyProposalsEnabled
+  params.xyProposalsEnabled,
+  params.xyBlockProducerRewardPct
 ]
 
 contract(
@@ -486,7 +490,7 @@ contract(
       })
 
       it(`should fail if quorum not met`, async () => {
-        await parameterizer.ownerSet(`xyStakeQuorumPct`, 66, {
+        await parameterizer.ownerSet(`xyStakeSuccessPct`, 66, {
           from: parameterizerOwner
         })
         await advanceBlock()
