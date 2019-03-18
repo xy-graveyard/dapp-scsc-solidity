@@ -12,8 +12,6 @@ import "./IXyRequester.sol";
 contract XyStakingConsensus is Initializable, XyStakingModel {
     using SafeMath for uint;
     
-    
-
     /** STRUCTS */
     struct Block {
         bytes32 previousBlock;
@@ -113,8 +111,7 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
         }
         if (xyoMiningMin > 0) {
             require (xyoBounty >= xyoMiningMin, "XYO Bounty less than minimum");
-            require (xyoToken.allowance(xyoSender, address(this)) >= xyoMiningMin, "must approve SCSC for XYO mining fee");
-            xyoToken.transferFrom(xyoSender, address(this), xyoMiningMin);
+            SafeERC20.transferFrom(xyoToken, xyoSender, address(this), xyoMiningMin);
         }
     }
 
@@ -240,7 +237,7 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
                 uint amount = _toUint(responses, byteOffset);
                 require (amount <= totalStakeAndUnstake(q.requestSender), "Withdraw amount more than total staker's stake");
                 emit WithdrawClaimed(q.requestSender, amount, totalStakeAndUnstake(q.requestSender));
-                xyoToken.safeTransfer(q.requestSender, amount);
+                SafeERC20.transfer(xyoToken, q.requestSender, amount);
             } else {
                 emit UnhandledResponse(_requests[i], q.responseBlockNumber, q.requestType);
             }

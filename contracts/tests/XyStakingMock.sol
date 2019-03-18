@@ -26,7 +26,8 @@ contract XyStakingMock is XyStakingModel {
             0,              // unstakeBlock
             stakee,         // stakee 
             msg.sender,     // staker
-            true           // isActivated
+            true,          // isActivated
+            false           // is coolded down
         );
       updateCacheOnUnstake(data);
   }

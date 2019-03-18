@@ -29,7 +29,7 @@ contract XyPayOnDeliveryMock is XyPayOnDelivery {
       // remainder of value is stored on this address
       scsc.submitRequest.value(msg.value.sub(weiPayOnDelivery))(requestId, xyoBounty, msg.sender, uint8(IXyRequester.RequestType.UINT));
       if (xyoPayOnDelivery > 0) {
-        xyoToken.transferFrom(msg.sender, address(this), xyoPayOnDelivery);
+        SafeERC20.transferFrom(xyoToken, msg.sender, address(this), xyoPayOnDelivery);
       }
       IPFSRequest memory q = IPFSRequest(
         requestId, weiPayOnDelivery, xyoPayOnDelivery, block.number, 0, beneficiary, msg.sender

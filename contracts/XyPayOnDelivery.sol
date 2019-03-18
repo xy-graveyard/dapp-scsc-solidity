@@ -3,7 +3,6 @@ pragma solidity >=0.5.0 <0.6.0;
 import "./utils/Initializable.sol";
 import "./utils/SafeMath.sol";
 import "./XyStakingConsensus.sol";
-import "./token/ERC20/IERC20.sol";
 import "./IXyRequester.sol";
 import "./token/ERC20/SafeERC20.sol";
 
@@ -13,11 +12,10 @@ import "./token/ERC20/SafeERC20.sol";
  * @dev Will escrow funds until an item is marked as delivered .
  */
 contract XyPayOnDelivery is Initializable, IXyRequester {
-    using SafeERC20 for IERC20;
     using SafeMath for uint;
 
     XyStakingConsensus public scsc;
-    IERC20 public xyoToken;
+    address public xyoToken;
 
     event IntersectResponse(bytes32 requestId, uint weiPayment, uint xyoPayment, address payable beneficiary, bool didIntersect);
     event NewPayOnDeliveryRequest(bytes32 requestId, address requester, uint weiPayment, uint xyoPayment, address payable beneficiary);
@@ -37,7 +35,7 @@ contract XyPayOnDelivery is Initializable, IXyRequester {
         initializer public 
     {
         scsc = XyStakingConsensus(stakingConsensus);
-        xyoToken = IERC20(_xyoToken);
+        xyoToken = _xyoToken;
     }
 
     /**
@@ -65,8 +63,7 @@ contract XyPayOnDelivery is Initializable, IXyRequester {
         scsc.submitRequest.value(miningGas)(requestId, xyoBounty, msg.sender, uint8(IXyRequester.RequestType.BOOL));
         
         if (xyoPayOnDelivery > 0) {
-            require (xyoToken.allowance(msg.sender, address(this)) >= xyoPayOnDelivery, "must approve PonD for XYO Payment");
-            xyoToken.transferFrom(msg.sender, address(this), xyoPayOnDelivery);
+            SafeERC20.transferFrom(xyoToken, msg.sender, address(this), xyoPayOnDelivery);
         }
 
         IPFSRequest memory q = IPFSRequest(
@@ -108,7 +105,7 @@ contract XyPayOnDelivery is Initializable, IXyRequester {
             payee.transfer(q.weiPayment);
         }
         if (q.xyoPayment > 0) {
-            xyoToken.safeTransfer(payee, q.xyoPayment);
+            SafeERC20.transfer(xyoToken, payee, q.xyoPayment);
         }
     }
 

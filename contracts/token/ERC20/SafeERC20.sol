@@ -1,45 +1,57 @@
-pragma solidity >=0.5.0 <0.6.0;
+pragma solidity ^0.5.4;
 
-import "./IERC20.sol";
+interface GeneralERC20 {
+	function transfer(address to, uint256 value) external;
+	function transferFrom(address from, address to, uint256 value) external;
+	function approve(address spender, uint256 value) external;
+	function balanceOf(address spender) external view returns (uint);
+}
 
-
-/**
-* @dev Library to perform safe calls to standard method for ERC20 tokens.
-*
-* Why Transfers: transfer methods could have a return value (bool), throw or revert for insufficient funds or
-* unathorized value.
-*
-* 
-* We use the Solidity call instead of interface methods because in the case of transfer, it will fail
-* for tokens with an implementation without returning a value.
-* Since versions of Solidity 0.4.22 the EVM has a new opcode, called RETURNDATASIZE. 
-* This opcode stores the size of the returned data of an external call. The code checks the size of the return value
-* after an external call and reverts the transaction in case the return data is shorter than expected
-*/
 library SafeERC20 {
-    /**
-    * @dev Transfer token for a specified address
-    * @param _token erc20 The address of the ERC20 contract
-    * @param _to address The address which you want to transfer to
-    * @param _value uint256 the _value of tokens to be transferred
-    * @return bool whether the transfer was successful or not
-    */
-    function safeTransfer(IERC20 _token, address _to, uint256 _value) internal returns (bool) {
-        uint256 prevBalance = _token.balanceOf(address(this));
+	function checkSuccess()
+		private
+		pure
+		returns (bool)
+	{
+		uint256 returnValue = 0;
 
-        if (prevBalance < _value) {
-            // Insufficient funds
-            return false;
-        }
-        (bool success, ) = address(_token).call(
-            abi.encodeWithSignature("transfer(address,uint256)", _to, _value)
-        );
+		assembly {
+			// check number of bytes returned from last function call
+			switch returndatasize
 
-        if (prevBalance - _value != _token.balanceOf(address(this))) {
-            // Transfer failed
-            return false;
-        }
+			// no bytes returned: assume success
+			case 0x0 {
+				returnValue := 1
+			}
 
-        return success;
-    }
+			// 32 bytes returned: check if non-zero
+			case 0x20 {
+				// copy 32 bytes into scratch space
+				returndatacopy(0x0, 0x0, 0x20)
+
+				// load those bytes into returnValue
+				returnValue := mload(0x0)
+			}
+
+			// not sure what was returned: don't mark as success
+			default { }
+		}
+
+		return returnValue != 0;
+	}
+
+	function transfer(address token, address to, uint256 amount) internal {
+		GeneralERC20(token).transfer(to, amount);
+		require(checkSuccess());
+	}
+
+	function transferFrom(address token, address from, address to, uint256 amount) internal {
+		GeneralERC20(token).transferFrom(from, to, amount);
+		require(checkSuccess());
+	}
+
+	function approve(address token, address spender, uint256 amount) internal {
+		GeneralERC20(token).approve(spender, amount);
+		require(checkSuccess());
+	}
 }

@@ -1,17 +1,15 @@
 pragma solidity >=0.5.0 <0.6.0;
 
 import "./XyBlockProducer.sol";
-import "./token/ERC20/IERC20.sol";
 import "./token/ERC20/SafeERC20.sol";
 import "./XyGovernance.sol";
 import "./utils/SafeMath.sol";
 
 contract XyStakingModel {
     using SafeMath for uint;
-    using SafeERC20 for IERC20;
     
     // IERC20 contract for stake denomination
-    IERC20 public xyoToken;
+    address public xyoToken;
 
     // 721 contract that we reference for all things staked
     XyBlockProducer public blockProducerContract;
@@ -23,8 +21,10 @@ contract XyStakingModel {
     uint public unstakeCooldown;
 
 
-    // Track the total active stake in XYO
+    // Active stake is total block producer stake for consensus and voting
     uint public totalActiveStake;
+    // Cooldown stake is total non-block producer stake for voting
+    uint public totalCooldownStake;
 
     // escrow the penalty stake
     uint public penaltyStake;
@@ -37,6 +37,7 @@ contract XyStakingModel {
         address stakee; 
         address staker;
         bool isActivated;
+        bool isCooledDown;
     }
 
     /**
@@ -90,6 +91,7 @@ contract XyStakingModel {
     struct StakeAmounts {
         uint totalStake;
         uint activeStake;
+        uint cooldownStake;
         uint totalUnstake;
     }
 
@@ -108,7 +110,7 @@ contract XyStakingModel {
     )
         internal
     {
-        xyoToken = IERC20(_token);
+        xyoToken = _token;
         blockProducerContract = XyBlockProducer(_blockProducers);
         govContract = XyGovernance(_governanceContract);
     }
@@ -122,6 +124,11 @@ contract XyStakingModel {
         stakeeStake[stakee].activeStake = stakeeStake[stakee].activeStake.add(amount);
         stakerStake[msg.sender].activeStake = stakerStake[msg.sender].activeStake.add(amount);
         totalActiveStake = totalActiveStake.add(amount);
+    }
+    function updateCacheOnCoolDown(uint amount, address stakee) internal {
+        stakeeStake[stakee].cooldownStake = stakeeStake[stakee].cooldownStake.add(amount);
+        stakerStake[msg.sender].cooldownStake = stakerStake[msg.sender].cooldownStake.add(amount);
+        totalCooldownStake = totalCooldownStake.add(amount);
     }
     function updateCacheOnUnstake(Stake memory data) internal {
         reduceStake(data, data.amount);
@@ -140,6 +147,11 @@ contract XyStakingModel {
             stakeeStake[data.stakee].activeStake = stakeeStake[data.stakee].activeStake.sub(quantity);
             stakerStake[data.staker].activeStake = stakerStake[data.staker].activeStake.sub(quantity);
             totalActiveStake = totalActiveStake.sub(quantity);
+        }
+        if (data.isCooledDown) {
+            stakeeStake[data.stakee].cooldownStake = stakeeStake[data.stakee].cooldownStake.sub(quantity);
+            stakerStake[data.staker].cooldownStake = stakerStake[data.staker].cooldownStake.sub(quantity);
+            totalCooldownStake = totalCooldownStake.sub(quantity);
         }
     }
 
@@ -211,8 +223,9 @@ contract XyStakingModel {
             block.number,   // stakeBlock
             0,              // unstakeBlock
             stakee,         // stakee 
-            msg.sender,
-            false           // isActivated
+            msg.sender,     // staker
+            false,          // isActivated
+            false           // isCooledDown
         );
 
         // Store the staking data
@@ -223,29 +236,52 @@ contract XyStakingModel {
         stakeData[newToken] = data;
 
         // Escrow the ERC20
-        xyoToken.transferFrom(msg.sender, address(this), amount);
+        SafeERC20.transferFrom(xyoToken, msg.sender, address(this), amount);
 
         emit Staked(newToken, msg.sender, stakee, amount);
         return newToken;
     }
     
+    function _requireStakeCooledDown(bytes32 stakingId)
+        private view
+        returns (Stake storage)
+    {
+        Stake storage data = stakeData[stakingId];
+        require(data.staker == msg.sender, "Only the staker can activate");
+        require(data.stakeBlock + govContract.get("xyStakeCooldown") < block.number, "Not ready to activate stake yet");
+        require(data.unstakeBlock == 0, "Cannot activate unstake");
+
+        return data;
+    }
+
+    /**
+        @dev Mark stake as cooled down so we can cache totals for voting
+        @param stakingId - the tokenId of the staking token
+    */
+    function cooldownStake(bytes32 stakingId) 
+        whenActive
+        public
+    {
+        Stake storage data = _requireStakeCooledDown(stakingId);
+        require(data.isCooledDown == false, "cannot re-cooldown stake");
+        require(blockProducerContract.exists(data.stakee) == false, "Only non BPs can be cooled down");
+        data.isCooledDown = true;
+        updateCacheOnCoolDown(data.amount, data.stakee);
+        emit ActivatedStake(stakingId, msg.sender, data.stakee, data.amount);
+    }
+
     /**
         @dev Activate stake on a block producer
         @param stakingId - the tokenId of the staking token
-     */
+    */
     function activateStake(bytes32 stakingId) 
         whenActive
         public 
     {
-
-        Stake storage data = stakeData[stakingId];
-        require(data.staker == msg.sender, "Only the staker can activate");
+        Stake storage data = _requireStakeCooledDown(stakingId);
         require(data.isActivated == false, "cannot re-activate stake");
-        require(blockProducerContract.exists(data.stakee) == true, "Only block producers have active stake");
-        require(data.unstakeBlock == 0, "Cannot activate unstake");
-
+        require(blockProducerContract.exists(data.stakee) == true, "Only BPs can be activated");
         data.isActivated = true;
-        require(data.stakeBlock + govContract.get("xyStakeCooldown") < block.number, "Not ready to activate stake yet");
         updateCacheOnActivate(data.amount, data.stakee);
         emit ActivatedStake(stakingId, msg.sender, data.stakee, data.amount);
     }
@@ -264,6 +300,7 @@ contract XyStakingModel {
         require(data.unstakeBlock == 0, "Cannot re-unstake");
         updateCacheOnUnstake(data);
         data.isActivated = false;
+        data.isCooledDown = false;
         data.unstakeBlock = block.number;
         emit Unstaked(stakingId, data.staker, data.stakee, data.amount);
     }
@@ -327,7 +364,7 @@ contract XyStakingModel {
         removeStakeeData(stakingId);
         removeStakerData(stakingId);
         updateCacheOnWithdraw(data.amount, data.stakee);
-        xyoToken.safeTransfer(msg.sender, data.amount);
+        SafeERC20.transfer(xyoToken, msg.sender, data.amount);
         emit Withdrawl(msg.sender, data.amount);
     }
 
@@ -362,7 +399,7 @@ contract XyStakingModel {
         }
 
         if (withdrawAmt > 0) {
-            xyoToken.safeTransfer(msg.sender, withdrawAmt);
+            SafeERC20.transfer(xyoToken, msg.sender, withdrawAmt);
             emit Withdrawl(msg.sender, withdrawAmt);
         }
     }

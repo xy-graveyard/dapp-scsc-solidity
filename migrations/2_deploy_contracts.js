@@ -17,7 +17,6 @@ const parameters = [
   params.pCommitStageSec,
   params.pRevealStageSec,
   params.pDispensationPct,
-  params.pMinChallenge,
   params.pVoteSuccessRate,
   params.pVoteQuorum,
   params.pChallengeSuccessPct,
