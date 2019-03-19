@@ -288,7 +288,7 @@ contract(
           })
           const tx = await createStake(staker1, stakee2, stakeAmt).should.be
             .fulfilled
-          await expectEvent.inLogs(tx.logs, `Staked`)
+          await expectEvent.inLogs(tx.logs, `StakeEvent`)
           const curBlock = await web3.eth.getBlockNumber()
           const stakeData = await staking.stakeData(newToken)
           const {
@@ -348,7 +348,7 @@ contract(
             .should.be.fulfilled
           await stakeCompare(stakeeStake(stakee3), [stakeAmt, stakeAmt, 0, 0])
           await stakeCompare(stakerStake(staker1), [stakeAmt, stakeAmt, 0, 0])
-          await expectEvent.inLogs(tx.logs, `ActivatedStake`)
+          await expectEvent.inLogs(tx.logs, `StakeEvent`)
         })
       })
       describe(`Unstaking and withdrawing`, async () => {
@@ -399,7 +399,7 @@ contract(
             await advanceToBlock(blockNumber + cooldownNumBlocks)
             const tx = await staking.unstake(stakingToken, { from: staker1 })
               .should.be.fulfilled
-            await expectEvent.inLogs(tx.logs, `Unstaked`)
+            await expectEvent.inLogs(tx.logs, `StakeEvent`)
           })
           it(`should update stake datas`, async () => {
             const blockNumber = await web3.eth.getBlockNumber()

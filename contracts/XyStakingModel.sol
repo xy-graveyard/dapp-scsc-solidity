@@ -6,27 +6,31 @@ import "./XyGovernance.sol";
 import "./utils/SafeMath.sol";
 
 contract XyStakingModel is IXyVotingData {
-    using SafeMath for uint;
-    
-    // IERC20 contract for stake denomination
-    address public xyoToken;
 
+    using SafeMath for uint;
+    // SafeERC20 wrapped token contract for stake denomination
+    address public xyoToken;
     // 721 contract that we reference for all things staked
     XyBlockProducer public blockProducerContract;
-
+    // Contract that governs parameters and actions that affect staking
     XyGovernance public govContract;
-
-    // Number of cooldown blocks to allow time to challenge staked false answers
-    uint public stakeCooldown;
-    uint public unstakeCooldown;
-
     // Active stake is total block producer stake for consensus and voting
     uint public totalActiveStake;
     // Cooldown stake is total non-block producer stake for voting
     uint public totalCooldownStake;
-
-    // escrow the penalty stake
+    // The stake taken from holders due to penalizing actions
     uint public penaltyStake;
+    // Mapping from staking model id to stake metadata     
+    mapping (bytes32 => Stake) public stakeData;
+    // The staking token id arrays by staker/stakee
+    mapping (address => bytes32[]) public stakeeToStakingIds;
+    mapping (address => bytes32[]) public stakerToStakingIds;
+    // holds staking token index into staking arrays by staker/stakee
+    mapping (bytes32 => uint) public stakingStakeeIndex;
+    mapping (bytes32 => uint) public stakingStakerIndex;
+    // Cached total stake amounts by staker/stakee
+    mapping (address => StakeAmounts) public stakeeStake;
+    mapping (address => StakeAmounts) public stakerStake;
 
     // Stake data associated with all staking tokens
     struct Stake {
@@ -37,7 +41,26 @@ contract XyStakingModel is IXyVotingData {
         address staker;
         bool isActivated;
         bool isCooledDown;
+    } 
+
+    // Cached Total/Active stake amounts
+    struct StakeAmounts {
+        uint totalStake;
+        uint activeStake;
+        uint cooldownStake;
+        uint totalUnstake;
     }
+    
+    /** EVENTS */
+    enum StakeTransition { STAKED, ACTIVATED, COOLED, UNSTAKED, WITHDREW }
+    
+    event StakeEvent(
+        bytes32 stakingId,
+        uint amount,
+        address staker,
+        address stakee,
+        StakeTransition transition
+    );
 
     /**
     * @dev Throws if called by any account other than the owner.
@@ -46,56 +69,6 @@ contract XyStakingModel is IXyVotingData {
         require(govContract.get("xyPaused") == 0, "Staking is Paused");
         _;
     }
-
-    // Mapping from staking model id to stake metadata     
-    mapping (bytes32 => Stake) public stakeData;
-
-    // The staking token ids associated with stakable tokens
-    mapping (address => bytes32[]) public stakeeToStakingIds;
-    mapping (address => bytes32[]) public stakerToStakingIds;
-
-    // holds staking id to index in the stakeeToStakingIds array
-    mapping (bytes32 => uint) public stakingStakeeIndex;
-    mapping (bytes32 => uint) public stakingStakerIndex;
-
-    
-    /** EVENTS */
-    event Staked(
-        bytes32 stakingId,
-        address staker,
-        address stakee,
-        uint amount
-    );
-
-    event ActivatedStake(
-        bytes32 stakingId,
-        address staker,
-        address stakee,
-        uint amount
-    );
-
-    event Unstaked(
-        bytes32 stakingId,
-        address staker,
-        address stakee,
-        uint amount
-    );
-
-    event Withdrawl(
-        address staker,
-        uint amount
-    );
-
-    // Total/Active amounts staked by stakee and staker 
-    struct StakeAmounts {
-        uint totalStake;
-        uint activeStake;
-        uint cooldownStake;
-        uint totalUnstake;
-    }
-
-    mapping (address => StakeAmounts) public stakeeStake;
-    mapping (address => StakeAmounts) public stakerStake;
 
     /** Creates a Staking token contract 
         @param _token - The ERC20 token to stake with 
@@ -237,7 +210,7 @@ contract XyStakingModel is IXyVotingData {
         // Escrow the ERC20
         SafeERC20.transferFrom(xyoToken, msg.sender, address(this), amount);
 
-        emit Staked(newToken, msg.sender, stakee, amount);
+        emit StakeEvent(newToken, amount, msg.sender, stakee, StakeTransition.STAKED);
         return newToken;
     }
     
@@ -266,7 +239,7 @@ contract XyStakingModel is IXyVotingData {
         require(blockProducerContract.exists(data.stakee) == false, "Only non BPs can be cooled down");
         data.isCooledDown = true;
         updateCacheOnCoolDown(data.amount, data.stakee);
-        emit ActivatedStake(stakingId, msg.sender, data.stakee, data.amount);
+        emit StakeEvent(stakingId, data.amount, msg.sender, data.stakee, StakeTransition.COOLED);
     }
 
     /**
@@ -282,7 +255,7 @@ contract XyStakingModel is IXyVotingData {
         require(blockProducerContract.exists(data.stakee) == true, "Only BPs can be activated");
         data.isActivated = true;
         updateCacheOnActivate(data.amount, data.stakee);
-        emit ActivatedStake(stakingId, msg.sender, data.stakee, data.amount);
+        emit StakeEvent(stakingId, data.amount, msg.sender, data.stakee, StakeTransition.ACTIVATED);
     }
 
     /** 
@@ -301,7 +274,7 @@ contract XyStakingModel is IXyVotingData {
         data.isActivated = false;
         data.isCooledDown = false;
         data.unstakeBlock = block.number;
-        emit Unstaked(stakingId, data.staker, data.stakee, data.amount);
+        emit StakeEvent(stakingId, data.amount, data.staker, data.stakee, StakeTransition.UNSTAKED);
     }
 
     /** 
@@ -360,11 +333,11 @@ contract XyStakingModel is IXyVotingData {
         require(govContract.hasUnresolvedAction(data.stakee) == false, "All actions on stakee must be resolved");
         require(data.staker == msg.sender, "Only owner can withdraw");
         require(data.unstakeBlock > 0 && (data.unstakeBlock + govContract.get("xyUnstakeCooldown")) < block.number, "Not ready for withdraw");
+        emit StakeEvent(stakingId, data.amount, data.staker, data.stakee, StakeTransition.WITHDREW);
         removeStakeeData(stakingId);
         removeStakerData(stakingId);
         updateCacheOnWithdraw(data.amount, data.stakee);
         SafeERC20.transfer(xyoToken, msg.sender, data.amount);
-        emit Withdrawl(msg.sender, data.amount);
     }
 
     /** 
@@ -395,11 +368,11 @@ contract XyStakingModel is IXyVotingData {
             Stake memory data = stakeData[removeArr[b]];
             withdrawAmt += data.amount;
             updateCacheOnWithdraw(data.amount, data.stakee);
+            emit StakeEvent(removeArr[b], data.amount, data.staker, data.stakee, StakeTransition.WITHDREW);
         }
 
         if (withdrawAmt > 0) {
             SafeERC20.transfer(xyoToken, msg.sender, withdrawAmt);
-            emit Withdrawl(msg.sender, withdrawAmt);
         }
     }
 
