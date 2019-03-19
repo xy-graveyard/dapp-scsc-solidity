@@ -62,6 +62,7 @@ contract XyParameterizer {
     PLCRVoting public voting;
     uint public stageBlockLen; // 7 days
     uint public totalVotingStake;
+    address public governorAddress;
 
     /**
     @dev Initializer        Can only be called once
@@ -70,6 +71,7 @@ contract XyParameterizer {
     @notice _parameters     array of canonical parameters
     */
     function init(
+        address _governorAddress,
         address _token,
         address _plcr,
         uint[] memory _parameters
@@ -80,7 +82,8 @@ contract XyParameterizer {
         stageBlockLen = 40320;
         token = _token;
         voting = PLCRVoting(_plcr);
-        
+        governorAddress = _governorAddress;
+
         // minimum deposit to propose a reparameterization
         set("pMinDeposit", _parameters[0]);
         // period over which reparmeterization proposals wait to be processed
@@ -96,26 +99,25 @@ contract XyParameterizer {
         // percentage stake present for challenge success
         set("pVoteQuorum", _parameters[6]);
         // percentage active stake to produce a block
-        set("xyStakeSuccessPct", _parameters[8]);
+        set("xyStakeSuccessPct", _parameters[7]);
         // minimum mining cost for request
-        set("xyWeiMiningMin", _parameters[9]);
+        set("xyWeiMiningMin", _parameters[8]);
         // minimum bounty cost for request
-        set("xyXYORequestBountyMin", _parameters[10]);
+        set("xyXYORequestBountyMin", _parameters[9]);
         // blocks to pass before cooldown stake
-        set("xyStakeCooldown", _parameters[11]);
+        set("xyStakeCooldown", _parameters[10]);
         // blocks to pass before cooldown unstake
-        set("xyUnstakeCooldown", _parameters[12]);
+        set("xyUnstakeCooldown", _parameters[11]);
         // enable voting on reparameterization
-        set("xyProposalsEnabled", _parameters[13]);
+        set("xyProposalsEnabled", _parameters[12]);
         // Block producers get percent of XYO bounty based on their stake
-        set("xyBlockProducerRewardPct", _parameters[14]); 
+        set("xyBlockProducerRewardPct", _parameters[13]); 
         // Temporary owner of the governance contract
-        set("pStakeSetter", uint(msg.sender)); 
         set("pOwner", uint(msg.sender)); 
     }
 
     function setTotalVotingStake(uint newTotal) public {
-        require (msg.sender == address(get('pStakeSetter')), "Only stake setter can change");
+        require (msg.sender == governorAddress, "Only governor can set");
         totalVotingStake = newTotal;
     }
 

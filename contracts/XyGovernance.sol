@@ -11,7 +11,6 @@ import "./XyParameterizer.sol";
 contract XyGovernance is Initializable, XyParameterizer {
     using SafeMath for uint;
 
-    address public resolverAddress;
 
     event NewActionAccepted(bytes32 indexed propId, ActionType actionType);
     event ActionResolved(bytes32 indexed propId, address stakee, ActionType actionType);
@@ -34,13 +33,12 @@ contract XyGovernance is Initializable, XyParameterizer {
     bool ownershipRenounced;
 
     function initialize (
-        address _resolverAddress,
+        address _governorAddress,
         address _xyERC20,
         address _plcr,
         uint[] memory _parameters
     ) initializer public {
-        resolverAddress = _resolverAddress;
-        init(_xyERC20, _plcr, _parameters);
+        init(_governorAddress, _xyERC20, _plcr, _parameters);
     }
     
     /** 
@@ -92,7 +90,7 @@ contract XyGovernance is Initializable, XyParameterizer {
         Can only be called by resolver after resolution is complete 
     */
     function resolveAction(address stakee) public {
-        require (msg.sender == resolverAddress);
+        require (msg.sender == governorAddress, "Only governor can resolve");
         GovernanceAction storage action = actions[stakee];
         require(action.accepted, "cannot resolve an unaccepted action");
         resolutions[stakee].push(action);
