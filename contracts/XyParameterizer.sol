@@ -118,9 +118,13 @@ contract XyParameterizer {
         set("pOwner", uint(msg.sender)); 
     }
 
-    function _constrainParam(string memory _name, string memory _check, uint _value, uint _constraint) private pure {
+    function _constrainParam(string memory _name, string memory _check, uint _value, uint _constraint, bool lte) private pure {
         if (keccak256(abi.encodePacked(_name)) == keccak256(abi.encodePacked(_check))) {
-            require(_value <= _constraint);
+            if (lte) {
+                require(_value <= _constraint); 
+            } else {
+                require(_value > _constraint);
+            }
         }
     }
 
@@ -139,8 +143,11 @@ contract XyParameterizer {
         uint deposit = get("pMinDeposit");
         bytes32 propID = keccak256(abi.encodePacked(_name, _value));
 
-        _constrainParam("pDispensationPct", _name, _value, 100);
-        _constrainParam("xyBlockProducerRewardPct", _name, _value, 50);
+        _constrainParam("pDispensationPct", _name, _value, 100, true);
+        _constrainParam("xyBlockProducerRewardPct", _name, _value, 50, true);
+        // Min of two days is approx 11520 blocks
+        _constrainParam("xyStakeCooldown", _name, _value, 11520, false);
+        _constrainParam("xyUnstakeCooldown", _name, _value, 11520, false);
 
         if (keccak256(abi.encodePacked(_name)) == keccak256(abi.encodePacked("pDispensationPct"))) {
             require(_value <= 100);
