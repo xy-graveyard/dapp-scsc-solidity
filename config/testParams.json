@@ -1,32 +1,35 @@
 {
   "paramDefaults": {
-    "pMinDeposit": "0",
-    "pApplyStageLen": 1200,
-    "pCommitStageLen": 1200,
-    "pRevealStageLen": 1200,
-    "pRevealStageLength": 1200,
+    "pMinDeposit": 0,
+    "pApplyStageSec": 1200,
+    "pCommitStageSec": 1200,
+    "pRevealStageSec": 1200,
     "pDispensationPct": 50,
-    "pVoteQuorum": 50,
-    "xyStakeQuorumPct": 66,
-    "xyWeiMiningMin": "0",
-    "xyXYORequestBountyMin": "0",
-    "xyStakeCooldown": 200,
-    "xyUnstakeCooldown": 300,
-    "xyProposalsEnabled": 1
+    "pVoteSuccessRate": 25,
+    "pVoteQuorum": 66,
+    "xyStakeSuccessPct": 66,
+    "xyWeiMiningMin": 0,
+    "xyXYORequestBountyMin": 0,
+    "xyStakeCooldown": 100,
+    "xyUnstakeCooldown": 100,
+    "xyProposalsEnabled": 1,
+    "xyBlockProducerRewardPct": 20
   },
   "integrationTests": {
-    "pMinDeposit": "0",
-    "pApplyStageLen": 1200,
-    "pCommitStageLen": 1200,
-    "pRevealStageLen": 1200,
-    "pRevealStageLength": 1200,
+    "pMinDeposit": 0,
+    "pApplyStageSec": 1200,
+    "pCommitStageSec": 1200,
+    "pRevealStageSec": 1200,
     "pDispensationPct": 50,
-    "pVoteQuorum": 50,
-    "xyStakeQuorumPct": 25,
-    "xyWeiMiningMin": "0",
-    "xyXYORequestBountyMin": "0",
+    "pVoteSuccessRate": 25,
+    "pVoteQuorum": 66,
+    "xyStakeSuccessPct": 66,
+    "xyWeiMiningMin": 0,
+    "xyXYORequestBountyMin": 0,
     "xyStakeCooldown": 0,
     "xyUnstakeCooldown": 0,
-    "xyProposalsEnabled": 1
+    "xyProposalsEnabled": 1,
+    "xyBlockProducerRewardPct": 20
   }
+
 }

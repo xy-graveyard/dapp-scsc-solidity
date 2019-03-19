@@ -1,20 +1,17 @@
 pragma solidity >=0.5.0 <0.6.0;
 
-import "../token/ERC20/IERC20.sol";
 import "./dll/DLL.sol";
 import "./attrstore/AttributeStore.sol";
 import "../utils/SafeMath.sol";
 import "../utils/Initializable.sol";
 import "../token/ERC20/SafeERC20.sol";
-
-
+import "../token/ERC20/IERC20.sol";
 
 /**
 @title Partial-Lock-Commit-Reveal Voting scheme with ERC20 tokens
 @author Team: Aspyn Palatnick, Cem Ozer, Yorke Rhodes
 */
 contract PLCRVoting is Initializable {
-    using SafeERC20 for IERC20;
 
     // ============
     // EVENTS:
@@ -59,7 +56,7 @@ contract PLCRVoting is Initializable {
     mapping(address => DLL.Data) dllMap;
     AttributeStore.Data store;
 
-    IERC20 public token;
+    address public token;
 
     /**
     @dev Initializer. Can only be called once.
@@ -67,7 +64,7 @@ contract PLCRVoting is Initializable {
     */
     function initialize(address _token) initializer public {
         // require(_token != address(0) && address(token) == address(0));
-        token = IERC20(_token);
+        token = _token;
         pollNonce = INITIAL_POLL_NONCE;
     }
 
@@ -81,9 +78,9 @@ contract PLCRVoting is Initializable {
     @param _numTokens The number of votingTokens desired in exchange for ERC20 tokens
     */
     function requestVotingRights(uint _numTokens) public {
-        require(token.balanceOf(msg.sender) >= _numTokens);
+        require(IERC20(token).balanceOf(msg.sender) >= _numTokens, "Not enough balance");
         voteTokenBalance[msg.sender] += _numTokens;
-        require(token.transferFrom(msg.sender,  address(this), _numTokens));
+        SafeERC20.transferFrom(token, msg.sender,  address(this), _numTokens);
         emit _VotingRightsGranted(_numTokens, msg.sender);
     }
 
@@ -95,7 +92,7 @@ contract PLCRVoting is Initializable {
         uint availableTokens = voteTokenBalance[msg.sender].sub(getLockedTokens(msg.sender));
         require(availableTokens >= _numTokens);
         voteTokenBalance[msg.sender] -= _numTokens;
-        require(token.transfer(msg.sender, _numTokens));
+        SafeERC20.transfer(token, msg.sender, _numTokens);
         emit _VotingRightsWithdrawn(_numTokens, msg.sender);
     }
 
@@ -302,7 +299,7 @@ contract PLCRVoting is Initializable {
     @param _pollID Integer identifier associated with target poll
     */
     function isPassed(uint _pollID) view public returns (bool passed) {
-        require(pollEnded(_pollID));
+        require(pollEnded(_pollID), "Poll still open");
 
         Poll memory poll = pollMap[_pollID];
         return (100 * poll.votesFor) > (poll.voteQuorum * (poll.votesFor + poll.votesAgainst));
@@ -318,7 +315,7 @@ contract PLCRVoting is Initializable {
     @return Total number of votes committed to the winning option for specified poll
     */
     function getTotalNumberOfTokensForWinningOption(uint _pollID) view public returns (uint numTokens) {
-        require(pollEnded(_pollID));
+        require(pollEnded(_pollID), "Poll still open");
 
         if (isPassed(_pollID))
             return pollMap[_pollID].votesFor;
@@ -326,6 +323,11 @@ contract PLCRVoting is Initializable {
             return pollMap[_pollID].votesAgainst;
     }
 
+    function getTotalVotes(uint _pollID) view public returns (uint numTokens) {
+        require(pollEnded(_pollID), "Poll still open");
+
+        return pollMap[_pollID].votesFor + pollMap[_pollID].votesAgainst;
+    }
     /**
     @notice Determines if poll is over
     @dev Checks isExpired for specified poll's revealEndDate

@@ -1,8 +1,12 @@
 pragma solidity ^0.5.0;
 
 import "./PLCR/PLCRVoting.sol";
-import "./token/ERC20/IERC20.sol";
+import "./token/ERC20/SafeERC20.sol";
 import "./utils/SafeMath.sol";
+
+interface IXyVotingData {
+    function totalVotingStake() external view returns (uint);
+}
 
 contract XyParameterizer {
 
@@ -57,9 +61,10 @@ contract XyParameterizer {
     mapping(bytes32 => ParamProposal) public proposals;
 
     // Global Variables
-    IERC20 public token;
+    address public token;
     PLCRVoting public voting;
     uint public stageBlockLen; // 7 days
+    address public governorAddress;
 
     /**
     @dev Initializer        Can only be called once
@@ -68,6 +73,7 @@ contract XyParameterizer {
     @notice _parameters     array of canonical parameters
     */
     function init(
+        address _governorAddress,
         address _token,
         address _plcr,
         uint[] memory _parameters
@@ -76,36 +82,50 @@ contract XyParameterizer {
         // require(_plcr != address(0) && address(voting) == address(0));
 
         stageBlockLen = 40320;
-        token = IERC20(_token);
+        token = _token;
         voting = PLCRVoting(_plcr);
-        
+        governorAddress = _governorAddress;
+
         // minimum deposit to propose a reparameterization
         set("pMinDeposit", _parameters[0]);
-
         // period over which reparmeterization proposals wait to be processed
-        set("pApplyStageLen", _parameters[1]);
-        
+        set("pApplyStageSec", _parameters[1]);
         // length of commit period for voting in parameterizer
-        set("pCommitStageLen", _parameters[2]);
-
+        set("pCommitStageSec", _parameters[2]);
         // length of reveal period for voting in parameterizer
-        set("pRevealStageLen", _parameters[3]);
-
+        set("pRevealStageSec", _parameters[3]);
         // percentage of losing party's deposit distributed to winning party in parameterizer
         set("pDispensationPct", _parameters[4]);
+        // majority for proposal success in parameterizer
+        set("pVoteSuccessRate", _parameters[5]);
+        // percentage stake present for challenge success
+        set("pVoteQuorum", _parameters[6]);
+        // percentage active stake to produce a block
+        set("xyStakeSuccessPct", _parameters[7]);
+        // minimum mining cost for request
+        set("xyWeiMiningMin", _parameters[8]);
+        // minimum bounty cost for request
+        set("xyXYORequestBountyMin", _parameters[9]);
+        // blocks to pass before cooldown stake
+        set("xyStakeCooldown", _parameters[10]);
+        // blocks to pass before cooldown unstake
+        set("xyUnstakeCooldown", _parameters[11]);
+        // enable voting on reparameterization
+        set("xyProposalsEnabled", _parameters[12]);
+        // Block producers get percent of XYO bounty based on their stake
+        set("xyBlockProducerRewardPct", _parameters[13]); 
+        // Temporary owner of the governance contract
+        set("pOwner", uint(msg.sender)); 
+    }
 
-        // type of majority out of 100 necessary for proposal success in parameterizer
-        set("pVoteQuorum", _parameters[5]);
-
-        set("xyStakeQuorumPct", _parameters[6]);
-        set("xyWeiMiningMin", _parameters[7]);
-        set("xyXYORequestBountyMin", _parameters[8]);
-        set("xyStakeCooldown", _parameters[9]);
-        set("xyUnstakeCooldown", _parameters[10]);
-        set("xyProposalsEnabled", _parameters[11]);
-
-        set("xyBlockProducerRewardPct", 20); // plock producers get 20 percent of reward based on their stake
-        set("pOwner", uint(msg.sender)); // temporary owner until voted out
+    function _constrainParam(string memory _name, string memory _check, uint _value, uint _lte, uint _gt) private pure {
+        if (keccak256(abi.encodePacked(_name)) == keccak256(abi.encodePacked(_check))) {
+            if (_lte > 0) {
+                require(_value <= _lte); 
+            if (_gt > 0)
+                require(_value > _gt);
+            }
+        }
     }
 
     // -----------------------
@@ -120,32 +140,39 @@ contract XyParameterizer {
     function proposeReparameterization(string memory _name, uint _value) public returns (bytes32) {
         require(get("xyProposalsEnabled") != 0, "Proposals not yet enabled");
 
+        _constrainParam("pDispensationPct", _name, _value, 100, 0);
+        _constrainParam("xyBlockProducerRewardPct", _name, _value, 50, 0);
+
+        // Min of two days max 2 weeks
+        _constrainParam("xyStakeCooldown", _name, _value, 80640, 11520);
+        _constrainParam("xyUnstakeCooldown", _name, _value, 80640, 11520);
+
+        // Min of two days max 2 weeks
+        _constrainParam("pApplyStageSec", _name, _value, 80640, 240);
+        _constrainParam("pCommitStageSec", _name, _value, 80640, 240);
+        _constrainParam("pRevealStageSec", _name, _value, 80640, 240);
+
         uint deposit = get("pMinDeposit");
         bytes32 propID = keccak256(abi.encodePacked(_name, _value));
-
-        if (keccak256(abi.encodePacked(_name)) == keccak256(abi.encodePacked("pDispensationPct"))) {
-            require(_value <= 100);
-        }
-
         require(!propExists(propID)); // Forbid duplicate proposals
         require(get(_name) != _value); // Forbid NOOP reparameterizations
 
         // attach name and value to pollID
         proposals[propID] = ParamProposal({
-            appExpiry: now.add(get("pApplyStageLen")),
+            appExpiry: now.add(get("pApplyStageSec")),
             challengeID: 0,
             deposit: deposit,
             name: _name,
             owner: msg.sender,
-            processBy: now.add(get("pApplyStageLen"))
-                .add(get("pCommitStageLen"))
-                .add(get("pRevealStageLen"))
+            processBy: now.add(get("pApplyStageSec"))
+                .add(get("pCommitStageSec"))
+                .add(get("pRevealStageSec"))
                 .add(stageBlockLen),
             value: _value
         });
 
         if (deposit > 0) {
-            require(token.transferFrom(msg.sender, address(this), deposit), "Could not escrow tokens"); // escrow tokens (deposit amt)
+            SafeERC20.transferFrom(token, msg.sender, address(this), deposit); // escrow tokens (deposit amt)
         }
 
         emit _ReparameterizationProposal(_name, _value, propID, deposit, proposals[propID].appExpiry, msg.sender);
@@ -162,11 +189,11 @@ contract XyParameterizer {
 
         require(propExists(_propID) && prop.challengeID == 0);
 
-        //start poll
+        // start poll
         uint pollID = voting.startPoll(
-            get("pVoteQuorum"),
-            get("pCommitStageLen"),
-            get("pRevealStageLen")
+            get("pVoteSuccessRate"),
+            get("pCommitStageSec"),
+            get("pRevealStageSec")
         );
 
         challenges[pollID] = Challenge({
@@ -177,10 +204,10 @@ contract XyParameterizer {
             winningTokens: 0
         });
 
-        proposals[_propID].challengeID = pollID;       // update listing to store most recent challenge
+        proposals[_propID].challengeID = pollID; // update listing to store most recent challenge
 
         //take tokens from challenger
-        require(token.transferFrom(msg.sender, address(this), deposit));
+        SafeERC20.transferFrom(token, msg.sender, address(this), deposit);
 
         (uint commitEndDate, uint revealEndDate,,,) = voting.pollMap(pollID);
 
@@ -196,7 +223,6 @@ contract XyParameterizer {
         ParamProposal storage prop = proposals[_propID];
         address propOwner = prop.owner;
         uint propDeposit = prop.deposit;
-
         
         // Before any token transfers, deleting the proposal will ensure that if reentrancy occurs the
         // prop.owner and prop.deposit will be 0, thereby preventing theft
@@ -206,7 +232,7 @@ contract XyParameterizer {
             set(prop.name, prop.value);
             emit _ProposalAccepted(_propID, prop.name, prop.value);
             delete proposals[_propID];
-            require(token.transfer(propOwner, propDeposit));
+            SafeERC20.transfer(token, propOwner, propDeposit);
         } else if (challengeCanBeResolved(_propID)) {
             // There is a challenge against the proposal.
             resolveChallenge(_propID);
@@ -214,7 +240,7 @@ contract XyParameterizer {
             // There is no challenge against the proposal, but the processBy date has passed.
             emit _ProposalExpired(_propID);
             delete proposals[_propID];
-            require(token.transfer(propOwner, propDeposit));
+            SafeERC20.transfer(token, propOwner, propDeposit);
         } else {
             // There is no challenge against the proposal, and neither the appExpiry date nor the
             // processBy date has passed.
@@ -224,9 +250,9 @@ contract XyParameterizer {
         assert(get("pDispensationPct") <= 100);
 
         // verify that future proposal appExpiry and processBy times will not overflow
-        now.add(get("pApplyStageLen"))
-            .add(get("pCommitStageLen"))
-            .add(get("pRevealStageLen"))
+        now.add(get("pApplyStageSec"))
+            .add(get("pCommitStageSec"))
+            .add(get("pRevealStageSec"))
             .add(stageBlockLen);
 
         delete proposals[_propID];
@@ -254,7 +280,7 @@ contract XyParameterizer {
         challenge.tokenClaims[msg.sender] = true;
 
         emit _RewardClaimed(_challengeID, reward, msg.sender);
-        require(token.transfer(msg.sender, reward));
+        SafeERC20.transfer(token, msg.sender, reward);
     }
 
     /**
@@ -346,6 +372,14 @@ contract XyParameterizer {
         return challenges[_challengeID].tokenClaims[_voter];
     }
 
+    function isPassed(uint _pollId) public view returns (bool) {
+        // success pct fullfilled
+        bool voteSuccess = voting.isPassed(_pollId);
+        bool quorumMet = (100 * voting.getTotalVotes(_pollId)) > (get("pVoteQuorum") * IXyVotingData(governorAddress).totalVotingStake());
+
+        // check also if meets poll quorum (true def of quorum)
+        return voteSuccess && quorumMet;
+    }
     // ----------------
     // PRIVATE FUNCTIONS
     // ----------------
@@ -364,16 +398,16 @@ contract XyParameterizer {
         challenge.winningTokens = voting.getTotalNumberOfTokensForWinningOption(prop.challengeID);
         challenge.resolved = true;
 
-        if (voting.isPassed(prop.challengeID)) { // The challenge failed
+        if (isPassed(prop.challengeID)) { // The challenge failed
             if(prop.processBy > now) {
                 set(prop.name, prop.value);
             }
             emit _ChallengeFailed(_propID, prop.challengeID, challenge.rewardPool, challenge.winningTokens);
-            require(token.transfer(prop.owner, reward));
+            SafeERC20.transfer(token, prop.owner, reward);
         }
         else { // The challenge succeeded or nobody voted
             emit _ChallengeSucceeded(_propID, prop.challengeID, challenge.rewardPool, challenge.winningTokens);
-            require(token.transfer(challenges[prop.challengeID].challenger, reward));
+            SafeERC20.transfer(token, challenges[prop.challengeID].challenger, reward);
         }
     }
 

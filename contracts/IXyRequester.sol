@@ -6,7 +6,7 @@ pragma solidity >=0.5.0 <0.6.0;
 interface IXyRequester {  
     
     // Response types for callback
-    enum RequestType { DEFAULT, BOOL, UINT, WITHDRAW }
+    enum RequestType { DEFAULT, BOOL_CALLBACK, UINT_CALLBACK, WITHDRAW, BOOL }
 
     struct IPFSRequest {
         bytes32 requestId;
@@ -24,5 +24,5 @@ interface IXyRequester {
         @param requestType Used by scsc to signal what is in the response data
         @param response Response data from scsc
     */
-    function submitResponse(bytes32 requestId, RequestType requestType, bytes calldata response) external;
+    function submitResponse(bytes32 requestId, uint8 requestType, bytes calldata response) external;
 }

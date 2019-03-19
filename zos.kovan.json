@@ -720,8 +720,8 @@
           "label": "IXyRequester.RequestType",
           "members": [
             "DEFAULT",
-            "BOOL",
-            "UINT",
+            "BOOL_CALLBACK",
+            "UINT_CALLBACK",
             "WITHDRAW"
           ]
         },
