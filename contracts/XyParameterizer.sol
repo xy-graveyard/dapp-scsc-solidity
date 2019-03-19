@@ -1,10 +1,12 @@
 pragma solidity ^0.5.0;
 
 import "./PLCR/PLCRVoting.sol";
-import "./token/ERC20/IERC20.sol";
 import "./token/ERC20/SafeERC20.sol";
 import "./utils/SafeMath.sol";
-import "./XyStakingModel.sol";
+
+interface IXyVotingData {
+    function totalVotingStake() external view returns (uint);
+}
 
 contract XyParameterizer {
 
@@ -62,7 +64,6 @@ contract XyParameterizer {
     address public token;
     PLCRVoting public voting;
     uint public stageBlockLen; // 7 days
-    uint public totalVotingStake;
     address public governorAddress;
 
     /**
@@ -365,7 +366,7 @@ contract XyParameterizer {
     function isPassed(uint _pollId) public view returns (bool) {
         // success pct fullfilled
         bool voteSuccess = voting.isPassed(_pollId);
-        bool quorumMet = (100 * voting.getTotalVotes(_pollId)) > (get("pVoteQuorum") * XyStakingModel(governorAddress).totalVotingStake());
+        bool quorumMet = (100 * voting.getTotalVotes(_pollId)) > (get("pVoteQuorum") * IXyVotingData(governorAddress).totalVotingStake());
 
         // check also if meets poll quorum (true def of quorum)
         return voteSuccess && quorumMet;

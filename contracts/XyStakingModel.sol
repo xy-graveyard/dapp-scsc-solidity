@@ -5,7 +5,7 @@ import "./token/ERC20/SafeERC20.sol";
 import "./XyGovernance.sol";
 import "./utils/SafeMath.sol";
 
-contract XyStakingModel {
+contract XyStakingModel is IXyVotingData {
     using SafeMath for uint;
     
     // IERC20 contract for stake denomination
@@ -447,7 +447,7 @@ contract XyStakingModel {
     function totalStakeAndUnstake(address staker) public view returns (uint) {
         return stakerStake[staker].totalUnstake + stakerStake[staker].totalStake;
     }
-    function totalVotingStake() public view returns (uint) {
+    function totalVotingStake() external view returns (uint) {
         return totalCooldownStake.add(totalActiveStake);
     }
 }
