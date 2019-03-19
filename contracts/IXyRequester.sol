@@ -6,7 +6,7 @@ pragma solidity >=0.5.0 <0.6.0;
 interface IXyRequester {  
     
     // Response types for callback
-    enum RequestType { DEFAULT, BOOL, UINT, WITHDRAW }
+    enum RequestType { DEFAULT, BOOL_CALLBACK, UINT_CALLBACK, WITHDRAW, BOOL }
 
     struct IPFSRequest {
         bytes32 requestId;

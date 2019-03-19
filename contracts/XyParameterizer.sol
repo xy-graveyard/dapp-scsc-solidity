@@ -118,12 +118,12 @@ contract XyParameterizer {
         set("pOwner", uint(msg.sender)); 
     }
 
-    function _constrainParam(string memory _name, string memory _check, uint _value, uint _constraint, bool lte) private pure {
+    function _constrainParam(string memory _name, string memory _check, uint _value, uint _lte, uint _gt) private pure {
         if (keccak256(abi.encodePacked(_name)) == keccak256(abi.encodePacked(_check))) {
-            if (lte) {
-                require(_value <= _constraint); 
-            } else {
-                require(_value > _constraint);
+            if (_lte > 0) {
+                require(_value <= _lte); 
+            if (_gt > 0)
+                require(_value > _gt);
             }
         }
     }
@@ -140,18 +140,20 @@ contract XyParameterizer {
     function proposeReparameterization(string memory _name, uint _value) public returns (bytes32) {
         require(get("xyProposalsEnabled") != 0, "Proposals not yet enabled");
 
+        _constrainParam("pDispensationPct", _name, _value, 100, 0);
+        _constrainParam("xyBlockProducerRewardPct", _name, _value, 50, 0);
+
+        // Min of two days max 2 weeks
+        _constrainParam("xyStakeCooldown", _name, _value, 80640, 11520);
+        _constrainParam("xyUnstakeCooldown", _name, _value, 80640, 11520);
+
+        // Min of two days max 2 weeks
+        _constrainParam("pApplyStageSec", _name, _value, 80640, 240);
+        _constrainParam("pCommitStageSec", _name, _value, 80640, 240);
+        _constrainParam("pRevealStageSec", _name, _value, 80640, 240);
+
         uint deposit = get("pMinDeposit");
         bytes32 propID = keccak256(abi.encodePacked(_name, _value));
-
-        _constrainParam("pDispensationPct", _name, _value, 100, true);
-        _constrainParam("xyBlockProducerRewardPct", _name, _value, 50, true);
-        // Min of two days is approx 11520 blocks
-        _constrainParam("xyStakeCooldown", _name, _value, 11520, false);
-        _constrainParam("xyUnstakeCooldown", _name, _value, 11520, false);
-
-        if (keccak256(abi.encodePacked(_name)) == keccak256(abi.encodePacked("pDispensationPct"))) {
-            require(_value <= 100);
-        }
         require(!propExists(propID)); // Forbid duplicate proposals
         require(get(_name) != _value); // Forbid NOOP reparameterizations
 

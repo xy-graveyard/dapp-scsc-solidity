@@ -27,7 +27,7 @@ contract XyPayOnDeliveryMock is XyPayOnDelivery {
     {
       require (requestIndex[requestId] == 0, "Duplicate request submitted");
       // remainder of value is stored on this address
-      scsc.submitRequest.value(msg.value.sub(weiPayOnDelivery))(requestId, xyoBounty, msg.sender, uint8(IXyRequester.RequestType.UINT));
+      scsc.submitRequest.value(msg.value.sub(weiPayOnDelivery))(requestId, xyoBounty, msg.sender, uint8(IXyRequester.RequestType.UINT_CALLBACK));
       if (xyoPayOnDelivery > 0) {
         SafeERC20.transferFrom(xyoToken, msg.sender, address(this), xyoPayOnDelivery);
       }
@@ -39,9 +39,9 @@ contract XyPayOnDeliveryMock is XyPayOnDelivery {
     } 
 
     function submitResponse(bytes32 requestId, uint8 requestType, bytes memory responseData) public {
-      if (requestType == uint8(IXyRequester.RequestType.BOOL)) {
+      if (requestType == uint8(IXyRequester.RequestType.BOOL_CALLBACK)) {
         super.submitResponse(requestId, uint8(requestType), responseData);
-      } else if (requestType == uint8(IXyRequester.RequestType.UINT)) {
+      } else if (requestType == uint8(IXyRequester.RequestType.UINT_CALLBACK)) {
         uint result;
         for (uint i = 0; i < responseData.length; i++) {
             result = result + uint(uint8(responseData[i]))*(2**(8*(responseData.length-(i+1))));

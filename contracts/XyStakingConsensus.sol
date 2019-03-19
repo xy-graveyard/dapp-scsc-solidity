@@ -62,9 +62,10 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
         uint stakerStake
     );
 
-    event UnhandledResponse(
+    event Response (
         bytes32 request,
         uint responseBlock,
+        uint result,
         uint8 responseType
     );
     /**
@@ -191,8 +192,8 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
         @param _bytes the bytes passed to pull uint from
         @param _start index in bytes to return uint
      */
-    function _toUint(bytes memory _bytes, uint _start) private pure returns (uint256) {
-        require(_bytes.length >= (_start + 32));
+    function _toUintFromBytes(bytes memory _bytes, uint _start, uint bytesLen) private pure returns (uint256) {
+        require(_bytes.length >= (_start + bytesLen));
         uint256 tempUint;
 
         assembly {
@@ -224,22 +225,27 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
         for (uint i = 0; i < _requests.length; i++) {
             Request storage q = requestsById[_requests[i]];
             require (q.createdAt > 0, "Passed a request that does not exist");
-            uint numBytes = q.requestType == uint8(IXyRequester.RequestType.BOOL) ? 1 : 32;
+            uint numBytes = q.requestType == uint8(IXyRequester.RequestType.BOOL_CALLBACK)
+                         || q.requestType == uint8(IXyRequester.RequestType.BOOL) ? 1 : 32;
+
             q.responseBlockNumber = numBlocks().add(1);
             weiMining = weiMining.add(q.weiMining);
-            if (q.requestType == uint8(IXyRequester.RequestType.BOOL) || q.requestType == uint8(IXyRequester.RequestType.UINT)) {
-                bytes memory result = new bytes(numBytes);
-                for (uint j = 0; j < numBytes; j++) {
-                    result[j] = responses[byteOffset + j];
-                }
-                IXyRequester(q.requestSender).submitResponse(_requests[i], q.requestType, result);
-            } else if (q.requestType == uint8(IXyRequester.RequestType.WITHDRAW)) {
-                uint amount = _toUint(responses, byteOffset);
+
+            if (q.requestType == uint8(IXyRequester.RequestType.WITHDRAW)) {
+                uint amount = _toUintFromBytes(responses, byteOffset, numBytes);
                 require (amount <= totalStakeAndUnstake(q.requestSender), "Withdraw amount more than total staker's stake");
                 emit WithdrawClaimed(q.requestSender, amount, totalStakeAndUnstake(q.requestSender));
                 SafeERC20.transfer(xyoToken, q.requestSender, amount);
             } else {
-                emit UnhandledResponse(_requests[i], q.responseBlockNumber, q.requestType);
+                bytes memory result = new bytes(numBytes);
+                for (uint j = 0; j < numBytes; j++) {
+                    result[j] = responses[byteOffset + j];
+                }
+                if (q.requestType == uint8(IXyRequester.RequestType.BOOL_CALLBACK) 
+                    || q.requestType == uint8(IXyRequester.RequestType.UINT_CALLBACK)) {
+                    IXyRequester(q.requestSender).submitResponse(_requests[i], q.requestType, result);
+                } 
+                emit Response(_requests[i], q.responseBlockNumber, _toUintFromBytes(result, 0, numBytes), q.requestType);
             }
             byteOffset += numBytes;
         }

@@ -6,13 +6,13 @@
     "pRevealStageSec": 172800,
     "pDispensationPct": 50,
     "pVoteSuccessRate": 50,
-    "pVoteQuorum": 66,
+    "pVoteQuorum": 50,
     "xyStakeSuccessPct": 66,
     "xyWeiMiningMin": 1000000000000000,
     "xyXYORequestBountyMin": 1,
-    "xyStakeCooldown": 20, 
-    "xyUnstakeCooldown": 20,
-    "xyProposalsEnabled": 1,
+    "xyStakeCooldown": 11520, 
+    "xyUnstakeCooldown": 11520,
+    "xyProposalsEnabled": 0,
     "xyBlockProducerRewardPct": 20
 	}
 }

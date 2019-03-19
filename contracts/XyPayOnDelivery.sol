@@ -60,7 +60,7 @@ contract XyPayOnDelivery is Initializable, IXyRequester {
         require (msg.value >= weiPayOnDelivery, "Not enough payment provided");
         
         uint miningGas = msg.value.sub(weiPayOnDelivery);
-        scsc.submitRequest.value(miningGas)(requestId, xyoBounty, msg.sender, uint8(IXyRequester.RequestType.BOOL));
+        scsc.submitRequest.value(miningGas)(requestId, xyoBounty, msg.sender, uint8(IXyRequester.RequestType.BOOL_CALLBACK));
         
         if (xyoPayOnDelivery > 0) {
             SafeERC20.transferFrom(xyoToken, msg.sender, address(this), xyoPayOnDelivery);
