@@ -299,7 +299,7 @@ contract PLCRVoting is Initializable {
     @param _pollID Integer identifier associated with target poll
     */
     function isPassed(uint _pollID) view public returns (bool passed) {
-        require(pollEnded(_pollID));
+        require(pollEnded(_pollID), "Poll still open");
 
         Poll memory poll = pollMap[_pollID];
         return (100 * poll.votesFor) > (poll.voteQuorum * (poll.votesFor + poll.votesAgainst));
@@ -315,7 +315,7 @@ contract PLCRVoting is Initializable {
     @return Total number of votes committed to the winning option for specified poll
     */
     function getTotalNumberOfTokensForWinningOption(uint _pollID) view public returns (uint numTokens) {
-        require(pollEnded(_pollID));
+        require(pollEnded(_pollID), "Poll still open");
 
         if (isPassed(_pollID))
             return pollMap[_pollID].votesFor;
@@ -323,6 +323,11 @@ contract PLCRVoting is Initializable {
             return pollMap[_pollID].votesAgainst;
     }
 
+    function getTotalVotes(uint _pollID) view public returns (uint numTokens) {
+        require(pollEnded(_pollID), "Poll still open");
+
+        return pollMap[_pollID].votesFor + pollMap[_pollID].votesAgainst;
+    }
     /**
     @notice Determines if poll is over
     @dev Checks isExpired for specified poll's revealEndDate

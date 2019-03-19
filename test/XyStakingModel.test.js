@@ -14,10 +14,8 @@ const parameters = [
   params.pCommitStageSec,
   params.pRevealStageSec,
   params.pDispensationPct,
-
   params.pVoteSuccessRate,
   params.pVoteQuorum,
-  params.pChallengeSuccessPct,
   params.xyStakeSuccessPct,
   params.xyWeiMiningMin,
   params.xyXYORequestBountyMin,

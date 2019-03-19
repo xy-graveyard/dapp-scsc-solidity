@@ -19,7 +19,6 @@ const parameters = [
   params.pDispensationPct,
   params.pVoteSuccessRate,
   params.pVoteQuorum,
-  params.pChallengeSuccessPct,
   params.xyStakeSuccessPct,
   params.xyWeiMiningMin,
   params.xyXYORequestBountyMin,

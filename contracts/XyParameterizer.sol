@@ -61,6 +61,7 @@ contract XyParameterizer {
     address public token;
     PLCRVoting public voting;
     uint public stageBlockLen; // 7 days
+    uint public totalVotingStake;
 
     /**
     @dev Initializer        Can only be called once
@@ -92,10 +93,8 @@ contract XyParameterizer {
         set("pDispensationPct", _parameters[4]);
         // majority for proposal success in parameterizer
         set("pVoteSuccessRate", _parameters[5]);
-        // percentage majority for challenge success
+        // percentage stake present for challenge success
         set("pVoteQuorum", _parameters[6]);
-        // percent vote yes on challenge to pass
-        set("pChallengeSuccessPct", _parameters[7]);
         // percentage active stake to produce a block
         set("xyStakeSuccessPct", _parameters[8]);
         // minimum mining cost for request
@@ -111,7 +110,13 @@ contract XyParameterizer {
         // Block producers get percent of XYO bounty based on their stake
         set("xyBlockProducerRewardPct", _parameters[14]); 
         // Temporary owner of the governance contract
+        set("pStakeSetter", uint(msg.sender)); 
         set("pOwner", uint(msg.sender)); 
+    }
+
+    function setTotalVotingStake(uint newTotal) public {
+        require (msg.sender == address(get('pStakeSetter')), "Only stake setter can change");
+        totalVotingStake = newTotal;
     }
 
     function _constrainParam(string memory _name, string memory _check, uint _value, uint _constraint) private pure {
@@ -178,7 +183,7 @@ contract XyParameterizer {
 
         // start poll
         uint pollID = voting.startPoll(
-            get("pApplyStageSec"),
+            get("pVoteSuccessRate"),
             get("pCommitStageSec"),
             get("pRevealStageSec")
         );
@@ -359,6 +364,14 @@ contract XyParameterizer {
         return challenges[_challengeID].tokenClaims[_voter];
     }
 
+    function isPassed(uint _pollId) public view returns (bool) {
+        // success pct fullfilled
+        bool voteSuccess = voting.isPassed(_pollId);
+        bool quorumMet = (100 * voting.getTotalVotes(_pollId)) > (get("pVoteQuorum") * totalVotingStake);
+
+        // check also if meets poll quorum (true def of quorum)
+        return voteSuccess && quorumMet;
+    }
     // ----------------
     // PRIVATE FUNCTIONS
     // ----------------
@@ -377,7 +390,7 @@ contract XyParameterizer {
         challenge.winningTokens = voting.getTotalNumberOfTokensForWinningOption(prop.challengeID);
         challenge.resolved = true;
 
-        if (voting.isPassed(prop.challengeID)) { // The challenge failed
+        if (isPassed(prop.challengeID)) { // The challenge failed
             if(prop.processBy > now) {
                 set(prop.name, prop.value);
             }
