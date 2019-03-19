@@ -40,7 +40,7 @@ module.exports = async function (deployer, network, [contractsOwner, bp2]) {
   await deployer.link(attrStore, PLCR)
   await deployer.link(dll, PLCR)
   const plcrVoting = await deployer.deploy(PLCR)
-  const erc20 = await deployer.deploy(XYOERC20, totalSupply, `XYO Token`, `XYO`)
+  const erc20 = await deployer.deploy(XYOERC20, totalSupply, `XYO Token`, `XYO`, {from: contractsOwner})
   const gov = await deployer.deploy(Governance)
   const stakableToken = await deployer.deploy(Stakable)
   const consensus = await deployer.deploy(SCSC)
@@ -61,11 +61,11 @@ module.exports = async function (deployer, network, [contractsOwner, bp2]) {
   printAddress([SCSC, Governance, XYOERC20, PayOnD, Stakable])
 
   await setupBP(stakableToken, consensus, erc20, contractsOwner, contractsOwner)
-  await setupBP(stakableToken, consensus, erc20, bp2, contractsOwner)
 
   if (isMatrixDeploy) {
-    await erc20.approve(erc20.address, totalSupply * 1 ** 18)
+    await erc20.approve(erc20.address, (totalSupply - stakeAmt * 2) * 1 ** 18)
   } else {
+    await setupBP(stakableToken, consensus, erc20, bp2, contractsOwner)
     await addRequest(pOnD, contractsOwner)
   }
 }
@@ -85,22 +85,29 @@ const setupBP = async function (
   ercOwner
 ) {
   await stakable.create(bpAddress)
+  console.log(`Created BP Stakee ${bpAddress}`)
 
   if (bpAddress !== ercOwner) {
     await erc20.transfer(bpAddress, stakeAmt, {
       from: ercOwner
     })
+    
   }
+  console.log(`Approving SCSC ${consensus.address} from BP Stakee ${bpAddress}`)
 
   const allowance = await erc20.allowance(bpAddress, consensus.address)
   const curAllowance = allowance.toNumber()
   await erc20.approve(consensus.address, curAllowance + stakeAmt, {
     from: bpAddress
   })
+  console.log(`Staking BP Stakee ${bpAddress}`)
+
   const stakingTx = await consensus.stake(bpAddress, stakeAmt, {
     from: bpAddress
   })
   const stakingId = stakingTx.logs[0].args.stakingId
+  console.log(`Activating BP Stakee ${bpAddress}`)
+
   await consensus.activateStake(stakingId, { from: bpAddress })
   console.log(`Activated BP Stakee ${bpAddress} stake id: ${stakingId}`)
 }
