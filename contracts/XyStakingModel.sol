@@ -20,7 +20,6 @@ contract XyStakingModel {
     uint public stakeCooldown;
     uint public unstakeCooldown;
 
-
     // Active stake is total block producer stake for consensus and voting
     uint public totalActiveStake;
     // Cooldown stake is total non-block producer stake for voting
@@ -124,13 +123,11 @@ contract XyStakingModel {
         stakeeStake[stakee].activeStake = stakeeStake[stakee].activeStake.add(amount);
         stakerStake[msg.sender].activeStake = stakerStake[msg.sender].activeStake.add(amount);
         totalActiveStake = totalActiveStake.add(amount);
-        govContract.setTotalVotingStake(govContract.totalVotingStake().add(amount));
     }
     function updateCacheOnCoolDown(uint amount, address stakee) internal {
         stakeeStake[stakee].cooldownStake = stakeeStake[stakee].cooldownStake.add(amount);
         stakerStake[msg.sender].cooldownStake = stakerStake[msg.sender].cooldownStake.add(amount);
         totalCooldownStake = totalCooldownStake.add(amount);
-        govContract.setTotalVotingStake(govContract.totalVotingStake().add(amount));
     }
     function updateCacheOnUnstake(Stake memory data) internal {
         reduceStake(data, data.amount);
@@ -149,13 +146,11 @@ contract XyStakingModel {
             stakeeStake[data.stakee].activeStake = stakeeStake[data.stakee].activeStake.sub(quantity);
             stakerStake[data.staker].activeStake = stakerStake[data.staker].activeStake.sub(quantity);
             totalActiveStake = totalActiveStake.sub(quantity);
-            govContract.setTotalVotingStake(govContract.totalVotingStake().sub(quantity));
         }
         if (data.isCooledDown) {
             stakeeStake[data.stakee].cooldownStake = stakeeStake[data.stakee].cooldownStake.sub(quantity);
             stakerStake[data.staker].cooldownStake = stakerStake[data.staker].cooldownStake.sub(quantity);
             totalCooldownStake = totalCooldownStake.sub(quantity);
-            govContract.setTotalVotingStake(govContract.totalVotingStake().sub(quantity));
         }
     }
 
@@ -451,5 +446,8 @@ contract XyStakingModel {
     }
     function totalStakeAndUnstake(address staker) public view returns (uint) {
         return stakerStake[staker].totalUnstake + stakerStake[staker].totalStake;
+    }
+    function totalVotingStake() public view returns (uint) {
+        return totalCooldownStake.add(totalActiveStake);
     }
 }

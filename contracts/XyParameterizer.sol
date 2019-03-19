@@ -4,6 +4,7 @@ import "./PLCR/PLCRVoting.sol";
 import "./token/ERC20/IERC20.sol";
 import "./token/ERC20/SafeERC20.sol";
 import "./utils/SafeMath.sol";
+import "./XyStakingModel.sol";
 
 contract XyParameterizer {
 
@@ -114,11 +115,6 @@ contract XyParameterizer {
         set("xyBlockProducerRewardPct", _parameters[13]); 
         // Temporary owner of the governance contract
         set("pOwner", uint(msg.sender)); 
-    }
-
-    function setTotalVotingStake(uint newTotal) public {
-        require (msg.sender == governorAddress, "Only governor can set");
-        totalVotingStake = newTotal;
     }
 
     function _constrainParam(string memory _name, string memory _check, uint _value, uint _constraint) private pure {
@@ -369,7 +365,7 @@ contract XyParameterizer {
     function isPassed(uint _pollId) public view returns (bool) {
         // success pct fullfilled
         bool voteSuccess = voting.isPassed(_pollId);
-        bool quorumMet = (100 * voting.getTotalVotes(_pollId)) > (get("pVoteQuorum") * totalVotingStake);
+        bool quorumMet = (100 * voting.getTotalVotes(_pollId)) > (get("pVoteQuorum") * XyStakingModel(governorAddress).totalVotingStake());
 
         // check also if meets poll quorum (true def of quorum)
         return voteSuccess && quorumMet;
