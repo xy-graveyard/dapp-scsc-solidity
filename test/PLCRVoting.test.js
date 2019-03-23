@@ -1,8 +1,8 @@
 import { BigNumber } from "bignumber.js"
 
-const dll = articfacts.require(`DLL.sol`)
-const attributeStore = artifacts.require(`AttributeStore.sol`)
 const PLCR = artifacts.require(`PLCRVoting.sol`)
+
+const ERC20 = artifacts.require(`XyERC20Token.sol`)
 
 const erc20TotalSupply = 1000000
 
@@ -26,7 +26,8 @@ contract(
       plcr = await PLCR.new({
         from: plcrOwner
       })
-      await plcr.initialize(erc20.address)
+      await erc20.transfer(plcrOwner, 100)
+      await erc20.approve(plcr.address, 100, { from: plcrOwner })
     })
     beforeEach(async () => {
       plcr = await PLCR.new({
@@ -34,12 +35,11 @@ contract(
       })
     })
     describe(`Function: requestVotingRights`, (accounts) => {
-      // Put this first to ensure test does not conflict with proposals already made.
       it(`should not allow a NOOP request Voting Rights`, async () => {
         await plcr.requestVotingRights().should.not.be.fulfilled
       })
       it(`should request voting rights`, async () => {
-        await plcr.requestVotingRights(`10000000`).should.be.fulfilled
+        await plcr.requestVotingRights(50).should.be.fulfilled
       })
       it(`should not withdraw voting rights if no tokens in request for voting rights`, async () => {
         await plcr.requestVotingRights().should.not.be.fulfilled
