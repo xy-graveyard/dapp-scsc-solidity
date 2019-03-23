@@ -66,9 +66,6 @@ contract(
       })
     })
     describe(`Function: proposeReparameterization`, (accounts) => {
-      beforeEach(async () => {
-
-      })
 
       // Put this first to ensure test does not conflict with proposals already made.
       it(`should not allow a NOOP reparameterization`, async () => {
