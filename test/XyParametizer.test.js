@@ -6,12 +6,12 @@ import { expect } from 'chai'
 
 const abi = require(`ethereumjs-abi`)
 const { toChecksumAddress } = require(`ethereumjs-util`)
-const PayOnDeliveryMock = artifacts.require(`XyPayOnDeliveryMock.sol`)
 
 const PayOnDelivery = artifacts.require(`XyPayOnDelivery.sol`)
 const StakingConsensus = artifacts.require(`XyConsensusMock2.sol`)
 const ERC20 = artifacts.require(`XyERC20Token.sol`)
 const Parameterizer = artifacts.require(`XyParameterizer.sol`)
+const parameterizerMock = artifacts.require(`XyParameterizerMock.sol`)
 const PLCR = artifacts.require(`PLCRVoting.sol`)
 const stripHexPrefix = require(`strip-hex-prefix`)
 const erc20TotalSupply = 1000000
@@ -62,16 +62,14 @@ contract(
     })
     beforeEach(async () => {
       parameterizer = await Parameterizer.new({
-        from: governanceOwner
+        parameters, from: governanceOwner
       })
     })
     describe(`Function: proposeReparameterization`, (accounts) => {
-      beforeEach(async () => {
-      })
 
       // Put this first to ensure test does not conflict with proposals already made.
       it(`should not allow a NOOP reparameterization`, async () => {
-
+        await parameterizer.proposeReparameterization().should.not.be.fulfilled
       })
 
       it(`should add a new reparameterization proposal`, async () => {
@@ -79,7 +77,7 @@ contract(
       })
 
       it(`should not allow a reparameterization for a proposal that already exists`, async () => {
-
+        await parameterizer.proposeReparameterization(`pMinDeposit`, 2000000).should.not.be.fulfilled
       })
 
       it(`should revert if token transfer from user fails`, async () => {
@@ -88,3 +86,4 @@ contract(
     })
   }
 )
+
