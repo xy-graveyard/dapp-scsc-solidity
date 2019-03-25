@@ -141,16 +141,17 @@ contract XyParameterizer {
         require(get("xyProposalsEnabled") != 0, "Proposals not yet enabled");
 
         _constrainParam("pDispensationPct", _name, _value, 100, 0);
-        _constrainParam("xyBlockProducerRewardPct", _name, _value, 50, 0);
+        _constrainParam("xyStakeSuccessPct", _name, _value, 90, 10);
+        _constrainParam("xyBlockProducerRewardPct", _name, _value, 50, 10);
 
-        // Min of two days max 2 weeks
+        // Min of two days max 2 weeks (blocks)
         _constrainParam("xyStakeCooldown", _name, _value, 80640, 11520);
         _constrainParam("xyUnstakeCooldown", _name, _value, 80640, 11520);
 
-        // Min of two days max 2 weeks
-        _constrainParam("pApplyStageSec", _name, _value, 80640, 240);
-        _constrainParam("pCommitStageSec", _name, _value, 80640, 240);
-        _constrainParam("pRevealStageSec", _name, _value, 80640, 240);
+        // Min of two days max 2 weeks (seconds)
+        _constrainParam("pApplyStageSec", _name, _value, 1209600, 172800);
+        _constrainParam("pCommitStageSec", _name, _value, 1209600, 172800);
+        _constrainParam("pRevealStageSec", _name, _value, 1209600, 172800);
 
         uint deposit = get("pMinDeposit");
         bytes32 propID = keccak256(abi.encodePacked(_name, _value));
