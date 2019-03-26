@@ -11,6 +11,7 @@ contract XyParameterizerMock is XyParameterizer {
     public
     XyParameterizer()
   {
-    init(_governance, _token, _plcr, _parameters);
+    init(_token, _plcr, _parameters);
+    initializeGovernor(_governance);
   } 
 }

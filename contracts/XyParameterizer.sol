@@ -73,18 +73,13 @@ contract XyParameterizer {
     @notice _parameters     array of canonical parameters
     */
     function init(
-        address _governorAddress,
         address _token,
         address _plcr,
         uint[] memory _parameters
     ) internal {
-        // require(_token != address(0) && address(token) == address(0));
-        // require(_plcr != address(0) && address(voting) == address(0));
-
         stageBlockLen = 40320;
         token = _token;
         voting = PLCRVoting(_plcr);
-        governorAddress = _governorAddress;
 
         // minimum deposit to propose a reparameterization
         set("pMinDeposit", _parameters[0]);
@@ -116,6 +111,16 @@ contract XyParameterizer {
         set("xyBlockProducerRewardPct", _parameters[13]); 
         // Temporary owner of the governance contract
         set("pOwner", uint(msg.sender)); 
+    }
+
+    function initializeGovernor(address _governorAddress) public {
+        require(governorAddress == address(0), "already initialized");
+        governorAddress = _governorAddress;
+    }
+
+    function transferGovernor(address newGov) public {
+        require(governorAddress == msg.sender, "only current gov can transfer");
+        governorAddress = newGov;
     }
 
     function _constrainParam(string memory _name, string memory _check, uint _value, uint _lte, uint _gt) private pure {

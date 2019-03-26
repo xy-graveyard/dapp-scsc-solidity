@@ -33,12 +33,11 @@ contract XyGovernance is Initializable, XyParameterizer {
     bool ownershipRenounced;
 
     function initialize (
-        address _governorAddress,
         address _xyERC20,
         address _plcr,
         uint[] memory _parameters
     ) initializer public {
-        init(_governorAddress, _xyERC20, _plcr, _parameters);
+        init(_xyERC20, _plcr, _parameters);
     }
     
     /** 
