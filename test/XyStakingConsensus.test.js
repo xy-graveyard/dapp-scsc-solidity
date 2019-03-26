@@ -1,6 +1,6 @@
-import { BigNumber } from "bignumber.js"
+import { BigNumber } from 'bignumber.js'
 
-import { expectEvent } from "openzeppelin-test-helpers"
+import { expectEvent } from 'openzeppelin-test-helpers'
 
 const abi = require(`ethereumjs-abi`)
 const { toChecksumAddress } = require(`ethereumjs-util`)
@@ -12,6 +12,7 @@ const Stakeable = artifacts.require(`XyBlockProducerMock.sol`)
 const Governance = artifacts.require(`XyGovernance.sol`)
 const PLCR = artifacts.require(`PLCRVoting.sol`)
 const erc20TotalSupply = 1000000
+const { advanceBlock } = require(`./utils.test`)
 
 require(`chai`)
   .use(require(`chai-as-promised`))
@@ -64,19 +65,6 @@ contract(
     const xyoBounty = 0
     const ethOnDelivery = 1000
     const miningEth = 100
-
-    function advanceBlock () {
-      return new Promise((resolve, reject) => {
-        web3.currentProvider.send(
-          {
-            jsonrpc: `2.0`,
-            method: `evm_mine`,
-            id: Date.now()
-          },
-          (err, res) => (err ? reject(err) : resolve(res))
-        )
-      })
-    }
 
     const synchronizePromises = async (promises, results = [], index = 0) => {
       if (promises.length === 0) return []
