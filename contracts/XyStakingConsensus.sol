@@ -44,7 +44,8 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
         bytes32 request,
         uint xyoBounty,
         uint weiMining,
-        address requestSender,
+        address requester,
+        address xyoSender,
         uint8 requestType
     );
 
@@ -106,13 +107,13 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
         private 
     {
         uint weiMiningMin = govContract.get("xyWeiMiningMin");
-        uint xyoMiningMin = govContract.get("xyXYORequestBountyMin");
+        uint bountyMin = govContract.get("xyXYORequestBountyMin");
         if (weiMiningMin > 0) {
             require (msg.value >= weiMiningMin, "Not enough wei to cover mining");
         }
-        if (xyoMiningMin > 0) {
-            require (xyoBounty >= xyoMiningMin, "XYO Bounty less than minimum");
-            SafeERC20.transferFrom(xyoToken, xyoSender, address(this), xyoMiningMin);
+        if (bountyMin > 0) {
+            require (xyoBounty >= bountyMin, "XYO Bounty less than minimum");
+            SafeERC20.transferFrom(xyoToken, xyoSender, address(this), bountyMin);
         }
     }
 
@@ -167,7 +168,7 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
         requestsById[request] = q;
         requestChain.push(request);
 
-        emit RequestSubmitted(request, xyoBounty, msg.value,  msg.sender, requestType);
+        emit RequestSubmitted(request, xyoBounty, msg.value,  msg.sender, xyoSender, requestType);
     }
 
     /**

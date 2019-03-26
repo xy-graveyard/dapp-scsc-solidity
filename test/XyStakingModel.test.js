@@ -1,4 +1,3 @@
-const Staking = artifacts.require(`XyBlockProducer.sol`)
 const ERC20 = artifacts.require(`XyERC20Token.sol`)
 const Stakeable = artifacts.require(`XyBlockProducerMock.sol`)
 const Governance = artifacts.require(`XyGovernance.sol`)
@@ -7,6 +6,7 @@ const PLCR = artifacts.require(`PLCRVoting.sol`)
 const fs = require(`fs`)
 const config = JSON.parse(fs.readFileSync(`./config/testParams.json`))
 const params = config.paramDefaults
+const { advanceBlock, advanceToBlock, latestBlock } = require(`./utils.test`)
 
 const parameters = [
   params.pMinDeposit,
@@ -34,19 +34,6 @@ const { expectEvent } = require(`openzeppelin-test-helpers`)
 const cooldownNumBlocks = params.xyStakeCooldown
 const cooldownUnstake = params.xyUnstakeCooldown
 const erc20TotalSupply = 1000000
-
-function advanceBlock () {
-  return new Promise((resolve, reject) => {
-    web3.currentProvider.send(
-      {
-        jsonrpc: `2.0`,
-        method: `evm_mine`,
-        id: Date.now()
-      },
-      (err, res) => (err ? reject(err) : resolve(res))
-    )
-  })
-}
 
 contract(
   `XyStakingModel`,
@@ -231,19 +218,7 @@ contract(
     describe(`Public Functions`, async () => {
       const stakingQty = 10000
       const stakeAmt = 100
-      const advanceToBlock = async (number) => {
-        let blockNumber = await web3.eth.getBlockNumber()
-        if (blockNumber > number) {
-          throw Error(
-            `block number ${number} is in the past (current is ${blockNumber})`
-          )
-        }
 
-        while (blockNumber < number) {
-          await advanceBlock()
-          blockNumber = await web3.eth.getBlockNumber()
-        }
-      }
       beforeEach(async () => {
         await erc20.transfer(staker1, stakingQty, {
           from: stakingTokenOwner
@@ -289,7 +264,7 @@ contract(
           const tx = await createStake(staker1, stakee2, stakeAmt).should.be
             .fulfilled
           await expectEvent.inLogs(tx.logs, `StakeEvent`)
-          const curBlock = await web3.eth.getBlockNumber()
+          const curBlock = await latestBlock()
           const stakeData = await staking.stakeData(newToken)
           const {
             amount,
@@ -329,7 +304,7 @@ contract(
             .be.fulfilled
         })
         it(`should only allow stake owner to activate stake, and disallow reactivating stake`, async () => {
-          const blockNumber = await web3.eth.getBlockNumber()
+          const blockNumber = await latestBlock()
           await advanceToBlock(blockNumber + cooldownNumBlocks)
           await staking.activateStake(stakeeToken, { from: staker1 }).should.be
             .fulfilled
@@ -342,7 +317,7 @@ contract(
             .fulfilled
         })
         it(`should emit event Activated Stake`, async () => {
-          const blockNumber = await web3.eth.getBlockNumber()
+          const blockNumber = await latestBlock()
           await advanceToBlock(blockNumber + cooldownNumBlocks)
           const tx = await staking.activateStake(stakeeToken, { from: staker1 })
             .should.be.fulfilled
@@ -373,13 +348,13 @@ contract(
           it(`should allow unstaking after cooldown`, async () => {
             await staking.unstake(stakingToken, { from: staker1 }).should.not.be
               .fulfilled
-            const blockNumber = await web3.eth.getBlockNumber()
+            const blockNumber = await latestBlock()
             await advanceToBlock(blockNumber + cooldownNumBlocks)
             await staking.unstake(stakingToken, { from: staker1 }).should.be
               .fulfilled
           })
           it(`should only allow staker to unstake`, async () => {
-            const blockNumber = await web3.eth.getBlockNumber()
+            const blockNumber = await latestBlock()
             await advanceToBlock(blockNumber + cooldownNumBlocks)
             await staking.unstake(stakingToken, { from: staker2 }).should.not.be
               .fulfilled
@@ -387,7 +362,7 @@ contract(
               .fulfilled
           })
           it(`Cannot re-unstake`, async () => {
-            const blockNumber = await web3.eth.getBlockNumber()
+            const blockNumber = await latestBlock()
             await advanceToBlock(blockNumber + cooldownNumBlocks)
             await staking.unstake(stakingToken, { from: staker1 }).should.be
               .fulfilled
@@ -395,22 +370,27 @@ contract(
               .fulfilled
           })
           it(`should issue unstaking event`, async () => {
-            const blockNumber = await web3.eth.getBlockNumber()
+            const blockNumber = await latestBlock()
             await advanceToBlock(blockNumber + cooldownNumBlocks)
             const tx = await staking.unstake(stakingToken, { from: staker1 })
               .should.be.fulfilled
             await expectEvent.inLogs(tx.logs, `StakeEvent`)
           })
           it(`should update stake datas`, async () => {
-            const blockNumber = await web3.eth.getBlockNumber()
+            const blockNumber = await latestBlock()
             await advanceToBlock(blockNumber + cooldownNumBlocks)
             await staking.unstake(stakingToken, { from: staker1 }).should.be
               .fulfilled
             await stakeCompare(stakeeStake(stakee3), [0, 0, 0, stakeAmt])
-            await stakeCompare(stakerStake(staker1), [stakeAmt2, 0, 0, stakeAmt])
+            await stakeCompare(stakerStake(staker1), [
+              stakeAmt2,
+              0,
+              0,
+              stakeAmt
+            ])
           })
           it(`should reflect proper available staker and stakee unstake before and after cooldown`, async () => {
-            const blockNumber = await web3.eth.getBlockNumber()
+            const blockNumber = await latestBlock()
             await advanceToBlock(blockNumber + cooldownNumBlocks)
             await staking.unstake(stakingToken, { from: staker1 }).should.be
               .fulfilled
@@ -429,7 +409,7 @@ contract(
             avUnStakee.toNumber().should.be.equal(0)
             avUnStakee2.toNumber().should.be.equal(0)
             avUnStaker.toNumber().should.be.equal(0)
-            const b2 = await web3.eth.getBlockNumber()
+            const b2 = await latestBlock()
             await advanceToBlock(b2 + cooldownUnstake)
             const avUnStakeeAfter = await staking.getAvailableStakeeUnstake.call(
               stakee3
@@ -455,7 +435,7 @@ contract(
             await erc20.approve(staking.address, stakingQty * 30, {
               from: withdrawStaker
             })
-            const blockNumber = await web3.eth.getBlockNumber()
+            const blockNumber = await latestBlock()
             await advanceToBlock(blockNumber + cooldownNumBlocks)
 
             await staking.unstake(stakingToken, { from: staker1 })
@@ -466,14 +446,14 @@ contract(
             await staking.withdrawStake(stakingToken, { from: staker1 }).should
               .not.be.fulfilled
             const balance = await erc20.balanceOf(staking.address)
-            const blockNumber = await web3.eth.getBlockNumber()
+            const blockNumber = await latestBlock()
             await advanceToBlock(blockNumber + cooldownUnstake)
             await staking.withdrawStake(stakingToken, { from: staker1 }).should
               .be.fulfilled
           })
 
           it(`should transfer stake on withdraw from contract to staker`, async () => {
-            const blockNumber = await web3.eth.getBlockNumber()
+            const blockNumber = await latestBlock()
             await advanceToBlock(blockNumber + cooldownUnstake)
             const balanceBefore = await staking.numStakerStakes(staker1)
             const balanceBefore20 = await erc20.balanceOf(staker1)
@@ -490,7 +470,7 @@ contract(
           })
 
           it(`should update the stake cache after withdraw`, async () => {
-            const blockNumber = await web3.eth.getBlockNumber()
+            const blockNumber = await latestBlock()
             await advanceToBlock(blockNumber + cooldownUnstake)
             await staking.withdrawStake(stakingToken, { from: staker1 }).should
               .be.fulfilled
@@ -524,10 +504,9 @@ contract(
               0
             ])
 
-            const blockNumber = await web3.eth.getBlockNumber()
+            const blockNumber = await latestBlock()
             await advanceToBlock(blockNumber + cooldownNumBlocks)
             await unstakeMany(withdrawStaker, tokens)
-            await advanceBlock()
             await stakeCompare(stakerStake(withdrawStaker), [
               0,
               0,
@@ -543,7 +522,7 @@ contract(
               0,
               stakingTokens * 100
             ])
-            const blockNumber2 = await web3.eth.getBlockNumber()
+            const blockNumber2 = await latestBlock()
             await advanceToBlock(blockNumber2 + cooldownUnstake)
 
             await staking.withdrawManyStake(5, { from: withdrawStaker }).should

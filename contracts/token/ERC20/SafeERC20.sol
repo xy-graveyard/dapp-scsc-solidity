@@ -42,16 +42,16 @@ library SafeERC20 {
 
 	function transfer(address token, address to, uint256 amount) internal {
 		GeneralERC20(token).transfer(to, amount);
-		require(checkSuccess());
+		require(checkSuccess(), "transfer fail");
 	}
 
 	function transferFrom(address token, address from, address to, uint256 amount) internal {
 		GeneralERC20(token).transferFrom(from, to, amount);
-		require(checkSuccess());
+		require(checkSuccess(), "transferFrom fail");
 	}
 
 	function approve(address token, address spender, uint256 amount) internal {
 		GeneralERC20(token).approve(spender, amount);
-		require(checkSuccess());
+		require(checkSuccess(), "approve fail");
 	}
 }

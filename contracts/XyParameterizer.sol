@@ -73,18 +73,13 @@ contract XyParameterizer {
     @notice _parameters     array of canonical parameters
     */
     function init(
-        address _governorAddress,
         address _token,
         address _plcr,
         uint[] memory _parameters
     ) internal {
-        // require(_token != address(0) && address(token) == address(0));
-        // require(_plcr != address(0) && address(voting) == address(0));
-
         stageBlockLen = 40320;
         token = _token;
         voting = PLCRVoting(_plcr);
-        governorAddress = _governorAddress;
 
         // minimum deposit to propose a reparameterization
         set("pMinDeposit", _parameters[0]);
@@ -118,6 +113,16 @@ contract XyParameterizer {
         set("pOwner", uint(msg.sender)); 
     }
 
+    function initializeGovernor(address _governorAddress) public {
+        require(governorAddress == address(0), "already initialized");
+        governorAddress = _governorAddress;
+    }
+
+    function transferGovernor(address newGov) public {
+        require(governorAddress == msg.sender, "only current gov can transfer");
+        governorAddress = newGov;
+    }
+
     function _constrainParam(string memory _name, string memory _check, uint _value, uint _lte, uint _gt) private pure {
         if (keccak256(abi.encodePacked(_name)) == keccak256(abi.encodePacked(_check))) {
             if (_lte > 0) {
@@ -141,16 +146,17 @@ contract XyParameterizer {
         require(get("xyProposalsEnabled") != 0, "Proposals not yet enabled");
 
         _constrainParam("pDispensationPct", _name, _value, 100, 0);
-        _constrainParam("xyBlockProducerRewardPct", _name, _value, 50, 0);
+        _constrainParam("xyStakeSuccessPct", _name, _value, 90, 10);
+        _constrainParam("xyBlockProducerRewardPct", _name, _value, 50, 10);
 
-        // Min of two days max 2 weeks
+        // Min of two days max 2 weeks (blocks)
         _constrainParam("xyStakeCooldown", _name, _value, 80640, 11520);
         _constrainParam("xyUnstakeCooldown", _name, _value, 80640, 11520);
 
-        // Min of two days max 2 weeks
-        _constrainParam("pApplyStageSec", _name, _value, 80640, 240);
-        _constrainParam("pCommitStageSec", _name, _value, 80640, 240);
-        _constrainParam("pRevealStageSec", _name, _value, 80640, 240);
+        // Min of two days max 2 weeks (seconds)
+        _constrainParam("pApplyStageSec", _name, _value, 1209600, 172800);
+        _constrainParam("pCommitStageSec", _name, _value, 1209600, 172800);
+        _constrainParam("pRevealStageSec", _name, _value, 1209600, 172800);
 
         uint deposit = get("pMinDeposit");
         bytes32 propID = keccak256(abi.encodePacked(_name, _value));

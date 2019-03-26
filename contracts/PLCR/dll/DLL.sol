@@ -51,15 +51,15 @@ library DLL {
   @param _next the node which _new will be inserted before
   */
   function insert(Data storage self, uint _prev, uint _curr, uint _next) public {
-    require(_curr != NULL_NODE_ID);
+    require(_curr != NULL_NODE_ID, "dllrevert1");
 
     remove(self, _curr);
 
-    require(_prev == NULL_NODE_ID || contains(self, _prev));
-    require(_next == NULL_NODE_ID || contains(self, _next));
+    require(_prev == NULL_NODE_ID || contains(self, _prev), "dllrevert2");
+    require(_next == NULL_NODE_ID || contains(self, _next), "dllrevert3");
 
-    require(getNext(self, _prev) == _next);
-    require(getPrev(self, _next) == _prev);
+    require(getNext(self, _prev) == _next, "dllrevert4");
+    require(getPrev(self, _next) == _prev, "dllrevert5");
 
     self.dll[_curr].prev = _prev;
     self.dll[_curr].next = _next;

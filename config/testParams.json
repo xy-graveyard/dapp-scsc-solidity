@@ -10,8 +10,8 @@
     "xyStakeSuccessPct": 66,
     "xyWeiMiningMin": 0,
     "xyXYORequestBountyMin": 0,
-    "xyStakeCooldown": 100,
-    "xyUnstakeCooldown": 100,
+    "xyStakeCooldown": 5,
+    "xyUnstakeCooldown": 15,
     "xyProposalsEnabled": 1,
     "xyBlockProducerRewardPct": 20
   },
@@ -31,5 +31,4 @@
     "xyProposalsEnabled": 1,
     "xyBlockProducerRewardPct": 20
   }
-
 }

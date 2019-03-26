@@ -101,8 +101,8 @@ contract PLCRVoting is Initializable {
     @param _pollID Integer identifier associated with the target poll
     */
     function rescueTokens(uint _pollID) public {
-        require(isExpired(pollMap[_pollID].revealEndDate));
-        require(dllMap[msg.sender].contains(_pollID));
+        require(isExpired(pollMap[_pollID].revealEndDate), "Not Expired");
+        require(dllMap[msg.sender].contains(_pollID), "Not in dll");
 
         dllMap[msg.sender].remove(_pollID);
         emit _TokensRescued(_pollID, msg.sender);
@@ -131,7 +131,7 @@ contract PLCRVoting is Initializable {
     @param _prevPollID The ID of the poll that the user has voted the maximum number of tokens in which is still less than or equal to numTokens
     */
     function commitVote(uint _pollID, bytes32 _secretHash, uint _numTokens, uint _prevPollID) public {
-        require(commitPeriodActive(_pollID));
+        require(commitPeriodActive(_pollID), "commit period not active");
 
         // if msg.sender doesn't have enough voting rights,
         // request for enough voting rights
@@ -141,14 +141,14 @@ contract PLCRVoting is Initializable {
         }
 
         // make sure msg.sender has enough voting rights
-        require(voteTokenBalance[msg.sender] >= _numTokens);
+        require(voteTokenBalance[msg.sender] >= _numTokens, "not enough votes");
         // prevent user from committing to zero node placeholder
-        require(_pollID != 0);
+        require(_pollID != 0, "no zero pollid");
         // prevent user from committing a secretHash of 0
-        require(_secretHash != 0);
+        require(_secretHash != 0, "no secret 0");
 
         // Check if _prevPollID exists in the user's DLL or if _prevPollID is 0
-        require(_prevPollID == 0 || dllMap[msg.sender].contains(_prevPollID));
+        require(_prevPollID == 0 || dllMap[msg.sender].contains(_prevPollID), "previous poll id does not exist or is 0");
 
         uint nextPollID = dllMap[msg.sender].getNext(_prevPollID);
 
@@ -157,7 +157,7 @@ contract PLCRVoting is Initializable {
             nextPollID = dllMap[msg.sender].getNext(_pollID);
         }
 
-        require(validPosition(_prevPollID, nextPollID, msg.sender, _numTokens));
+        require(validPosition(_prevPollID, nextPollID, msg.sender, _numTokens), "invalid position");
         dllMap[msg.sender].insert(_prevPollID, _pollID, nextPollID);
 
         bytes32 UUID = attrUUID(msg.sender, _pollID);
@@ -211,10 +211,10 @@ contract PLCRVoting is Initializable {
     */
     function revealVote(uint _pollID, uint _voteOption, uint _salt) public {
         // Make sure the reveal period is active
-        require(revealPeriodActive(_pollID));
-        require(pollMap[_pollID].didCommit[msg.sender]);                         // make sure user has committed a vote for this poll
-        require(!pollMap[_pollID].didReveal[msg.sender]);                        // prevent user from revealing multiple times
-        require(keccak256(abi.encodePacked(_voteOption, _salt)) == getCommitHash(msg.sender, _pollID)); // compare resultant hash from inputs to original commitHash
+        require(revealPeriodActive(_pollID), "not active reveal period");
+        require(pollMap[_pollID].didCommit[msg.sender],"no commits by sender");                         // make sure user has committed a vote for this poll
+        require(!pollMap[_pollID].didReveal[msg.sender], "no reveals by sender");                        // prevent user from revealing multiple times
+        require(keccak256(abi.encodePacked(_voteOption, _salt)) == getCommitHash(msg.sender, _pollID), "commit hash mismatch"); // compare resultant hash from inputs to original commitHash
 
         uint numTokens = getNumTokens(msg.sender, _pollID);
 
@@ -254,8 +254,8 @@ contract PLCRVoting is Initializable {
     @return correctVotes    Number of tokens voted for winning option
     */
     function getNumPassingTokens(address _voter, uint _pollID) public view returns (uint correctVotes) {
-        require(pollEnded(_pollID));
-        require(pollMap[_pollID].didReveal[_voter]);
+        require(pollEnded(_pollID), "Poll not ended");
+        require(pollMap[_pollID].didReveal[_voter], "not revealed");
 
         uint winningChoice = isPassed(_pollID) ? 1 : 0;
         uint voterVoteOption = pollMap[_pollID].voteOptions[_voter];
@@ -334,7 +334,7 @@ contract PLCRVoting is Initializable {
     @return Boolean indication of whether polling period is over
     */
     function pollEnded(uint _pollID) view public returns (bool ended) {
-        require(pollExists(_pollID));
+        require(pollExists(_pollID), "poll does not exist");
 
         return isExpired(pollMap[_pollID].revealEndDate);
     }
@@ -357,7 +357,7 @@ contract PLCRVoting is Initializable {
     @param _pollID Integer identifier associated with target poll
     */
     function revealPeriodActive(uint _pollID) view public returns (bool active) {
-        require(pollExists(_pollID));
+        require(pollExists(_pollID), "non existent poll");
 
         return !isExpired(pollMap[_pollID].revealEndDate) && !commitPeriodActive(_pollID);
     }
@@ -381,7 +381,7 @@ contract PLCRVoting is Initializable {
     @return Boolean indication of whether user has revealed
     */
     function didReveal(address _voter, uint _pollID) view public returns (bool revealed) {
-        require(pollExists(_pollID));
+        require(pollExists(_pollID), "no poll exist");
 
         return pollMap[_pollID].didReveal[_voter];
     }
