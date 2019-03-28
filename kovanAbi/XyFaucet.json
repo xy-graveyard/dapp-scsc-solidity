@@ -325,21 +325,14 @@
   "ast": {
     "absolutePath": "/Users/kevin/GitHub/dapp-scsc-solidity/contracts/token/ERC20/XyFaucet.sol",
     "exportedSymbols": {
-      "XyFaucet": [
-        8488
-      ]
+      "XyFaucet": [8488]
     },
     "id": 8489,
     "nodeType": "SourceUnit",
     "nodes": [
       {
         "id": 8399,
-        "literals": [
-          "solidity",
-          "^",
-          "0.5",
-          ".0"
-        ],
+        "literals": ["solidity", "^", "0.5", ".0"],
         "nodeType": "PragmaDirective",
         "src": "0:23:26"
       },
@@ -386,17 +379,12 @@
             "src": "171:12:26"
           }
         ],
-        "contractDependencies": [
-          8397
-        ],
+        "contractDependencies": [8397],
         "contractKind": "contract",
         "documentation": "@title ERC20Mintable\n@dev ERC20 minting logic",
         "fullyImplemented": true,
         "id": 8488,
-        "linearizedBaseContracts": [
-          8488,
-          8397
-        ],
+        "linearizedBaseContracts": [8488, 8397],
         "name": "XyFaucet",
         "nodeType": "ContractDefinition",
         "nodes": [
@@ -1173,10 +1161,7 @@
                       "id": 8445,
                       "name": "require",
                       "nodeType": "Identifier",
-                      "overloadedDeclarations": [
-                        9649,
-                        9650
-                      ],
+                      "overloadedDeclarations": [9649, 9650],
                       "referencedDeclaration": 9650,
                       "src": "723:7:26",
                       "typeDescriptions": {
@@ -1518,21 +1503,14 @@
   "legacyAST": {
     "absolutePath": "/Users/kevin/GitHub/dapp-scsc-solidity/contracts/token/ERC20/XyFaucet.sol",
     "exportedSymbols": {
-      "XyFaucet": [
-        8488
-      ]
+      "XyFaucet": [8488]
     },
     "id": 8489,
     "nodeType": "SourceUnit",
     "nodes": [
       {
         "id": 8399,
-        "literals": [
-          "solidity",
-          "^",
-          "0.5",
-          ".0"
-        ],
+        "literals": ["solidity", "^", "0.5", ".0"],
         "nodeType": "PragmaDirective",
         "src": "0:23:26"
       },
@@ -1579,17 +1557,12 @@
             "src": "171:12:26"
           }
         ],
-        "contractDependencies": [
-          8397
-        ],
+        "contractDependencies": [8397],
         "contractKind": "contract",
         "documentation": "@title ERC20Mintable\n@dev ERC20 minting logic",
         "fullyImplemented": true,
         "id": 8488,
-        "linearizedBaseContracts": [
-          8488,
-          8397
-        ],
+        "linearizedBaseContracts": [8488, 8397],
         "name": "XyFaucet",
         "nodeType": "ContractDefinition",
         "nodes": [
@@ -2366,10 +2339,7 @@
                       "id": 8445,
                       "name": "require",
                       "nodeType": "Identifier",
-                      "overloadedDeclarations": [
-                        9649,
-                        9650
-                      ],
+                      "overloadedDeclarations": [9649, 9650],
                       "referencedDeclaration": 9650,
                       "src": "723:7:26",
                       "typeDescriptions": {
@@ -2712,7 +2682,14 @@
     "name": "solc",
     "version": "0.5.4+commit.9549d8ff.Emscripten.clang"
   },
-  "networks": {},
+  "networks": {
+    "42": {
+      "links": {},
+      "events": {},
+      "address": "0x9071a6fc3c23eb6f4a8f7a2bc2309a7b368f272f",
+      "updated_at": 1553648793752
+    }
+  },
   "schemaVersion": "3.0.1",
   "updatedAt": "2019-03-27T01:09:04.195Z",
   "devdoc": {
