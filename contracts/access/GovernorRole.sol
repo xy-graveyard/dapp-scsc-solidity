@@ -10,7 +10,9 @@ contract GovernorRole {
   event GovernorAdded(address indexed account);
   event GovernorRemoved(address indexed account);
 
-  constructor() internal {
+  function init() 
+     internal
+  {
     _addGovernor(msg.sender);
   }
 

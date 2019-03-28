@@ -20,7 +20,7 @@ contract XyBlockProducer is Initializable, GovernorRole {
         address creator
     );
 
-    address public governor;
+    address governor; // Unused consider removing
 
     // Keep a list of block producers to publicly show who the BPs are in the system
     address[] public blockProducers;
@@ -31,6 +31,8 @@ contract XyBlockProducer is Initializable, GovernorRole {
     function initialize () 
         initializer public
     {
+        governor = msg.sender;
+        super.init();
     }
 
     /** 

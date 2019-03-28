@@ -779,11 +779,11 @@
       }
     },
     "XyBlockProducer": {
-      "address": "0xceE3b013aF841415A4EBf31bD33c5A32E0Dc515F",
-      "constructorCode": "60806040526100163364010000000061001b810204565b6100f8565b61003360338264010000000061088161006a82021704565b604051600160a060020a038216907fdc5a48d79e2e147530ff63ecdbed5a5a66adb9d5cf339384d5d076da197c40b590600090a250565b600160a060020a038116151561007f57600080fd5b61009282826401000000006100c1810204565b1561009c57600080fd5b600160a060020a0316600090815260209190915260409020805460ff19166001179055565b6000600160a060020a03821615156100d857600080fd5b50600160a060020a03166000908152602091909152604090205460ff1690565b6109bc806101076000396000f3fe",
-      "bodyBytecodeHash": "27b3396d32c96ef20a0c6f510814aa8abbf52d3c871d60d560a2cbefc0a3f7d5",
-      "localBytecodeHash": "32d62ff35c25c62f51ab55b7cc25a8cdb4cb5e4b0bd532c758fed9accc890f06",
-      "deployedBytecodeHash": "32d62ff35c25c62f51ab55b7cc25a8cdb4cb5e4b0bd532c758fed9accc890f06",
+      "address": "0x0080fb55A995B35228996733673d7584128817f3",
+      "constructorCode": "608060405234801561001057600080fd5b506109cb806100206000396000f3fe",
+      "bodyBytecodeHash": "a62bc3733bbc9d8ed84e172d1d6e3835bc75b0b0a6ff65d7a50c87f7d7f5f1c7",
+      "localBytecodeHash": "e307d9d1dab27163bd5ab50c7a6fcb541e2dee5a82239256712fb6f6d88a3225",
+      "deployedBytecodeHash": "e307d9d1dab27163bd5ab50c7a6fcb541e2dee5a82239256712fb6f6d88a3225",
       "types": {
         "t_bool": {
           "id": "t_bool",
@@ -809,7 +809,7 @@
           "members": [
             {
               "label": "bearer",
-              "astId": 6985,
+              "astId": 7023,
               "type": "t_mapping<t_bool>",
               "src": "152:32:13"
             }
@@ -845,7 +845,7 @@
           "contract": "Initializable",
           "path": "contracts/utils/Initializable.sol",
           "label": "initialized",
-          "astId": 9444,
+          "astId": 9485,
           "type": "t_bool",
           "src": "757:24:33"
         },
@@ -853,7 +853,7 @@
           "contract": "Initializable",
           "path": "contracts/utils/Initializable.sol",
           "label": "initializing",
-          "astId": 9446,
+          "astId": 9487,
           "type": "t_bool",
           "src": "876:25:33"
         },
@@ -861,7 +861,7 @@
           "contract": "Initializable",
           "path": "contracts/utils/Initializable.sol",
           "label": "______gap",
-          "astId": 9495,
+          "astId": 9536,
           "type": "t_array:50<t_uint256>",
           "src": "1891:29:33"
         },
@@ -869,7 +869,7 @@
           "contract": "GovernorRole",
           "path": "contracts/access/GovernorRole.sol",
           "label": "minters",
-          "astId": 6883,
+          "astId": 6921,
           "type": "t_struct<Roles.Role>",
           "src": "113:26:12"
         },
@@ -879,7 +879,7 @@
           "label": "governor",
           "astId": 1748,
           "type": "t_address",
-          "src": "544:23:5"
+          "src": "544:16:5"
         },
         {
           "contract": "XyBlockProducer",
@@ -887,7 +887,7 @@
           "label": "blockProducers",
           "astId": 1751,
           "type": "t_array:dyn<t_address>",
-          "src": "659:31:5"
+          "src": "680:31:5"
         },
         {
           "contract": "XyBlockProducer",
@@ -895,7 +895,7 @@
           "label": "blockProducerIndexes",
           "astId": 1755,
           "type": "t_mapping<t_uint256>",
-          "src": "787:52:5"
+          "src": "808:52:5"
         }
       ],
       "warnings": {
@@ -903,7 +903,18 @@
         "hasSelfDestruct": false,
         "hasDelegateCall": false,
         "hasInitialValuesInDeclarations": false,
-        "uninitializedBaseContracts": []
+        "uninitializedBaseContracts": [],
+        "storageUncheckedVars": [
+          {
+            "contract": "GovernorRole",
+            "path": "contracts/access/GovernorRole.sol",
+            "label": "minters",
+            "astId": 6921,
+            "type": "t_struct<Roles.Role>",
+            "src": "113:26:12"
+          }
+        ],
+        "storageDiff": []
       }
     },
     "XyPayOnDelivery": {
@@ -1371,6 +1382,11 @@
         "address": "0xCB9B90aF7f6A0409266416080a274e623b46ca6B",
         "version": "0.1.0",
         "implementation": "0xceE3b013aF841415A4EBf31bD33c5A32E0Dc515F"
+      },
+      {
+        "address": "0x84037e3109e1d199a58e592b7BBa370b19B0b898",
+        "version": "0.1.0",
+        "implementation": "0x0080fb55A995B35228996733673d7584128817f3"
       }
     ],
     "dapp-scsc-solidity/XyStakingConsensus": [
@@ -1381,6 +1397,11 @@
       },
       {
         "address": "0x03e7cF4f97C87CD93d74648E56185C56BF718d5d",
+        "version": "0.1.0",
+        "implementation": "0xe0DfB55F8fE706fd4F0a0169FbE724BF47b55a66"
+      },
+      {
+        "address": "0x234872fB24514b32185A125313a53177DDA97c12",
         "version": "0.1.0",
         "implementation": "0xe0DfB55F8fE706fd4F0a0169FbE724BF47b55a66"
       }
@@ -1395,6 +1416,11 @@
         "address": "0xCC0376B9939cc0A9cDfcf9C00F0D6A178C29C293",
         "version": "0.1.0",
         "implementation": "0x87df358f25544835aeEB3262De24A537a0924cBB"
+      },
+      {
+        "address": "0x5d757557C3bd5945cefBBc17dcABBCEC94D7D73E",
+        "version": "0.1.0",
+        "implementation": "0xf7567E6fF72108391a23B9809b25eB0a22ba02dB"
       }
     ]
   },

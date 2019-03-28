@@ -325,31 +325,24 @@
   "ast": {
     "absolutePath": "/Users/kevin/GitHub/dapp-scsc-solidity/contracts/token/ERC20/XyFaucet.sol",
     "exportedSymbols": {
-      "XyFaucet": [
-        8478
-      ]
+      "XyFaucet": [8488]
     },
-    "id": 8479,
+    "id": 8489,
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 8389,
-        "literals": [
-          "solidity",
-          "^",
-          "0.5",
-          ".0"
-        ],
+        "id": 8399,
+        "literals": ["solidity", "^", "0.5", ".0"],
         "nodeType": "PragmaDirective",
         "src": "0:23:26"
       },
       {
         "absolutePath": "/Users/kevin/GitHub/dapp-scsc-solidity/contracts/token/ERC20/XyERC20Token.sol",
         "file": "./XyERC20Token.sol",
-        "id": 8390,
+        "id": 8400,
         "nodeType": "ImportDirective",
-        "scope": 8479,
-        "sourceUnit": 8388,
+        "scope": 8489,
+        "sourceUnit": 8398,
         "src": "25:28:26",
         "symbolAliases": [],
         "unitAlias": ""
@@ -357,10 +350,10 @@
       {
         "absolutePath": "/Users/kevin/GitHub/dapp-scsc-solidity/contracts/utils/SafeMath.sol",
         "file": "../../utils/SafeMath.sol",
-        "id": 8391,
+        "id": 8401,
         "nodeType": "ImportDirective",
-        "scope": 8479,
-        "sourceUnit": 9622,
+        "scope": 8489,
+        "sourceUnit": 9632,
         "src": "54:34:26",
         "symbolAliases": [],
         "unitAlias": ""
@@ -371,53 +364,48 @@
             "arguments": null,
             "baseName": {
               "contractScope": null,
-              "id": 8392,
+              "id": 8402,
               "name": "XyERC20Token",
               "nodeType": "UserDefinedTypeName",
-              "referencedDeclaration": 8387,
+              "referencedDeclaration": 8397,
               "src": "171:12:26",
               "typeDescriptions": {
-                "typeIdentifier": "t_contract$_XyERC20Token_$8387",
+                "typeIdentifier": "t_contract$_XyERC20Token_$8397",
                 "typeString": "contract XyERC20Token"
               }
             },
-            "id": 8393,
+            "id": 8403,
             "nodeType": "InheritanceSpecifier",
             "src": "171:12:26"
           }
         ],
-        "contractDependencies": [
-          8387
-        ],
+        "contractDependencies": [8397],
         "contractKind": "contract",
         "documentation": "@title ERC20Mintable\n@dev ERC20 minting logic",
         "fullyImplemented": true,
-        "id": 8478,
-        "linearizedBaseContracts": [
-          8478,
-          8387
-        ],
+        "id": 8488,
+        "linearizedBaseContracts": [8488, 8397],
         "name": "XyFaucet",
         "nodeType": "ContractDefinition",
         "nodes": [
           {
-            "id": 8396,
+            "id": 8406,
             "libraryName": {
               "contractScope": null,
-              "id": 8394,
+              "id": 8404,
               "name": "SafeMath",
               "nodeType": "UserDefinedTypeName",
-              "referencedDeclaration": 9621,
+              "referencedDeclaration": 9631,
               "src": "196:8:26",
               "typeDescriptions": {
-                "typeIdentifier": "t_contract$_SafeMath_$9621",
+                "typeIdentifier": "t_contract$_SafeMath_$9631",
                 "typeString": "library SafeMath"
               }
             },
             "nodeType": "UsingForDirective",
             "src": "190:27:26",
             "typeName": {
-              "id": 8395,
+              "id": 8405,
               "name": "uint256",
               "nodeType": "ElementaryTypeName",
               "src": "209:7:26",
@@ -429,10 +417,10 @@
           },
           {
             "constant": false,
-            "id": 8399,
+            "id": 8409,
             "name": "faucetDrip",
             "nodeType": "VariableDeclaration",
-            "scope": 8478,
+            "scope": 8488,
             "src": "222:31:26",
             "stateVariable": true,
             "storageLocation": "default",
@@ -441,7 +429,7 @@
               "typeString": "uint256"
             },
             "typeName": {
-              "id": 8397,
+              "id": 8407,
               "name": "uint256",
               "nodeType": "ElementaryTypeName",
               "src": "222:7:26",
@@ -453,7 +441,7 @@
             "value": {
               "argumentTypes": null,
               "hexValue": "32303030",
-              "id": 8398,
+              "id": 8408,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
@@ -472,10 +460,10 @@
           },
           {
             "constant": false,
-            "id": 8402,
+            "id": 8412,
             "name": "faucetCooldown",
             "nodeType": "VariableDeclaration",
-            "scope": 8478,
+            "scope": 8488,
             "src": "259:28:26",
             "stateVariable": true,
             "storageLocation": "default",
@@ -484,7 +472,7 @@
               "typeString": "uint256"
             },
             "typeName": {
-              "id": 8400,
+              "id": 8410,
               "name": "uint256",
               "nodeType": "ElementaryTypeName",
               "src": "259:7:26",
@@ -496,7 +484,7 @@
             "value": {
               "argumentTypes": null,
               "hexValue": "343830",
-              "id": 8401,
+              "id": 8411,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
@@ -515,10 +503,10 @@
           },
           {
             "constant": false,
-            "id": 8404,
+            "id": 8414,
             "name": "vault",
             "nodeType": "VariableDeclaration",
-            "scope": 8478,
+            "scope": 8488,
             "src": "304:13:26",
             "stateVariable": true,
             "storageLocation": "default",
@@ -527,7 +515,7 @@
               "typeString": "address"
             },
             "typeName": {
-              "id": 8403,
+              "id": 8413,
               "name": "address",
               "nodeType": "ElementaryTypeName",
               "src": "304:7:26",
@@ -542,10 +530,10 @@
           },
           {
             "constant": false,
-            "id": 8408,
+            "id": 8418,
             "name": "lastDripBlock",
             "nodeType": "VariableDeclaration",
-            "scope": 8478,
+            "scope": 8488,
             "src": "323:40:26",
             "stateVariable": true,
             "storageLocation": "default",
@@ -554,9 +542,9 @@
               "typeString": "mapping(address => uint256)"
             },
             "typeName": {
-              "id": 8407,
+              "id": 8417,
               "keyType": {
-                "id": 8405,
+                "id": 8415,
                 "name": "address",
                 "nodeType": "ElementaryTypeName",
                 "src": "332:7:26",
@@ -572,7 +560,7 @@
                 "typeString": "mapping(address => uint256)"
               },
               "valueType": {
-                "id": 8406,
+                "id": 8416,
                 "name": "uint256",
                 "nodeType": "ElementaryTypeName",
                 "src": "341:7:26",
@@ -588,20 +576,20 @@
           {
             "anonymous": false,
             "documentation": null,
-            "id": 8412,
+            "id": 8422,
             "name": "NewDrip",
             "nodeType": "EventDefinition",
             "parameters": {
-              "id": 8411,
+              "id": 8421,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 8410,
+                  "id": 8420,
                   "indexed": false,
                   "name": "recipient",
                   "nodeType": "VariableDeclaration",
-                  "scope": 8412,
+                  "scope": 8422,
                   "src": "383:17:26",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -610,7 +598,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 8409,
+                    "id": 8419,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "383:7:26",
@@ -630,25 +618,25 @@
           },
           {
             "body": {
-              "id": 8431,
+              "id": 8441,
               "nodeType": "Block",
               "src": "597:35:26",
               "statements": [
                 {
                   "expression": {
                     "argumentTypes": null,
-                    "id": 8429,
+                    "id": 8439,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
                     "lValueRequested": false,
                     "leftHandSide": {
                       "argumentTypes": null,
-                      "id": 8426,
+                      "id": 8436,
                       "name": "vault",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 8404,
+                      "referencedDeclaration": 8414,
                       "src": "607:5:26",
                       "typeDescriptions": {
                         "typeIdentifier": "t_address",
@@ -661,18 +649,18 @@
                       "argumentTypes": null,
                       "expression": {
                         "argumentTypes": null,
-                        "id": 8427,
+                        "id": 8437,
                         "name": "msg",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 9636,
+                        "referencedDeclaration": 9646,
                         "src": "615:3:26",
                         "typeDescriptions": {
                           "typeIdentifier": "t_magic_message",
                           "typeString": "msg"
                         }
                       },
-                      "id": 8428,
+                      "id": 8438,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
@@ -692,14 +680,14 @@
                       "typeString": "address"
                     }
                   },
-                  "id": 8430,
+                  "id": 8440,
                   "nodeType": "ExpressionStatement",
                   "src": "607:18:26"
                 }
               ]
             },
             "documentation": null,
-            "id": 8432,
+            "id": 8442,
             "implemented": true,
             "kind": "constructor",
             "modifiers": [
@@ -707,11 +695,11 @@
                 "arguments": [
                   {
                     "argumentTypes": null,
-                    "id": 8421,
+                    "id": 8431,
                     "name": "initialSupply",
                     "nodeType": "Identifier",
                     "overloadedDeclarations": [],
-                    "referencedDeclaration": 8414,
+                    "referencedDeclaration": 8424,
                     "src": "543:13:26",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
@@ -720,11 +708,11 @@
                   },
                   {
                     "argumentTypes": null,
-                    "id": 8422,
+                    "id": 8432,
                     "name": "tokenName",
                     "nodeType": "Identifier",
                     "overloadedDeclarations": [],
-                    "referencedDeclaration": 8416,
+                    "referencedDeclaration": 8426,
                     "src": "558:9:26",
                     "typeDescriptions": {
                       "typeIdentifier": "t_string_memory_ptr",
@@ -733,11 +721,11 @@
                   },
                   {
                     "argumentTypes": null,
-                    "id": 8423,
+                    "id": 8433,
                     "name": "tokenSymbol",
                     "nodeType": "Identifier",
                     "overloadedDeclarations": [],
-                    "referencedDeclaration": 8418,
+                    "referencedDeclaration": 8428,
                     "src": "569:11:26",
                     "typeDescriptions": {
                       "typeIdentifier": "t_string_memory_ptr",
@@ -745,17 +733,17 @@
                     }
                   }
                 ],
-                "id": 8424,
+                "id": 8434,
                 "modifierName": {
                   "argumentTypes": null,
-                  "id": 8420,
+                  "id": 8430,
                   "name": "XyERC20Token",
                   "nodeType": "Identifier",
                   "overloadedDeclarations": [],
-                  "referencedDeclaration": 8387,
+                  "referencedDeclaration": 8397,
                   "src": "530:12:26",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_type$_t_contract$_XyERC20Token_$8387_$",
+                    "typeIdentifier": "t_type$_t_contract$_XyERC20Token_$8397_$",
                     "typeString": "type(contract XyERC20Token)"
                   }
                 },
@@ -766,15 +754,15 @@
             "name": "",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 8419,
+              "id": 8429,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 8414,
+                  "id": 8424,
                   "name": "initialSupply",
                   "nodeType": "VariableDeclaration",
-                  "scope": 8432,
+                  "scope": 8442,
                   "src": "429:21:26",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -783,7 +771,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 8413,
+                    "id": 8423,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "429:7:26",
@@ -797,10 +785,10 @@
                 },
                 {
                   "constant": false,
-                  "id": 8416,
+                  "id": 8426,
                   "name": "tokenName",
                   "nodeType": "VariableDeclaration",
-                  "scope": 8432,
+                  "scope": 8442,
                   "src": "460:23:26",
                   "stateVariable": false,
                   "storageLocation": "memory",
@@ -809,7 +797,7 @@
                     "typeString": "string"
                   },
                   "typeName": {
-                    "id": 8415,
+                    "id": 8425,
                     "name": "string",
                     "nodeType": "ElementaryTypeName",
                     "src": "460:6:26",
@@ -823,10 +811,10 @@
                 },
                 {
                   "constant": false,
-                  "id": 8418,
+                  "id": 8428,
                   "name": "tokenSymbol",
                   "nodeType": "VariableDeclaration",
-                  "scope": 8432,
+                  "scope": 8442,
                   "src": "493:25:26",
                   "stateVariable": false,
                   "storageLocation": "memory",
@@ -835,7 +823,7 @@
                     "typeString": "string"
                   },
                   "typeName": {
-                    "id": 8417,
+                    "id": 8427,
                     "name": "string",
                     "nodeType": "ElementaryTypeName",
                     "src": "493:6:26",
@@ -851,12 +839,12 @@
               "src": "419:105:26"
             },
             "returnParameters": {
-              "id": 8425,
+              "id": 8435,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "597:0:26"
             },
-            "scope": 8478,
+            "scope": 8488,
             "src": "408:224:26",
             "stateMutability": "nonpayable",
             "superFunction": null,
@@ -864,7 +852,7 @@
           },
           {
             "body": {
-              "id": 8476,
+              "id": 8486,
               "nodeType": "Block",
               "src": "713:271:26",
               "statements": [
@@ -878,7 +866,7 @@
                           "typeIdentifier": "t_bool",
                           "typeString": "bool"
                         },
-                        "id": 8452,
+                        "id": 8462,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": false,
@@ -889,7 +877,7 @@
                             "typeIdentifier": "t_uint256",
                             "typeString": "uint256"
                           },
-                          "id": 8441,
+                          "id": 8451,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": false,
@@ -898,34 +886,34 @@
                             "argumentTypes": null,
                             "baseExpression": {
                               "argumentTypes": null,
-                              "id": 8436,
+                              "id": 8446,
                               "name": "lastDripBlock",
                               "nodeType": "Identifier",
                               "overloadedDeclarations": [],
-                              "referencedDeclaration": 8408,
+                              "referencedDeclaration": 8418,
                               "src": "732:13:26",
                               "typeDescriptions": {
                                 "typeIdentifier": "t_mapping$_t_address_$_t_uint256_$",
                                 "typeString": "mapping(address => uint256)"
                               }
                             },
-                            "id": 8439,
+                            "id": 8449,
                             "indexExpression": {
                               "argumentTypes": null,
                               "expression": {
                                 "argumentTypes": null,
-                                "id": 8437,
+                                "id": 8447,
                                 "name": "msg",
                                 "nodeType": "Identifier",
                                 "overloadedDeclarations": [],
-                                "referencedDeclaration": 9636,
+                                "referencedDeclaration": 9646,
                                 "src": "746:3:26",
                                 "typeDescriptions": {
                                   "typeIdentifier": "t_magic_message",
                                   "typeString": "msg"
                                 }
                               },
-                              "id": 8438,
+                              "id": 8448,
                               "isConstant": false,
                               "isLValue": false,
                               "isPure": false,
@@ -955,7 +943,7 @@
                           "rightExpression": {
                             "argumentTypes": null,
                             "hexValue": "30",
-                            "id": 8440,
+                            "id": 8450,
                             "isConstant": false,
                             "isLValue": false,
                             "isPure": true,
@@ -984,7 +972,7 @@
                             "typeIdentifier": "t_uint256",
                             "typeString": "uint256"
                           },
-                          "id": 8451,
+                          "id": 8461,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": false,
@@ -994,11 +982,11 @@
                             "arguments": [
                               {
                                 "argumentTypes": null,
-                                "id": 8447,
+                                "id": 8457,
                                 "name": "faucetCooldown",
                                 "nodeType": "Identifier",
                                 "overloadedDeclarations": [],
-                                "referencedDeclaration": 8402,
+                                "referencedDeclaration": 8412,
                                 "src": "796:14:26",
                                 "typeDescriptions": {
                                   "typeIdentifier": "t_uint256",
@@ -1017,34 +1005,34 @@
                                 "argumentTypes": null,
                                 "baseExpression": {
                                   "argumentTypes": null,
-                                  "id": 8442,
+                                  "id": 8452,
                                   "name": "lastDripBlock",
                                   "nodeType": "Identifier",
                                   "overloadedDeclarations": [],
-                                  "referencedDeclaration": 8408,
+                                  "referencedDeclaration": 8418,
                                   "src": "766:13:26",
                                   "typeDescriptions": {
                                     "typeIdentifier": "t_mapping$_t_address_$_t_uint256_$",
                                     "typeString": "mapping(address => uint256)"
                                   }
                                 },
-                                "id": 8445,
+                                "id": 8455,
                                 "indexExpression": {
                                   "argumentTypes": null,
                                   "expression": {
                                     "argumentTypes": null,
-                                    "id": 8443,
+                                    "id": 8453,
                                     "name": "msg",
                                     "nodeType": "Identifier",
                                     "overloadedDeclarations": [],
-                                    "referencedDeclaration": 9636,
+                                    "referencedDeclaration": 9646,
                                     "src": "780:3:26",
                                     "typeDescriptions": {
                                       "typeIdentifier": "t_magic_message",
                                       "typeString": "msg"
                                     }
                                   },
-                                  "id": 8444,
+                                  "id": 8454,
                                   "isConstant": false,
                                   "isLValue": false,
                                   "isPure": false,
@@ -1069,21 +1057,21 @@
                                   "typeString": "uint256"
                                 }
                               },
-                              "id": 8446,
+                              "id": 8456,
                               "isConstant": false,
                               "isLValue": false,
                               "isPure": false,
                               "lValueRequested": false,
                               "memberName": "add",
                               "nodeType": "MemberAccess",
-                              "referencedDeclaration": 9620,
+                              "referencedDeclaration": 9630,
                               "src": "766:29:26",
                               "typeDescriptions": {
                                 "typeIdentifier": "t_function_internal_pure$_t_uint256_$_t_uint256_$returns$_t_uint256_$bound_to$_t_uint256_$",
                                 "typeString": "function (uint256,uint256) pure returns (uint256)"
                               }
                             },
-                            "id": 8448,
+                            "id": 8458,
                             "isConstant": false,
                             "isLValue": false,
                             "isPure": false,
@@ -1103,18 +1091,18 @@
                             "argumentTypes": null,
                             "expression": {
                               "argumentTypes": null,
-                              "id": 8449,
+                              "id": 8459,
                               "name": "block",
                               "nodeType": "Identifier",
                               "overloadedDeclarations": [],
-                              "referencedDeclaration": 9626,
+                              "referencedDeclaration": 9636,
                               "src": "814:5:26",
                               "typeDescriptions": {
                                 "typeIdentifier": "t_magic_block",
                                 "typeString": "block"
                               }
                             },
-                            "id": 8450,
+                            "id": 8460,
                             "isConstant": false,
                             "isLValue": false,
                             "isPure": false,
@@ -1143,7 +1131,7 @@
                       {
                         "argumentTypes": null,
                         "hexValue": "436f6f6c696e6720646f776e",
-                        "id": 8453,
+                        "id": 8463,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -1170,21 +1158,18 @@
                           "typeString": "literal_string \"Cooling down\""
                         }
                       ],
-                      "id": 8435,
+                      "id": 8445,
                       "name": "require",
                       "nodeType": "Identifier",
-                      "overloadedDeclarations": [
-                        9639,
-                        9640
-                      ],
-                      "referencedDeclaration": 9640,
+                      "overloadedDeclarations": [9649, 9650],
+                      "referencedDeclaration": 9650,
                       "src": "723:7:26",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_require_pure$_t_bool_$_t_string_memory_ptr_$returns$__$",
                         "typeString": "function (bool,string memory) pure"
                       }
                     },
-                    "id": 8454,
+                    "id": 8464,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -1198,14 +1183,14 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 8455,
+                  "id": 8465,
                   "nodeType": "ExpressionStatement",
                   "src": "723:120:26"
                 },
                 {
                   "expression": {
                     "argumentTypes": null,
-                    "id": 8462,
+                    "id": 8472,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -1214,34 +1199,34 @@
                       "argumentTypes": null,
                       "baseExpression": {
                         "argumentTypes": null,
-                        "id": 8456,
+                        "id": 8466,
                         "name": "lastDripBlock",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 8408,
+                        "referencedDeclaration": 8418,
                         "src": "853:13:26",
                         "typeDescriptions": {
                           "typeIdentifier": "t_mapping$_t_address_$_t_uint256_$",
                           "typeString": "mapping(address => uint256)"
                         }
                       },
-                      "id": 8459,
+                      "id": 8469,
                       "indexExpression": {
                         "argumentTypes": null,
                         "expression": {
                           "argumentTypes": null,
-                          "id": 8457,
+                          "id": 8467,
                           "name": "msg",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 9636,
+                          "referencedDeclaration": 9646,
                           "src": "867:3:26",
                           "typeDescriptions": {
                             "typeIdentifier": "t_magic_message",
                             "typeString": "msg"
                           }
                         },
-                        "id": 8458,
+                        "id": 8468,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": false,
@@ -1272,18 +1257,18 @@
                       "argumentTypes": null,
                       "expression": {
                         "argumentTypes": null,
-                        "id": 8460,
+                        "id": 8470,
                         "name": "block",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 9626,
+                        "referencedDeclaration": 9636,
                         "src": "881:5:26",
                         "typeDescriptions": {
                           "typeIdentifier": "t_magic_block",
                           "typeString": "block"
                         }
                       },
-                      "id": 8461,
+                      "id": 8471,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
@@ -1303,7 +1288,7 @@
                       "typeString": "uint256"
                     }
                   },
-                  "id": 8463,
+                  "id": 8473,
                   "nodeType": "ExpressionStatement",
                   "src": "853:40:26"
                 },
@@ -1313,11 +1298,11 @@
                     "arguments": [
                       {
                         "argumentTypes": null,
-                        "id": 8465,
+                        "id": 8475,
                         "name": "vault",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 8404,
+                        "referencedDeclaration": 8414,
                         "src": "913:5:26",
                         "typeDescriptions": {
                           "typeIdentifier": "t_address",
@@ -1328,18 +1313,18 @@
                         "argumentTypes": null,
                         "expression": {
                           "argumentTypes": null,
-                          "id": 8466,
+                          "id": 8476,
                           "name": "msg",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 9636,
+                          "referencedDeclaration": 9646,
                           "src": "920:3:26",
                           "typeDescriptions": {
                             "typeIdentifier": "t_magic_message",
                             "typeString": "msg"
                           }
                         },
-                        "id": 8467,
+                        "id": 8477,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": false,
@@ -1355,11 +1340,11 @@
                       },
                       {
                         "argumentTypes": null,
-                        "id": 8468,
+                        "id": 8478,
                         "name": "faucetDrip",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 8399,
+                        "referencedDeclaration": 8409,
                         "src": "932:10:26",
                         "typeDescriptions": {
                           "typeIdentifier": "t_uint256",
@@ -1382,18 +1367,18 @@
                           "typeString": "uint256"
                         }
                       ],
-                      "id": 8464,
+                      "id": 8474,
                       "name": "_transfer",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 8180,
+                      "referencedDeclaration": 8190,
                       "src": "903:9:26",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_address_$_t_address_$_t_uint256_$returns$__$",
                         "typeString": "function (address,address,uint256)"
                       }
                     },
-                    "id": 8469,
+                    "id": 8479,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -1407,7 +1392,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 8470,
+                  "id": 8480,
                   "nodeType": "ExpressionStatement",
                   "src": "903:40:26"
                 },
@@ -1419,18 +1404,18 @@
                         "argumentTypes": null,
                         "expression": {
                           "argumentTypes": null,
-                          "id": 8472,
+                          "id": 8482,
                           "name": "msg",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 9636,
+                          "referencedDeclaration": 9646,
                           "src": "966:3:26",
                           "typeDescriptions": {
                             "typeIdentifier": "t_magic_message",
                             "typeString": "msg"
                           }
                         },
-                        "id": 8473,
+                        "id": 8483,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": false,
@@ -1452,18 +1437,18 @@
                           "typeString": "address payable"
                         }
                       ],
-                      "id": 8471,
+                      "id": 8481,
                       "name": "NewDrip",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 8412,
+                      "referencedDeclaration": 8422,
                       "src": "958:7:26",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_event_nonpayable$_t_address_$returns$__$",
                         "typeString": "function (address)"
                       }
                     },
-                    "id": 8474,
+                    "id": 8484,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -1477,39 +1462,39 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 8475,
+                  "id": 8485,
                   "nodeType": "EmitStatement",
                   "src": "953:24:26"
                 }
               ]
             },
             "documentation": "@dev Faucet will mint tokens",
-            "id": 8477,
+            "id": 8487,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
             "name": "mint",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 8433,
+              "id": 8443,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "703:2:26"
             },
             "returnParameters": {
-              "id": 8434,
+              "id": 8444,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "713:0:26"
             },
-            "scope": 8478,
+            "scope": 8488,
             "src": "690:294:26",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "public"
           }
         ],
-        "scope": 8479,
+        "scope": 8489,
         "src": "150:836:26"
       }
     ],
@@ -1518,31 +1503,24 @@
   "legacyAST": {
     "absolutePath": "/Users/kevin/GitHub/dapp-scsc-solidity/contracts/token/ERC20/XyFaucet.sol",
     "exportedSymbols": {
-      "XyFaucet": [
-        8478
-      ]
+      "XyFaucet": [8488]
     },
-    "id": 8479,
+    "id": 8489,
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 8389,
-        "literals": [
-          "solidity",
-          "^",
-          "0.5",
-          ".0"
-        ],
+        "id": 8399,
+        "literals": ["solidity", "^", "0.5", ".0"],
         "nodeType": "PragmaDirective",
         "src": "0:23:26"
       },
       {
         "absolutePath": "/Users/kevin/GitHub/dapp-scsc-solidity/contracts/token/ERC20/XyERC20Token.sol",
         "file": "./XyERC20Token.sol",
-        "id": 8390,
+        "id": 8400,
         "nodeType": "ImportDirective",
-        "scope": 8479,
-        "sourceUnit": 8388,
+        "scope": 8489,
+        "sourceUnit": 8398,
         "src": "25:28:26",
         "symbolAliases": [],
         "unitAlias": ""
@@ -1550,10 +1528,10 @@
       {
         "absolutePath": "/Users/kevin/GitHub/dapp-scsc-solidity/contracts/utils/SafeMath.sol",
         "file": "../../utils/SafeMath.sol",
-        "id": 8391,
+        "id": 8401,
         "nodeType": "ImportDirective",
-        "scope": 8479,
-        "sourceUnit": 9622,
+        "scope": 8489,
+        "sourceUnit": 9632,
         "src": "54:34:26",
         "symbolAliases": [],
         "unitAlias": ""
@@ -1564,53 +1542,48 @@
             "arguments": null,
             "baseName": {
               "contractScope": null,
-              "id": 8392,
+              "id": 8402,
               "name": "XyERC20Token",
               "nodeType": "UserDefinedTypeName",
-              "referencedDeclaration": 8387,
+              "referencedDeclaration": 8397,
               "src": "171:12:26",
               "typeDescriptions": {
-                "typeIdentifier": "t_contract$_XyERC20Token_$8387",
+                "typeIdentifier": "t_contract$_XyERC20Token_$8397",
                 "typeString": "contract XyERC20Token"
               }
             },
-            "id": 8393,
+            "id": 8403,
             "nodeType": "InheritanceSpecifier",
             "src": "171:12:26"
           }
         ],
-        "contractDependencies": [
-          8387
-        ],
+        "contractDependencies": [8397],
         "contractKind": "contract",
         "documentation": "@title ERC20Mintable\n@dev ERC20 minting logic",
         "fullyImplemented": true,
-        "id": 8478,
-        "linearizedBaseContracts": [
-          8478,
-          8387
-        ],
+        "id": 8488,
+        "linearizedBaseContracts": [8488, 8397],
         "name": "XyFaucet",
         "nodeType": "ContractDefinition",
         "nodes": [
           {
-            "id": 8396,
+            "id": 8406,
             "libraryName": {
               "contractScope": null,
-              "id": 8394,
+              "id": 8404,
               "name": "SafeMath",
               "nodeType": "UserDefinedTypeName",
-              "referencedDeclaration": 9621,
+              "referencedDeclaration": 9631,
               "src": "196:8:26",
               "typeDescriptions": {
-                "typeIdentifier": "t_contract$_SafeMath_$9621",
+                "typeIdentifier": "t_contract$_SafeMath_$9631",
                 "typeString": "library SafeMath"
               }
             },
             "nodeType": "UsingForDirective",
             "src": "190:27:26",
             "typeName": {
-              "id": 8395,
+              "id": 8405,
               "name": "uint256",
               "nodeType": "ElementaryTypeName",
               "src": "209:7:26",
@@ -1622,10 +1595,10 @@
           },
           {
             "constant": false,
-            "id": 8399,
+            "id": 8409,
             "name": "faucetDrip",
             "nodeType": "VariableDeclaration",
-            "scope": 8478,
+            "scope": 8488,
             "src": "222:31:26",
             "stateVariable": true,
             "storageLocation": "default",
@@ -1634,7 +1607,7 @@
               "typeString": "uint256"
             },
             "typeName": {
-              "id": 8397,
+              "id": 8407,
               "name": "uint256",
               "nodeType": "ElementaryTypeName",
               "src": "222:7:26",
@@ -1646,7 +1619,7 @@
             "value": {
               "argumentTypes": null,
               "hexValue": "32303030",
-              "id": 8398,
+              "id": 8408,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
@@ -1665,10 +1638,10 @@
           },
           {
             "constant": false,
-            "id": 8402,
+            "id": 8412,
             "name": "faucetCooldown",
             "nodeType": "VariableDeclaration",
-            "scope": 8478,
+            "scope": 8488,
             "src": "259:28:26",
             "stateVariable": true,
             "storageLocation": "default",
@@ -1677,7 +1650,7 @@
               "typeString": "uint256"
             },
             "typeName": {
-              "id": 8400,
+              "id": 8410,
               "name": "uint256",
               "nodeType": "ElementaryTypeName",
               "src": "259:7:26",
@@ -1689,7 +1662,7 @@
             "value": {
               "argumentTypes": null,
               "hexValue": "343830",
-              "id": 8401,
+              "id": 8411,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
@@ -1708,10 +1681,10 @@
           },
           {
             "constant": false,
-            "id": 8404,
+            "id": 8414,
             "name": "vault",
             "nodeType": "VariableDeclaration",
-            "scope": 8478,
+            "scope": 8488,
             "src": "304:13:26",
             "stateVariable": true,
             "storageLocation": "default",
@@ -1720,7 +1693,7 @@
               "typeString": "address"
             },
             "typeName": {
-              "id": 8403,
+              "id": 8413,
               "name": "address",
               "nodeType": "ElementaryTypeName",
               "src": "304:7:26",
@@ -1735,10 +1708,10 @@
           },
           {
             "constant": false,
-            "id": 8408,
+            "id": 8418,
             "name": "lastDripBlock",
             "nodeType": "VariableDeclaration",
-            "scope": 8478,
+            "scope": 8488,
             "src": "323:40:26",
             "stateVariable": true,
             "storageLocation": "default",
@@ -1747,9 +1720,9 @@
               "typeString": "mapping(address => uint256)"
             },
             "typeName": {
-              "id": 8407,
+              "id": 8417,
               "keyType": {
-                "id": 8405,
+                "id": 8415,
                 "name": "address",
                 "nodeType": "ElementaryTypeName",
                 "src": "332:7:26",
@@ -1765,7 +1738,7 @@
                 "typeString": "mapping(address => uint256)"
               },
               "valueType": {
-                "id": 8406,
+                "id": 8416,
                 "name": "uint256",
                 "nodeType": "ElementaryTypeName",
                 "src": "341:7:26",
@@ -1781,20 +1754,20 @@
           {
             "anonymous": false,
             "documentation": null,
-            "id": 8412,
+            "id": 8422,
             "name": "NewDrip",
             "nodeType": "EventDefinition",
             "parameters": {
-              "id": 8411,
+              "id": 8421,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 8410,
+                  "id": 8420,
                   "indexed": false,
                   "name": "recipient",
                   "nodeType": "VariableDeclaration",
-                  "scope": 8412,
+                  "scope": 8422,
                   "src": "383:17:26",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1803,7 +1776,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 8409,
+                    "id": 8419,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "383:7:26",
@@ -1823,25 +1796,25 @@
           },
           {
             "body": {
-              "id": 8431,
+              "id": 8441,
               "nodeType": "Block",
               "src": "597:35:26",
               "statements": [
                 {
                   "expression": {
                     "argumentTypes": null,
-                    "id": 8429,
+                    "id": 8439,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
                     "lValueRequested": false,
                     "leftHandSide": {
                       "argumentTypes": null,
-                      "id": 8426,
+                      "id": 8436,
                       "name": "vault",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 8404,
+                      "referencedDeclaration": 8414,
                       "src": "607:5:26",
                       "typeDescriptions": {
                         "typeIdentifier": "t_address",
@@ -1854,18 +1827,18 @@
                       "argumentTypes": null,
                       "expression": {
                         "argumentTypes": null,
-                        "id": 8427,
+                        "id": 8437,
                         "name": "msg",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 9636,
+                        "referencedDeclaration": 9646,
                         "src": "615:3:26",
                         "typeDescriptions": {
                           "typeIdentifier": "t_magic_message",
                           "typeString": "msg"
                         }
                       },
-                      "id": 8428,
+                      "id": 8438,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
@@ -1885,14 +1858,14 @@
                       "typeString": "address"
                     }
                   },
-                  "id": 8430,
+                  "id": 8440,
                   "nodeType": "ExpressionStatement",
                   "src": "607:18:26"
                 }
               ]
             },
             "documentation": null,
-            "id": 8432,
+            "id": 8442,
             "implemented": true,
             "kind": "constructor",
             "modifiers": [
@@ -1900,11 +1873,11 @@
                 "arguments": [
                   {
                     "argumentTypes": null,
-                    "id": 8421,
+                    "id": 8431,
                     "name": "initialSupply",
                     "nodeType": "Identifier",
                     "overloadedDeclarations": [],
-                    "referencedDeclaration": 8414,
+                    "referencedDeclaration": 8424,
                     "src": "543:13:26",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
@@ -1913,11 +1886,11 @@
                   },
                   {
                     "argumentTypes": null,
-                    "id": 8422,
+                    "id": 8432,
                     "name": "tokenName",
                     "nodeType": "Identifier",
                     "overloadedDeclarations": [],
-                    "referencedDeclaration": 8416,
+                    "referencedDeclaration": 8426,
                     "src": "558:9:26",
                     "typeDescriptions": {
                       "typeIdentifier": "t_string_memory_ptr",
@@ -1926,11 +1899,11 @@
                   },
                   {
                     "argumentTypes": null,
-                    "id": 8423,
+                    "id": 8433,
                     "name": "tokenSymbol",
                     "nodeType": "Identifier",
                     "overloadedDeclarations": [],
-                    "referencedDeclaration": 8418,
+                    "referencedDeclaration": 8428,
                     "src": "569:11:26",
                     "typeDescriptions": {
                       "typeIdentifier": "t_string_memory_ptr",
@@ -1938,17 +1911,17 @@
                     }
                   }
                 ],
-                "id": 8424,
+                "id": 8434,
                 "modifierName": {
                   "argumentTypes": null,
-                  "id": 8420,
+                  "id": 8430,
                   "name": "XyERC20Token",
                   "nodeType": "Identifier",
                   "overloadedDeclarations": [],
-                  "referencedDeclaration": 8387,
+                  "referencedDeclaration": 8397,
                   "src": "530:12:26",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_type$_t_contract$_XyERC20Token_$8387_$",
+                    "typeIdentifier": "t_type$_t_contract$_XyERC20Token_$8397_$",
                     "typeString": "type(contract XyERC20Token)"
                   }
                 },
@@ -1959,15 +1932,15 @@
             "name": "",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 8419,
+              "id": 8429,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 8414,
+                  "id": 8424,
                   "name": "initialSupply",
                   "nodeType": "VariableDeclaration",
-                  "scope": 8432,
+                  "scope": 8442,
                   "src": "429:21:26",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1976,7 +1949,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 8413,
+                    "id": 8423,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "429:7:26",
@@ -1990,10 +1963,10 @@
                 },
                 {
                   "constant": false,
-                  "id": 8416,
+                  "id": 8426,
                   "name": "tokenName",
                   "nodeType": "VariableDeclaration",
-                  "scope": 8432,
+                  "scope": 8442,
                   "src": "460:23:26",
                   "stateVariable": false,
                   "storageLocation": "memory",
@@ -2002,7 +1975,7 @@
                     "typeString": "string"
                   },
                   "typeName": {
-                    "id": 8415,
+                    "id": 8425,
                     "name": "string",
                     "nodeType": "ElementaryTypeName",
                     "src": "460:6:26",
@@ -2016,10 +1989,10 @@
                 },
                 {
                   "constant": false,
-                  "id": 8418,
+                  "id": 8428,
                   "name": "tokenSymbol",
                   "nodeType": "VariableDeclaration",
-                  "scope": 8432,
+                  "scope": 8442,
                   "src": "493:25:26",
                   "stateVariable": false,
                   "storageLocation": "memory",
@@ -2028,7 +2001,7 @@
                     "typeString": "string"
                   },
                   "typeName": {
-                    "id": 8417,
+                    "id": 8427,
                     "name": "string",
                     "nodeType": "ElementaryTypeName",
                     "src": "493:6:26",
@@ -2044,12 +2017,12 @@
               "src": "419:105:26"
             },
             "returnParameters": {
-              "id": 8425,
+              "id": 8435,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "597:0:26"
             },
-            "scope": 8478,
+            "scope": 8488,
             "src": "408:224:26",
             "stateMutability": "nonpayable",
             "superFunction": null,
@@ -2057,7 +2030,7 @@
           },
           {
             "body": {
-              "id": 8476,
+              "id": 8486,
               "nodeType": "Block",
               "src": "713:271:26",
               "statements": [
@@ -2071,7 +2044,7 @@
                           "typeIdentifier": "t_bool",
                           "typeString": "bool"
                         },
-                        "id": 8452,
+                        "id": 8462,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": false,
@@ -2082,7 +2055,7 @@
                             "typeIdentifier": "t_uint256",
                             "typeString": "uint256"
                           },
-                          "id": 8441,
+                          "id": 8451,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": false,
@@ -2091,34 +2064,34 @@
                             "argumentTypes": null,
                             "baseExpression": {
                               "argumentTypes": null,
-                              "id": 8436,
+                              "id": 8446,
                               "name": "lastDripBlock",
                               "nodeType": "Identifier",
                               "overloadedDeclarations": [],
-                              "referencedDeclaration": 8408,
+                              "referencedDeclaration": 8418,
                               "src": "732:13:26",
                               "typeDescriptions": {
                                 "typeIdentifier": "t_mapping$_t_address_$_t_uint256_$",
                                 "typeString": "mapping(address => uint256)"
                               }
                             },
-                            "id": 8439,
+                            "id": 8449,
                             "indexExpression": {
                               "argumentTypes": null,
                               "expression": {
                                 "argumentTypes": null,
-                                "id": 8437,
+                                "id": 8447,
                                 "name": "msg",
                                 "nodeType": "Identifier",
                                 "overloadedDeclarations": [],
-                                "referencedDeclaration": 9636,
+                                "referencedDeclaration": 9646,
                                 "src": "746:3:26",
                                 "typeDescriptions": {
                                   "typeIdentifier": "t_magic_message",
                                   "typeString": "msg"
                                 }
                               },
-                              "id": 8438,
+                              "id": 8448,
                               "isConstant": false,
                               "isLValue": false,
                               "isPure": false,
@@ -2148,7 +2121,7 @@
                           "rightExpression": {
                             "argumentTypes": null,
                             "hexValue": "30",
-                            "id": 8440,
+                            "id": 8450,
                             "isConstant": false,
                             "isLValue": false,
                             "isPure": true,
@@ -2177,7 +2150,7 @@
                             "typeIdentifier": "t_uint256",
                             "typeString": "uint256"
                           },
-                          "id": 8451,
+                          "id": 8461,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": false,
@@ -2187,11 +2160,11 @@
                             "arguments": [
                               {
                                 "argumentTypes": null,
-                                "id": 8447,
+                                "id": 8457,
                                 "name": "faucetCooldown",
                                 "nodeType": "Identifier",
                                 "overloadedDeclarations": [],
-                                "referencedDeclaration": 8402,
+                                "referencedDeclaration": 8412,
                                 "src": "796:14:26",
                                 "typeDescriptions": {
                                   "typeIdentifier": "t_uint256",
@@ -2210,34 +2183,34 @@
                                 "argumentTypes": null,
                                 "baseExpression": {
                                   "argumentTypes": null,
-                                  "id": 8442,
+                                  "id": 8452,
                                   "name": "lastDripBlock",
                                   "nodeType": "Identifier",
                                   "overloadedDeclarations": [],
-                                  "referencedDeclaration": 8408,
+                                  "referencedDeclaration": 8418,
                                   "src": "766:13:26",
                                   "typeDescriptions": {
                                     "typeIdentifier": "t_mapping$_t_address_$_t_uint256_$",
                                     "typeString": "mapping(address => uint256)"
                                   }
                                 },
-                                "id": 8445,
+                                "id": 8455,
                                 "indexExpression": {
                                   "argumentTypes": null,
                                   "expression": {
                                     "argumentTypes": null,
-                                    "id": 8443,
+                                    "id": 8453,
                                     "name": "msg",
                                     "nodeType": "Identifier",
                                     "overloadedDeclarations": [],
-                                    "referencedDeclaration": 9636,
+                                    "referencedDeclaration": 9646,
                                     "src": "780:3:26",
                                     "typeDescriptions": {
                                       "typeIdentifier": "t_magic_message",
                                       "typeString": "msg"
                                     }
                                   },
-                                  "id": 8444,
+                                  "id": 8454,
                                   "isConstant": false,
                                   "isLValue": false,
                                   "isPure": false,
@@ -2262,21 +2235,21 @@
                                   "typeString": "uint256"
                                 }
                               },
-                              "id": 8446,
+                              "id": 8456,
                               "isConstant": false,
                               "isLValue": false,
                               "isPure": false,
                               "lValueRequested": false,
                               "memberName": "add",
                               "nodeType": "MemberAccess",
-                              "referencedDeclaration": 9620,
+                              "referencedDeclaration": 9630,
                               "src": "766:29:26",
                               "typeDescriptions": {
                                 "typeIdentifier": "t_function_internal_pure$_t_uint256_$_t_uint256_$returns$_t_uint256_$bound_to$_t_uint256_$",
                                 "typeString": "function (uint256,uint256) pure returns (uint256)"
                               }
                             },
-                            "id": 8448,
+                            "id": 8458,
                             "isConstant": false,
                             "isLValue": false,
                             "isPure": false,
@@ -2296,18 +2269,18 @@
                             "argumentTypes": null,
                             "expression": {
                               "argumentTypes": null,
-                              "id": 8449,
+                              "id": 8459,
                               "name": "block",
                               "nodeType": "Identifier",
                               "overloadedDeclarations": [],
-                              "referencedDeclaration": 9626,
+                              "referencedDeclaration": 9636,
                               "src": "814:5:26",
                               "typeDescriptions": {
                                 "typeIdentifier": "t_magic_block",
                                 "typeString": "block"
                               }
                             },
-                            "id": 8450,
+                            "id": 8460,
                             "isConstant": false,
                             "isLValue": false,
                             "isPure": false,
@@ -2336,7 +2309,7 @@
                       {
                         "argumentTypes": null,
                         "hexValue": "436f6f6c696e6720646f776e",
-                        "id": 8453,
+                        "id": 8463,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -2363,21 +2336,18 @@
                           "typeString": "literal_string \"Cooling down\""
                         }
                       ],
-                      "id": 8435,
+                      "id": 8445,
                       "name": "require",
                       "nodeType": "Identifier",
-                      "overloadedDeclarations": [
-                        9639,
-                        9640
-                      ],
-                      "referencedDeclaration": 9640,
+                      "overloadedDeclarations": [9649, 9650],
+                      "referencedDeclaration": 9650,
                       "src": "723:7:26",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_require_pure$_t_bool_$_t_string_memory_ptr_$returns$__$",
                         "typeString": "function (bool,string memory) pure"
                       }
                     },
-                    "id": 8454,
+                    "id": 8464,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -2391,14 +2361,14 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 8455,
+                  "id": 8465,
                   "nodeType": "ExpressionStatement",
                   "src": "723:120:26"
                 },
                 {
                   "expression": {
                     "argumentTypes": null,
-                    "id": 8462,
+                    "id": 8472,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -2407,34 +2377,34 @@
                       "argumentTypes": null,
                       "baseExpression": {
                         "argumentTypes": null,
-                        "id": 8456,
+                        "id": 8466,
                         "name": "lastDripBlock",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 8408,
+                        "referencedDeclaration": 8418,
                         "src": "853:13:26",
                         "typeDescriptions": {
                           "typeIdentifier": "t_mapping$_t_address_$_t_uint256_$",
                           "typeString": "mapping(address => uint256)"
                         }
                       },
-                      "id": 8459,
+                      "id": 8469,
                       "indexExpression": {
                         "argumentTypes": null,
                         "expression": {
                           "argumentTypes": null,
-                          "id": 8457,
+                          "id": 8467,
                           "name": "msg",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 9636,
+                          "referencedDeclaration": 9646,
                           "src": "867:3:26",
                           "typeDescriptions": {
                             "typeIdentifier": "t_magic_message",
                             "typeString": "msg"
                           }
                         },
-                        "id": 8458,
+                        "id": 8468,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": false,
@@ -2465,18 +2435,18 @@
                       "argumentTypes": null,
                       "expression": {
                         "argumentTypes": null,
-                        "id": 8460,
+                        "id": 8470,
                         "name": "block",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 9626,
+                        "referencedDeclaration": 9636,
                         "src": "881:5:26",
                         "typeDescriptions": {
                           "typeIdentifier": "t_magic_block",
                           "typeString": "block"
                         }
                       },
-                      "id": 8461,
+                      "id": 8471,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
@@ -2496,7 +2466,7 @@
                       "typeString": "uint256"
                     }
                   },
-                  "id": 8463,
+                  "id": 8473,
                   "nodeType": "ExpressionStatement",
                   "src": "853:40:26"
                 },
@@ -2506,11 +2476,11 @@
                     "arguments": [
                       {
                         "argumentTypes": null,
-                        "id": 8465,
+                        "id": 8475,
                         "name": "vault",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 8404,
+                        "referencedDeclaration": 8414,
                         "src": "913:5:26",
                         "typeDescriptions": {
                           "typeIdentifier": "t_address",
@@ -2521,18 +2491,18 @@
                         "argumentTypes": null,
                         "expression": {
                           "argumentTypes": null,
-                          "id": 8466,
+                          "id": 8476,
                           "name": "msg",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 9636,
+                          "referencedDeclaration": 9646,
                           "src": "920:3:26",
                           "typeDescriptions": {
                             "typeIdentifier": "t_magic_message",
                             "typeString": "msg"
                           }
                         },
-                        "id": 8467,
+                        "id": 8477,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": false,
@@ -2548,11 +2518,11 @@
                       },
                       {
                         "argumentTypes": null,
-                        "id": 8468,
+                        "id": 8478,
                         "name": "faucetDrip",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 8399,
+                        "referencedDeclaration": 8409,
                         "src": "932:10:26",
                         "typeDescriptions": {
                           "typeIdentifier": "t_uint256",
@@ -2575,18 +2545,18 @@
                           "typeString": "uint256"
                         }
                       ],
-                      "id": 8464,
+                      "id": 8474,
                       "name": "_transfer",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 8180,
+                      "referencedDeclaration": 8190,
                       "src": "903:9:26",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_address_$_t_address_$_t_uint256_$returns$__$",
                         "typeString": "function (address,address,uint256)"
                       }
                     },
-                    "id": 8469,
+                    "id": 8479,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -2600,7 +2570,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 8470,
+                  "id": 8480,
                   "nodeType": "ExpressionStatement",
                   "src": "903:40:26"
                 },
@@ -2612,18 +2582,18 @@
                         "argumentTypes": null,
                         "expression": {
                           "argumentTypes": null,
-                          "id": 8472,
+                          "id": 8482,
                           "name": "msg",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 9636,
+                          "referencedDeclaration": 9646,
                           "src": "966:3:26",
                           "typeDescriptions": {
                             "typeIdentifier": "t_magic_message",
                             "typeString": "msg"
                           }
                         },
-                        "id": 8473,
+                        "id": 8483,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": false,
@@ -2645,18 +2615,18 @@
                           "typeString": "address payable"
                         }
                       ],
-                      "id": 8471,
+                      "id": 8481,
                       "name": "NewDrip",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 8412,
+                      "referencedDeclaration": 8422,
                       "src": "958:7:26",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_event_nonpayable$_t_address_$returns$__$",
                         "typeString": "function (address)"
                       }
                     },
-                    "id": 8474,
+                    "id": 8484,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -2670,39 +2640,39 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 8475,
+                  "id": 8485,
                   "nodeType": "EmitStatement",
                   "src": "953:24:26"
                 }
               ]
             },
             "documentation": "@dev Faucet will mint tokens",
-            "id": 8477,
+            "id": 8487,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
             "name": "mint",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 8433,
+              "id": 8443,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "703:2:26"
             },
             "returnParameters": {
-              "id": 8434,
+              "id": 8444,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "713:0:26"
             },
-            "scope": 8478,
+            "scope": 8488,
             "src": "690:294:26",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "public"
           }
         ],
-        "scope": 8479,
+        "scope": 8489,
         "src": "150:836:26"
       }
     ],
@@ -2712,9 +2682,16 @@
     "name": "solc",
     "version": "0.5.4+commit.9549d8ff.Emscripten.clang"
   },
-  "networks": {},
+  "networks": {
+    "42": {
+      "links": {},
+      "events": {},
+      "address": "0x9071a6fc3c23eb6f4a8f7a2bc2309a7b368f272f",
+      "updated_at": 1553648793752
+    }
+  },
   "schemaVersion": "3.0.1",
-  "updatedAt": "2019-03-26T23:13:24.209Z",
+  "updatedAt": "2019-03-27T01:09:04.195Z",
   "devdoc": {
     "details": "ERC20 minting logic",
     "methods": {
