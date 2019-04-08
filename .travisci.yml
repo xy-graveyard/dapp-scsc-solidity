@@ -1,0 +1,8 @@
+language: node_js
+node_js:
+  - "10"
+
+script:
+  - node_modules/.bin/ganache-cli > /dev/null &
+  - sleep 5
+  - truffle test
