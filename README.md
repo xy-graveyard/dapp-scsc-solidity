@@ -2,20 +2,7 @@
 
 [![logo]](https://xy.company)
 
-<p align="center">
-  <a href="https://circleci.com/gh/XYOracleNetwork/tool-dapper-nodejs">
-    <img alt="Circle Status" src="https://circleci.com/gh/XYOracleNetwork/dapp-scsc-solidity.svg?style=shield&circle-token=33a0b5f18bed34785e192f04e94a56151b69796b">
-  </a>
-  <a href="https://gitter.im/XYOracleNetwork/Dev">
-    <img alt="Gitter Chat" src="https://img.shields.io/gitter/room/XYOracleNetwork/Stardust.svg">
-  </a>
-  <a href="http://commitizen.github.io/cz-cli/">
-    <img alt="Commitizen friendly" src="https://img.shields.io/badge/web3-friendly-brightgreen.svg">
-    </a>
-    <a href="https://david-dm.org/xyoraclenetwork/tool-dapper-react" title="dependencies status"><img src="https://david-dm.org/xyoraclenetwork/dapp-scsc-solidity/status.svg"/></a>
-  <a href="https://david-dm.org/xyoraclenetwork/dapp-scsc-solidity?type=dev" title="devDependencies status"><img src="https://david-dm.org/xyoraclenetwork/dapp-scsc-solidity/dev-status.svg"/></a>
-    <a href="https://greenkeeper.io/" title="devDependencies status"><img src="https://badges.greenkeeper.io/XYOracleNetwork/dapp-scsc-solidity.svg"/></a>
-</p>
+[![Build Status](https://travis-ci.com/XYOracleNetwork/dapp-scsc-solidity.svg?branch=develop)](https://travis-ci.com/XYOracleNetwork/dapp-scsc-solidity) [![Greenkeeper badge](https://badges.greenkeeper.io/XYOracleNetwork/dapp-scsc-solidity.svg)](https://greenkeeper.io/) [![DepShield Badge](https://depshield.sonatype.org/badges/XYOracleNetwork/dapp-scsc-solidity/depshield.svg)](https://depshield.github.io) [![David Badge](https://david-dm.org/xyoraclenetwork/dapp-scsc-solidity/status.svg)](https://david-dm.org/xyoraclenetwork/dapp-scsc-solidity) [![David Badge](https://david-dm.org/xyoraclenetwork/dapp-scsc-solidity/dev-status.svg)](https://david-dm.org/xyoraclenetwork/dapp-scsc-solidity) [![BCH compliance](https://bettercodehub.com/edge/badge/XYOracleNetwork/dapp-scsc-solidity?branch=master&token=02d25ea6874c74a77ffefc6157e0253305509033)](https://bettercodehub.com/results/XYOracleNetwork/dapp-scsc-solidity)
 
 <h3 align="center">
   The Smart Contract Library for XYO
@@ -41,7 +28,7 @@ Table of Contents
 
 ### Simple Consensus Smart Contract Dapp Library _(dapp-scsc-solidity)_
 
-[![BCH compliance](https://bettercodehub.com/edge/badge/XYOracleNetwork/dapp-scsc-solidity?branch=master&token=02d25ea6874c74a77ffefc6157e0253305509033)](https://bettercodehub.com/results/XYOracleNetwork/dapp-scsc-solidity)
+
 
 ### Short Description
 
