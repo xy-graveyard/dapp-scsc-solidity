@@ -2,6 +2,7 @@ import { BigNumber } from "bignumber.js"
 
 import { expectEvent } from "openzeppelin-test-helpers"
 import { request } from "http"
+import { advanceBlock } from "./utils.test"
 
 const abi = require(`ethereumjs-abi`)
 const { toBuffer } = require(`ethereumjs-util`)
@@ -92,6 +93,7 @@ contract(
       )
 
       await parameterizer.initializeGovernor(consensus.address)
+      await advanceBlock()
     })
     describe(`Submitting Requests`, () => {
       beforeEach(async () => {
@@ -104,7 +106,7 @@ contract(
         })
       })
       it(`should create requests`, async () => {
-        await payOnD.requestPayOnDelivery(`0x123`, 0, 0, 0, payOnDeliveryBeneficiary)
+        await payOnD.requestPayOnDelivery(`0x123`, 0, 0, 0, payOnDeliveryBeneficiary, { gas: 6721975 })
           .should.be.fulfilled
       })
       it(`should not allow duplicate requests`, async () => {

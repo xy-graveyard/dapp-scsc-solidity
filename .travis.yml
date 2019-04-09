@@ -3,7 +3,7 @@ node_js:
   - "10"
 
 script:
-  - node_modules/.bin/ganache-cli --gasLimit 8721975 > /dev/null &
+  - node_modules/.bin/ganache-cli --gasLimit 10000000 > /dev/null &
   - sleep 5
   - rm -rf build
   - truffle compile

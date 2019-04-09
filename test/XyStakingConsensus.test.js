@@ -321,6 +321,7 @@ contract(
       payOnD = await PayOnDelivery.new(consensus.address, erc20.address, {
         from: payOnDeliveryOwner, gas: 6721975
       })
+      await advanceBlock()
     })
     describe(`Submit Request`, () => {
       it(`Should allow creating requests with many request types`, async () => {
