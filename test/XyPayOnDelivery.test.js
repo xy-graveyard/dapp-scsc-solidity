@@ -75,6 +75,12 @@ contract(
       parameterizer = await Governance.new({
         from: parameterizerOwner
       })
+      await parameterizer.initialize(
+        erc20.address,
+        plcr.address,
+        parameters,
+        { from: parameterizerOwner }
+      )
       consensus = await StakingConsensus.new(
         diviners,
         erc20.address,
@@ -84,13 +90,8 @@ contract(
           from: consensusOwner
         }
       )
-      await parameterizer.initialize(
-        consensus.address,
-        erc20.address,
-        plcr.address,
-        parameters,
-        { from: parameterizerOwner }
-      )
+
+      await parameterizer.initializeGovernor(consensus.address)
     })
     describe(`Submitting Requests`, () => {
       beforeEach(async () => {
