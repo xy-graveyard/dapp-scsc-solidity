@@ -57,7 +57,7 @@ contract(
     let stakableToken
     let parameterizer
     let plcr
-    const diviners = [consensusOwner, d1, d2, d3, d4]
+    const diviners = [consensusOwner, d1, d3, d4]
     const numDiviners = diviners.length
     const numRequests = 1
     let payOnD
@@ -300,13 +300,13 @@ contract(
     })
     beforeEach(async () => {
       parameterizer = await Governance.new({
-        from: parameterizerOwner, gas: 6721975
+        from: parameterizerOwner
       })
       await parameterizer.initialize(
         erc20.address,
         plcr.address,
         parameters,
-        { from: parameterizerOwner, gas: 6721975 }
+        { from: parameterizerOwner }
       )
       consensus = await StakingConsensus.new(
         diviners,
@@ -314,12 +314,12 @@ contract(
         stakableToken.address,
         parameterizer.address,
         {
-          from: consensusOwner, gas: 6721975
+          from: consensusOwner, gasPrice: 0
         }
       )
       await parameterizer.initializeGovernor(consensus.address)
       payOnD = await PayOnDelivery.new(consensus.address, erc20.address, {
-        from: payOnDeliveryOwner, gas: 6721975
+        from: payOnDeliveryOwner
       })
       await advanceBlock()
     })

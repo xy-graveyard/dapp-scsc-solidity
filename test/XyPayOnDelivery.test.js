@@ -57,7 +57,7 @@ contract(
     let parameterizer
     let plcr
     let payOnD
-    const diviners = [consensusOwner, erc20owner, parameterizerOwner]
+    const diviners = [consensusOwner, erc20owner]
     before(async () => {
       erc20 = await ERC20.new(erc20TotalSupply, `XYO Token`, `XYO`, {
         from: erc20owner
@@ -74,13 +74,13 @@ contract(
     })
     beforeEach(async () => {
       parameterizer = await Governance.new({
-        from: parameterizerOwner, gas: 6721975
+        from: parameterizerOwner
       })
       await parameterizer.initialize(
         erc20.address,
         plcr.address,
         parameters,
-        { from: parameterizerOwner, gas: 6721975 }
+        { from: parameterizerOwner }
       )
       consensus = await StakingConsensus.new(
         diviners,
@@ -88,7 +88,7 @@ contract(
         stakableToken.address,
         parameterizer.address,
         {
-          from: consensusOwner, gas: 6721975
+          from: consensusOwner
         }
       )
 
