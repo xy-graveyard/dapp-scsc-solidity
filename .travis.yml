@@ -1,0 +1,11 @@
+language: node_js
+node_js:
+  - "10"
+
+script:
+  - node_modules/.bin/ganache-cli --gasLimit 10000000 > /dev/null &
+  - sleep 5
+  - rm -rf build
+  - truffle compile
+  - truffle migrate --reset --network development
+  - truffle test
