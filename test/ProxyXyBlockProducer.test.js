@@ -7,7 +7,7 @@ const stakableToken = Contracts.getFromLocal(`XyBlockProducer`)
 
 require(`chai`).should()
 
-contract(`XyBlockProducer`, () => {
+contract(`ProxyXyBlockProducer`, () => {
   let project
   beforeEach(async () => {
     project = await TestHelper()
