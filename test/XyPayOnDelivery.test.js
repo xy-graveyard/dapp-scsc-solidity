@@ -73,13 +73,13 @@ contract(
     })
     beforeEach(async () => {
       parameterizer = await Governance.new({
-        from: parameterizerOwner
+        from: parameterizerOwner, gas: 6721975
       })
       await parameterizer.initialize(
         erc20.address,
         plcr.address,
         parameters,
-        { from: parameterizerOwner }
+        { from: parameterizerOwner, gas: 6721975 }
       )
       consensus = await StakingConsensus.new(
         diviners,
@@ -87,7 +87,7 @@ contract(
         stakableToken.address,
         parameterizer.address,
         {
-          from: consensusOwner
+          from: consensusOwner, gas: 6721975
         }
       )
 
@@ -96,9 +96,12 @@ contract(
     describe(`Submitting Requests`, () => {
       beforeEach(async () => {
         payOnD = await PayOnDelivery.new({
-          from: payOnDeliveryOwner
+          from: payOnDeliveryOwner,
+          gas: 6721975
         })
-        await payOnD.initialize(consensus.address, erc20.address)
+        await payOnD.initialize(consensus.address, erc20.address, {
+          gas: 6721975
+        })
       })
       it(`should create requests`, async () => {
         await payOnD.requestPayOnDelivery(`0x123`, 0, 0, 0, payOnDeliveryBeneficiary)
