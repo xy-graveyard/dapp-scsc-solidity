@@ -65,10 +65,10 @@ contract(
       governance = await Governance.new({
         from: governanceOwner
       })
-      await governance.initialize(governanceResolver,
-        erc20.address,
+      await governance.initialize(erc20.address,
         plcr.address,
         parameters, { from: governanceOwner })
+      await governance.initializeGovernor(governanceResolver)
     })
     describe(`Proposing an action`, () => {
       it(`should allow proposing a new action when minDeposit is 0`, async () => {

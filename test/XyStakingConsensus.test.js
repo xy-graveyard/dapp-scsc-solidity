@@ -8,7 +8,7 @@ const { toChecksumAddress } = require(`ethereumjs-util`)
 const PayOnDelivery = artifacts.require(`XyPayOnDeliveryMock.sol`)
 const StakingConsensus = artifacts.require(`XyConsensusMock.sol`)
 const ERC20 = artifacts.require(`XyERC20Token.sol`)
-const Stakeable = artifacts.require(`XyBlockProducerMock.sol`)
+const BlockProducer = artifacts.require(`XyBlockProducerMock.sol`)
 const Governance = artifacts.require(`XyGovernance.sol`)
 const PLCR = artifacts.require(`PLCRVoting.sol`)
 const erc20TotalSupply = 1000000
@@ -57,7 +57,7 @@ contract(
     let stakableToken
     let parameterizer
     let plcr
-    const diviners = [consensusOwner, d1, d2, d3, d4]
+    const diviners = [consensusOwner, d1, d3, d4]
     const numDiviners = diviners.length
     const numRequests = 1
     let payOnD
@@ -293,7 +293,7 @@ contract(
         from: parameterizerOwner
       })
       await plcr.initialize(erc20.address)
-      stakableToken = await Stakeable.new(diviners, {
+      stakableToken = await BlockProducer.new(diviners, {
         from: stakableContractOwner
       })
       await advanceBlock()
@@ -302,25 +302,26 @@ contract(
       parameterizer = await Governance.new({
         from: parameterizerOwner
       })
+      await parameterizer.initialize(
+        erc20.address,
+        plcr.address,
+        parameters,
+        { from: parameterizerOwner }
+      )
       consensus = await StakingConsensus.new(
         diviners,
         erc20.address,
         stakableToken.address,
         parameterizer.address,
         {
-          from: consensusOwner
+          from: consensusOwner, gasPrice: 0
         }
       )
-      await parameterizer.initialize(
-        consensus.address,
-        erc20.address,
-        plcr.address,
-        parameters,
-        { from: parameterizerOwner }
-      )
+      await parameterizer.initializeGovernor(consensus.address)
       payOnD = await PayOnDelivery.new(consensus.address, erc20.address, {
         from: payOnDeliveryOwner
       })
+      await advanceBlock()
     })
     describe(`Submit Request`, () => {
       it(`Should allow creating requests with many request types`, async () => {

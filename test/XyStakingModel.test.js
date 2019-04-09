@@ -67,13 +67,20 @@ contract(
     })
 
     beforeEach(async () => {
-      parameterizer = await Governance.new({
-        from: parameterizerOwner
-      })
       plcr = await PLCR.new({
         from: parameterizerOwner
       })
       await plcr.initialize(erc20.address)
+
+      parameterizer = await Governance.new({
+        from: parameterizerOwner
+      })
+      await parameterizer.initialize(
+        erc20.address,
+        plcr.address,
+        parameters
+      )
+
       staking = await StakingMock.new(
         erc20.address,
         stakableToken.address,
@@ -82,14 +89,7 @@ contract(
           from: stakingTokenOwner
         }
       )
-
-      await parameterizer.initialize(
-        staking.address,
-        erc20.address,
-        plcr.address,
-        parameters
-      )
-      await advanceBlock()
+      await parameterizer.initializeGovernor(staking.address)
     })
 
     const stakeFromInput = async (meth, param) => {

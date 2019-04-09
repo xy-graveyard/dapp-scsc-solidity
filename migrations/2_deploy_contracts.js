@@ -40,17 +40,17 @@ module.exports = async function (deployer, network, [contractsOwner, bp2]) {
   await deployer.link(attrStore, PLCR)
   await deployer.link(dll, PLCR)
   const plcrVoting = await deployer.deploy(PLCR)
-  const erc20 = await deployer.deploy(XYOERC20, totalSupply, `XYO Token`, `XYO`, {from: contractsOwner})
+  const erc20 = await deployer.deploy(XYOERC20, totalSupply, `XYO Token`, `XYO`, { from: contractsOwner })
   const gov = await deployer.deploy(Governance)
   const stakableToken = await deployer.deploy(Stakable)
   const consensus = await deployer.deploy(SCSC)
   const pOnD = await deployer.deploy(PayOnD)
 
+  await stakableToken.initialize()
   await pOnD.initialize(consensus.address, erc20.address)
   await plcrVoting.initialize(erc20.address)
   await consensus.initialize(erc20.address, stakableToken.address, gov.address)
   await gov.initialize(
-    consensus.address,
     erc20.address,
     plcrVoting.address,
     parameters
@@ -91,7 +91,6 @@ const setupBP = async function (
     await erc20.transfer(bpAddress, stakeAmt, {
       from: ercOwner
     })
-    
   }
   console.log(`Approving SCSC ${consensus.address} from BP Stakee ${bpAddress}`)
 

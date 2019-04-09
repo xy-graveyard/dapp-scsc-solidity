@@ -2,6 +2,7 @@ import { BigNumber } from "bignumber.js"
 
 import { expectEvent } from "openzeppelin-test-helpers"
 import { request } from "http"
+import { advanceBlock } from "./utils.test"
 
 const abi = require(`ethereumjs-abi`)
 const { toBuffer } = require(`ethereumjs-util`)
@@ -56,7 +57,7 @@ contract(
     let parameterizer
     let plcr
     let payOnD
-    const diviners = [consensusOwner, erc20owner, parameterizerOwner]
+    const diviners = [consensusOwner, erc20owner]
     before(async () => {
       erc20 = await ERC20.new(erc20TotalSupply, `XYO Token`, `XYO`, {
         from: erc20owner
@@ -75,6 +76,12 @@ contract(
       parameterizer = await Governance.new({
         from: parameterizerOwner
       })
+      await parameterizer.initialize(
+        erc20.address,
+        plcr.address,
+        parameters,
+        { from: parameterizerOwner }
+      )
       consensus = await StakingConsensus.new(
         diviners,
         erc20.address,
@@ -84,23 +91,22 @@ contract(
           from: consensusOwner
         }
       )
-      await parameterizer.initialize(
-        consensus.address,
-        erc20.address,
-        plcr.address,
-        parameters,
-        { from: parameterizerOwner }
-      )
+
+      await parameterizer.initializeGovernor(consensus.address)
+      await advanceBlock()
     })
     describe(`Submitting Requests`, () => {
       beforeEach(async () => {
         payOnD = await PayOnDelivery.new({
-          from: payOnDeliveryOwner
+          from: payOnDeliveryOwner,
+          gas: 6721975
         })
-        await payOnD.initialize(consensus.address, erc20.address)
+        await payOnD.initialize(consensus.address, erc20.address, {
+          gas: 6721975
+        })
       })
       it(`should create requests`, async () => {
-        await payOnD.requestPayOnDelivery(`0x123`, 0, 0, 0, payOnDeliveryBeneficiary)
+        await payOnD.requestPayOnDelivery(`0x123`, 0, 0, 0, payOnDeliveryBeneficiary, { gas: 6721975 })
           .should.be.fulfilled
       })
       it(`should not allow duplicate requests`, async () => {

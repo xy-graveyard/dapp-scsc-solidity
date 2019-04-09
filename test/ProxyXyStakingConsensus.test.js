@@ -8,10 +8,10 @@ const ERC20 = Contracts.getFromNodeModules(`openzeppelin-eth`, `ERC20`)
 
 require(`chai`).should()
 
-contract(`XyStakingConsensus`, () => {
+contract(`ProxyXyStakingConsensus`, () => {
   let project
   beforeEach(async () => {
-    project = await TestHelper()
+    project = await TestHelper({ gas: 6721975 })
   })
 
   it(`should create a proxy for the EVM Package`, async () => {
