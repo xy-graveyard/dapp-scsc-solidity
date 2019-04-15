@@ -111,9 +111,9 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
         if (weiMiningMin > 0) {
             require (msg.value >= weiMiningMin, "Not enough wei to cover mining");
         }
-        if (bountyMin > 0) {
+        if (xyoBounty > 0 || bountyMin > 0) {
             require (xyoBounty >= bountyMin, "XYO Bounty less than minimum");
-            SafeERC20.transferFrom(xyoToken, xyoSender, address(this), bountyMin);
+            SafeERC20.transferFrom(xyoToken, xyoSender, address(this), xyoBounty);
         }
     }
 
