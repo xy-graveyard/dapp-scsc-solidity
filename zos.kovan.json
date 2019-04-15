@@ -366,11 +366,11 @@
       }
     },
     "XyStakingConsensus": {
-      "address": "0xe0DfB55F8fE706fd4F0a0169FbE724BF47b55a66",
-      "constructorCode": "608060405234801561001057600080fd5b5061576780620000216000396000f3fe",
-      "bodyBytecodeHash": "520b25a8e5954eafe40525fff0323d197e8cc9d2c023532181c3543bf8096f66",
-      "localBytecodeHash": "7454fd036b08b26b282a1abe48ce46eef9823adc7d70f9cd6adf77a1f32b0a80",
-      "deployedBytecodeHash": "7454fd036b08b26b282a1abe48ce46eef9823adc7d70f9cd6adf77a1f32b0a80",
+      "address": "0x4165b07Bb6B98a7401c93972ceC711A0e3b618DF",
+      "constructorCode": "608060405234801561001057600080fd5b5061577280620000216000396000f3fe",
+      "bodyBytecodeHash": "77eb11464c69343d6cbc077a69eea85708ca36000c6ca1b305634cbb598fe8f6",
+      "localBytecodeHash": "49e277332a23cfdf80f46166596b1e9f6f9b63473726dcf636ccc4ba674ebeda",
+      "deployedBytecodeHash": "49e277332a23cfdf80f46166596b1e9f6f9b63473726dcf636ccc4ba674ebeda",
       "types": {
         "t_bool": {
           "id": "t_bool",
@@ -401,43 +401,43 @@
           "members": [
             {
               "label": "amount",
-              "astId": 5311,
+              "astId": 5353,
               "type": "t_uint256",
               "src": "1569:11:11"
             },
             {
               "label": "stakeBlock",
-              "astId": 5313,
+              "astId": 5355,
               "type": "t_uint256",
               "src": "1590:15:11"
             },
             {
               "label": "unstakeBlock",
-              "astId": 5315,
+              "astId": 5357,
               "type": "t_uint256",
               "src": "1615:17:11"
             },
             {
               "label": "stakee",
-              "astId": 5317,
+              "astId": 5359,
               "type": "t_address",
               "src": "1642:14:11"
             },
             {
               "label": "staker",
-              "astId": 5319,
+              "astId": 5361,
               "type": "t_address",
               "src": "1667:14:11"
             },
             {
               "label": "isActivated",
-              "astId": 5321,
+              "astId": 5363,
               "type": "t_bool",
               "src": "1691:16:11"
             },
             {
               "label": "isCooledDown",
-              "astId": 5323,
+              "astId": 5365,
               "type": "t_bool",
               "src": "1717:17:11"
             }
@@ -480,25 +480,25 @@
           "members": [
             {
               "label": "totalStake",
-              "astId": 5326,
+              "astId": 5368,
               "type": "t_uint256",
               "src": "1819:15:11"
             },
             {
               "label": "activeStake",
-              "astId": 5328,
+              "astId": 5370,
               "type": "t_uint256",
               "src": "1844:16:11"
             },
             {
               "label": "cooldownStake",
-              "astId": 5330,
+              "astId": 5372,
               "type": "t_uint256",
               "src": "1870:18:11"
             },
             {
               "label": "totalUnstake",
-              "astId": 5332,
+              "astId": 5374,
               "type": "t_uint256",
               "src": "1898:17:11"
             }
@@ -517,37 +517,37 @@
           "members": [
             {
               "label": "xyoBounty",
-              "astId": 4226,
+              "astId": 4264,
               "type": "t_uint256",
               "src": "600:14:10"
             },
             {
               "label": "weiMining",
-              "astId": 4228,
+              "astId": 4266,
               "type": "t_uint256",
               "src": "624:14:10"
             },
             {
               "label": "createdAt",
-              "astId": 4230,
+              "astId": 4268,
               "type": "t_uint256",
               "src": "648:14:10"
             },
             {
               "label": "responseBlockNumber",
-              "astId": 4232,
+              "astId": 4270,
               "type": "t_uint256",
               "src": "672:24:10"
             },
             {
               "label": "requestSender",
-              "astId": 4234,
+              "astId": 4272,
               "type": "t_address",
               "src": "706:21:10"
             },
             {
               "label": "requestType",
-              "astId": 4236,
+              "astId": 4274,
               "type": "t_uint8",
               "src": "737:17:10"
             }
@@ -571,31 +571,31 @@
           "members": [
             {
               "label": "previousBlock",
-              "astId": 4215,
+              "astId": 4253,
               "type": "t_bytes32",
               "src": "433:21:10"
             },
             {
               "label": "supportingData",
-              "astId": 4217,
+              "astId": 4255,
               "type": "t_bytes32",
               "src": "464:22:10"
             },
             {
               "label": "stakingBlock",
-              "astId": 4219,
+              "astId": 4257,
               "type": "t_uint256",
               "src": "496:17:10"
             },
             {
               "label": "createdAt",
-              "astId": 4221,
+              "astId": 4259,
               "type": "t_uint256",
               "src": "523:14:10"
             },
             {
               "label": "creator",
-              "astId": 4223,
+              "astId": 4261,
               "type": "t_address",
               "src": "547:15:10"
             }
@@ -613,7 +613,7 @@
           "contract": "Initializable",
           "path": "contracts/utils/Initializable.sol",
           "label": "initialized",
-          "astId": 9444,
+          "astId": 9489,
           "type": "t_bool",
           "src": "757:24:33"
         },
@@ -621,7 +621,7 @@
           "contract": "Initializable",
           "path": "contracts/utils/Initializable.sol",
           "label": "initializing",
-          "astId": 9446,
+          "astId": 9491,
           "type": "t_bool",
           "src": "876:25:33"
         },
@@ -629,7 +629,7 @@
           "contract": "Initializable",
           "path": "contracts/utils/Initializable.sol",
           "label": "______gap",
-          "astId": 9495,
+          "astId": 9540,
           "type": "t_array:50<t_uint256>",
           "src": "1891:29:33"
         },
@@ -637,7 +637,7 @@
           "contract": "XyStakingModel",
           "path": "contracts/XyStakingModel.sol",
           "label": "xyoToken",
-          "astId": 5269,
+          "astId": 5311,
           "type": "t_address",
           "src": "304:23:11"
         },
@@ -645,7 +645,7 @@
           "contract": "XyStakingModel",
           "path": "contracts/XyStakingModel.sol",
           "label": "blockProducerContract",
-          "astId": 5271,
+          "astId": 5313,
           "type": "t_address",
           "src": "393:44:11"
         },
@@ -653,7 +653,7 @@
           "contract": "XyStakingModel",
           "path": "contracts/XyStakingModel.sol",
           "label": "govContract",
-          "astId": 5273,
+          "astId": 5315,
           "type": "t_address",
           "src": "515:31:11"
         },
@@ -661,7 +661,7 @@
           "contract": "XyStakingModel",
           "path": "contracts/XyStakingModel.sol",
           "label": "totalActiveStake",
-          "astId": 5275,
+          "astId": 5317,
           "type": "t_uint256",
           "src": "627:28:11"
         },
@@ -669,7 +669,7 @@
           "contract": "XyStakingModel",
           "path": "contracts/XyStakingModel.sol",
           "label": "totalCooldownStake",
-          "astId": 5277,
+          "astId": 5319,
           "type": "t_uint256",
           "src": "728:30:11"
         },
@@ -677,7 +677,7 @@
           "contract": "XyStakingModel",
           "path": "contracts/XyStakingModel.sol",
           "label": "penaltyStake",
-          "astId": 5279,
+          "astId": 5321,
           "type": "t_uint256",
           "src": "826:24:11"
         },
@@ -685,7 +685,7 @@
           "contract": "XyStakingModel",
           "path": "contracts/XyStakingModel.sol",
           "label": "stakeData",
-          "astId": 5283,
+          "astId": 5325,
           "type": "t_mapping<t_struct<XyStakingModel.Stake>>",
           "src": "916:43:11"
         },
@@ -693,7 +693,7 @@
           "contract": "XyStakingModel",
           "path": "contracts/XyStakingModel.sol",
           "label": "stakeeToStakingIds",
-          "astId": 5288,
+          "astId": 5330,
           "type": "t_mapping<t_array:dyn<t_bytes32>>",
           "src": "1017:56:11"
         },
@@ -701,7 +701,7 @@
           "contract": "XyStakingModel",
           "path": "contracts/XyStakingModel.sol",
           "label": "stakerToStakingIds",
-          "astId": 5293,
+          "astId": 5335,
           "type": "t_mapping<t_array:dyn<t_bytes32>>",
           "src": "1079:56:11"
         },
@@ -709,7 +709,7 @@
           "contract": "XyStakingModel",
           "path": "contracts/XyStakingModel.sol",
           "label": "stakingStakeeIndex",
-          "astId": 5297,
+          "astId": 5339,
           "type": "t_mapping<t_uint256>",
           "src": "1211:51:11"
         },
@@ -717,7 +717,7 @@
           "contract": "XyStakingModel",
           "path": "contracts/XyStakingModel.sol",
           "label": "stakingStakerIndex",
-          "astId": 5301,
+          "astId": 5343,
           "type": "t_mapping<t_uint256>",
           "src": "1268:51:11"
         },
@@ -725,7 +725,7 @@
           "contract": "XyStakingModel",
           "path": "contracts/XyStakingModel.sol",
           "label": "stakeeStake",
-          "astId": 5305,
+          "astId": 5347,
           "type": "t_mapping<t_struct<XyStakingModel.StakeAmounts>>",
           "src": "1376:52:11"
         },
@@ -733,7 +733,7 @@
           "contract": "XyStakingModel",
           "path": "contracts/XyStakingModel.sol",
           "label": "stakerStake",
-          "astId": 5309,
+          "astId": 5351,
           "type": "t_mapping<t_struct<XyStakingModel.StakeAmounts>>",
           "src": "1434:52:11"
         },
@@ -741,7 +741,7 @@
           "contract": "XyStakingConsensus",
           "path": "contracts/XyStakingConsensus.sol",
           "label": "requestsById",
-          "astId": 4241,
+          "astId": 4279,
           "type": "t_mapping<t_struct<XyStakingConsensus.Request>>",
           "src": "830:47:10"
         },
@@ -749,7 +749,7 @@
           "contract": "XyStakingConsensus",
           "path": "contracts/XyStakingConsensus.sol",
           "label": "requestChain",
-          "astId": 4244,
+          "astId": 4282,
           "type": "t_array:dyn<t_bytes32>",
           "src": "944:29:10"
         },
@@ -757,7 +757,7 @@
           "contract": "XyStakingConsensus",
           "path": "contracts/XyStakingConsensus.sol",
           "label": "blocks",
-          "astId": 4248,
+          "astId": 4286,
           "type": "t_mapping<t_struct<XyStakingConsensus.Block>>",
           "src": "980:39:10"
         },
@@ -765,7 +765,7 @@
           "contract": "XyStakingConsensus",
           "path": "contracts/XyStakingConsensus.sol",
           "label": "blockChain",
-          "astId": 4251,
+          "astId": 4289,
           "type": "t_array:dyn<t_bytes32>",
           "src": "1056:27:10"
         }
@@ -775,7 +775,50 @@
         "hasSelfDestruct": false,
         "hasDelegateCall": false,
         "hasInitialValuesInDeclarations": false,
-        "uninitializedBaseContracts": []
+        "uninitializedBaseContracts": [],
+        "storageUncheckedVars": [
+          {
+            "contract": "XyStakingModel",
+            "path": "contracts/XyStakingModel.sol",
+            "label": "stakeData",
+            "astId": 5325,
+            "type": "t_mapping<t_struct<XyStakingModel.Stake>>",
+            "src": "916:43:11"
+          },
+          {
+            "contract": "XyStakingModel",
+            "path": "contracts/XyStakingModel.sol",
+            "label": "stakeeStake",
+            "astId": 5347,
+            "type": "t_mapping<t_struct<XyStakingModel.StakeAmounts>>",
+            "src": "1376:52:11"
+          },
+          {
+            "contract": "XyStakingModel",
+            "path": "contracts/XyStakingModel.sol",
+            "label": "stakerStake",
+            "astId": 5351,
+            "type": "t_mapping<t_struct<XyStakingModel.StakeAmounts>>",
+            "src": "1434:52:11"
+          },
+          {
+            "contract": "XyStakingConsensus",
+            "path": "contracts/XyStakingConsensus.sol",
+            "label": "requestsById",
+            "astId": 4279,
+            "type": "t_mapping<t_struct<XyStakingConsensus.Request>>",
+            "src": "830:47:10"
+          },
+          {
+            "contract": "XyStakingConsensus",
+            "path": "contracts/XyStakingConsensus.sol",
+            "label": "blocks",
+            "astId": 4286,
+            "type": "t_mapping<t_struct<XyStakingConsensus.Block>>",
+            "src": "980:39:10"
+          }
+        ],
+        "storageDiff": []
       }
     },
     "XyBlockProducer": {
@@ -1393,17 +1436,17 @@
       {
         "address": "0x76B9cC8b59a6749B3EB430560F727FE052b9bb01",
         "version": "0.1.0",
-        "implementation": "0xe0DfB55F8fE706fd4F0a0169FbE724BF47b55a66"
+        "implementation": "0x4165b07Bb6B98a7401c93972ceC711A0e3b618DF"
       },
       {
         "address": "0x03e7cF4f97C87CD93d74648E56185C56BF718d5d",
         "version": "0.1.0",
-        "implementation": "0xe0DfB55F8fE706fd4F0a0169FbE724BF47b55a66"
+        "implementation": "0x4165b07Bb6B98a7401c93972ceC711A0e3b618DF"
       },
       {
         "address": "0x234872fB24514b32185A125313a53177DDA97c12",
         "version": "0.1.0",
-        "implementation": "0xe0DfB55F8fE706fd4F0a0169FbE724BF47b55a66"
+        "implementation": "0x4165b07Bb6B98a7401c93972ceC711A0e3b618DF"
       }
     ],
     "dapp-scsc-solidity/XyGovernance": [
