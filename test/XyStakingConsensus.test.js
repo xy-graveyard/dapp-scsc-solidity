@@ -105,8 +105,8 @@ contract(
       const promises = requests.map(
         async q => payOnD.requestPayOnDelivery(
           q,
-          xyoPayment,
           xyoBounty,
+          xyoPayment,
           ethOnDelivery,
           d3,
           {
@@ -127,8 +127,8 @@ contract(
       const promises = requests.map(
         async q => payOnD.submitUintRequest(
           q,
-          xyoPayment,
           xyoBounty,
+          xyoPayment,
           ethOnDelivery,
           d3,
           {
