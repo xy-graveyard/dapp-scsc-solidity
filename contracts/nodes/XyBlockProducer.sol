@@ -1,7 +1,7 @@
 pragma solidity >=0.5.0 <0.6.0;
 
-import "./utils/Initializable.sol";
-import "./access/GovernorRole.sol";
+import "../utils/Initializable.sol";
+import "../access/GovernorRole.sol";
 
 /* 
     Contract used to track stakable addresses in XYO network 
@@ -9,6 +9,7 @@ import "./access/GovernorRole.sol";
     Stakers on these tokens may make reward withdrawels,
 */
 contract XyBlockProducer is Initializable, GovernorRole {
+    using SafeMath for uint;
 
     event BlockProducerCreated(
         address bp,

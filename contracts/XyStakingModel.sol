@@ -1,6 +1,6 @@
 pragma solidity >=0.5.0 <0.6.0;
 
-import "./XyBlockProducer.sol";
+import "./nodes/XyBlockProducer.sol";
 import "./token/ERC20/SafeERC20.sol";
 import "./XyGovernance.sol";
 import "./utils/SafeMath.sol";
