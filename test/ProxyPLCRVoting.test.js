@@ -9,7 +9,7 @@ const erc20TotalSupply = 1000000
 
 require(`chai`).should()
 
-contract(`PLCRVoting`, () => {
+contract(`ProxyPLCRVoting`, () => {
   let project
   beforeEach(async () => {
     project = await TestHelper()

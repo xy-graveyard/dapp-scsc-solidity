@@ -5,7 +5,7 @@ import "./Roles.sol";
 contract GovernorRole {
 
   using Roles for Roles.Role;
-  Roles.Role private minters;
+  Roles.Role private governors;
 
   event GovernorAdded(address indexed account);
   event GovernorRemoved(address indexed account);
@@ -22,7 +22,7 @@ contract GovernorRole {
   }
 
   function isGovernor(address account) public view returns (bool) {
-    return minters.has(account);
+    return governors.has(account);
   }
 
   function addGovernor(address account) public onlyGovernor {
@@ -34,12 +34,12 @@ contract GovernorRole {
   }
 
   function _addGovernor(address account) internal {
-    minters.add(account);
+    governors.add(account);
     emit GovernorAdded(account);
   }
 
   function _removeGovernor(address account) internal {
-    minters.remove(account);
+    governors.remove(account);
     emit GovernorRemoved(account);
   }
   

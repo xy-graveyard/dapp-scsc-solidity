@@ -6,6 +6,7 @@ contract XyBlockProducerMock is XyBlockProducer {
     public
     XyBlockProducer()
   {
+    initialize();
     for (uint i = 0; i < stakees.length; i++) {
       create(stakees[i]);
     }

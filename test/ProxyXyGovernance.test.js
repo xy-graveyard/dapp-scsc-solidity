@@ -8,7 +8,7 @@ const ERC20 = Contracts.getFromNodeModules(`openzeppelin-eth`, `ERC20`)
 
 require(`chai`).should()
 
-contract(`XyGovernance`, () => {
+contract(`ProxyXyGovernance`, () => {
   let project
   beforeEach(async () => {
     project = await TestHelper()

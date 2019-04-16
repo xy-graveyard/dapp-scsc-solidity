@@ -12,6 +12,7 @@ contract(
     const genArgs = async (newOwnee, from) => [newOwnee, { from }]
     beforeEach(async () => {
       stakableToken = await Stakeable.new({ from: contractOwner })
+      await stakableToken.initialize()
     })
     describe(`Minting`, async () => {
       it(`should not allow minting by random owner`, async () => {

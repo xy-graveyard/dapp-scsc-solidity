@@ -1,5 +1,5 @@
 pragma solidity >=0.5.0 <0.6.0;
-import "../XyPayonDelivery.sol";
+import "../XyPayOnDelivery.sol";
 
 contract XyPayOnDeliveryMock is XyPayOnDelivery {
     event UintResponse(bytes32 requestId, uint response);
