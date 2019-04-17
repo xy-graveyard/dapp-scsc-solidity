@@ -394,7 +394,7 @@ contract(
               ['uint', 
               'bytes'],
               [
-                3, // stake
+                3, // stake multiple
                 data
               ]
             )}`
