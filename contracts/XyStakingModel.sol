@@ -174,13 +174,18 @@ contract XyStakingModel is IXyVotingData {
         }
     }
 
+    function stakeMultiple(address spender, address[] memory stakers, address[] memory stakees, uint[] memory amounts) internal {
+        for (uint i = 0; i < stakees.length; i++) {
+            stakeFrom(spender, stakers[i], stakees[i], amounts[i]);
+        }
+    }
 
-    function stakeFrom(address staker, address stakee, uint amount)  
+    function stakeFrom(address spender, address staker, address stakee, uint amount)  
         internal
         returns (bytes32) 
     {
         // this causes revert if this contract has not been approved for transferring
-        SafeERC20.transferFrom(xyoToken, staker, address(this), amount);
+        SafeERC20.transferFrom(xyoToken, spender, address(this), amount);
 
         require(govContract.hasUnresolvedAction(stakee) == false, "All actions on stakee must be resolved");
         updateCacheOnStake(amount, stakee);
@@ -219,7 +224,7 @@ contract XyStakingModel is IXyVotingData {
         public
         returns (bytes32)
     {
-        return stakeFrom(msg.sender, stakee, amount);
+        return stakeFrom(msg.sender, msg.sender, stakee, amount);
     }
     
     function _requireStakeCooledDown(bytes32 stakingId)
@@ -293,9 +298,7 @@ contract XyStakingModel is IXyVotingData {
         internal 
     {
         address stakee = stakeData[stakingId].stakee;
-
         uint stakeeIndex = stakingStakeeIndex[stakingId];
-
         uint lastStakeeIndex = stakeeToStakingIds[stakee].length - 1;
         bytes32 lastStakeeId = stakeeToStakingIds[stakee][lastStakeeIndex];
             
@@ -315,9 +318,7 @@ contract XyStakingModel is IXyVotingData {
         internal 
     {
         address staker = stakeData[stakingId].staker;
-
         uint stakerIndex = stakingStakerIndex[stakingId];
-
         uint lastStakerIndex = stakerToStakingIds[staker].length - 1;
         bytes32 lastStakerId = stakerToStakingIds[staker][lastStakerIndex];
             

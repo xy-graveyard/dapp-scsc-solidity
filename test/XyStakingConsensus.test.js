@@ -355,13 +355,14 @@ contract(
       })
       it(`should allow approve and staking`, async () => {
         const stake = 10
-        const staker = d1
+        const spender = d1
         const stakee = d2
-        await erc20.transfer(staker, 500, { from: erc20owner })
-        let originalBalance = await erc20.balanceOf(staker)
+        const staker = d3
+        await erc20.transfer(spender, 500, { from: erc20owner })
+        let originalBalance = await erc20.balanceOf(spender)
         const data = `${web3.eth.abi.encodeParameters(
-            ['address'],
-            [ stakee ]
+            ['address', 'address'],
+            [ staker, stakee ]
           )}`
         const encodedMethod = `${web3.eth.abi.encodeParameters(
             ['uint', 
@@ -373,10 +374,36 @@ contract(
           )}`
         const solidityEncoded = web3.utils.toHex(encodedMethod)
 
-        const tx = await erc20.approveAndCall(consensus.address, stake, solidityEncoded, { from: staker }).should.be.fulfilled
-        let newBalance = await erc20.balanceOf(staker)
+        const tx = await erc20.approveAndCall(consensus.address, stake, solidityEncoded, { from: spender }).should.be.fulfilled
+        let newBalance = await erc20.balanceOf(spender)
         newBalance.toNumber().should.be.equal(originalBalance.toNumber() - stake)
       })
+      it(`should allow approve and staking multiple`, async () => {
+          const stake = 100 // divisible by 3 stakees
+          const spender = d1
+          const stakees = [d2, d4, spender]
+          const stakers = [d3, d3, d3]
+          const amounts = [33,33,34]
+          await erc20.transfer(spender, 500, { from: erc20owner })
+          let originalBalance = await erc20.balanceOf(spender)
+          const data = `${web3.eth.abi.encodeParameters(
+              ['address[]', 'address[]', 'uint[]'],
+              [ stakers, stakees, amounts ]
+            )}`
+          const encodedMethod = `${web3.eth.abi.encodeParameters(
+              ['uint', 
+              'bytes'],
+              [
+                3, // stake
+                data
+              ]
+            )}`
+          const solidityEncoded = web3.utils.toHex(encodedMethod)
+
+          const tx = await erc20.approveAndCall(consensus.address, stake, solidityEncoded, { from: spender }).should.be.fulfilled
+          let newBalance = await erc20.balanceOf(spender)
+          newBalance.toNumber().should.be.equal(originalBalance.toNumber() - stake)
+        })
     })
     describe(`Submit Request`, () => {
       it(`Should allow creating requests with many request types`, async () => {
