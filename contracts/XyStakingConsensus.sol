@@ -142,10 +142,12 @@ contract XyStakingConsensus is Initializable, XyStakingModel, IApprovalRecipient
     function receiveApproval(
         address _spender, 
         uint256 _value, 
+        address _token,
         bytes calldata _extraData
     ) 
         external 
     {
+        require (_token == xyoToken, "Can only be called from the current token");
         (uint method, bytes memory data) = abi.decode(_extraData, (uint, bytes));
 
         if (method == 1) {
