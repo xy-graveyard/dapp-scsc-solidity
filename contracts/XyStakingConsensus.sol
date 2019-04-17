@@ -3,14 +3,13 @@ pragma solidity >=0.5.0 <0.6.0;
 import "./utils/Initializable.sol";
 import "./XyStakingModel.sol";
 import "./IXyRequester.sol";
-import "./token/ERC20/IApprovalRecipient.sol";
 
  /**
     @title XyStakingConsensus
     @dev Manages the Stake for multiple clients in a decentralized consensus 
     system to trustlessly answer requests
   */
-contract XyStakingConsensus is Initializable, XyStakingModel, IApprovalRecipient {
+contract XyStakingConsensus is Initializable, XyStakingModel {
     using SafeMath for uint;
     
     /** STRUCTS */
@@ -137,7 +136,7 @@ contract XyStakingConsensus is Initializable, XyStakingModel, IApprovalRecipient
 
 
     /** 
-        Implements IApprovalRecipient
+        Implements IApprovalRecipient allows approveAndCall in one transaction
     */
     function receiveApproval(
         address _spender, 
@@ -149,15 +148,16 @@ contract XyStakingConsensus is Initializable, XyStakingModel, IApprovalRecipient
     {
         require (_token == xyoToken, "Can only be called from the current token");
         (uint method, bytes memory data) = abi.decode(_extraData, (uint, bytes));
-
+        
         if (method == 1) {
             (address stakee) = abi.decode(data, (address));
             stakeFrom(_spender, stakee, _value);
         } else if (method == 2) {
             ( bytes32 request, uint xyoBounty, address xyoSender, uint8 requestType) = abi.decode(data, (bytes32, uint, address, uint8));
             submitRequest(request, xyoBounty, xyoSender, requestType);
+        } else {
+            require(false, "Unhandled method");
         }
-        assert(false);
     }
 
 
@@ -319,35 +319,6 @@ contract XyStakingConsensus is Initializable, XyStakingModel, IApprovalRecipient
         blockChain.push(newBlock);
         blocks[newBlock] = b;
         emit BlockCreated(newBlock, previousBlock, supportingData, block.number, msg.sender);
-    }
-
-    event LogTest(bytes packedBytes, bytes32 newBlockHash, bool wasMatch, address lastSigner, bytes32 prefixedHash, uint stake);
-    function testSubmit
-    (
-        bytes32 previousBlock,
-        uint stakingBlock,
-        bytes32[] memory _requests,
-        bytes32 supportingData,
-        bytes memory responses,
-        address[] memory signers,
-        bytes32[] memory sigR,
-        bytes32[] memory sigS,
-        uint8[] memory sigV
-    )
-        public
-    {
-        bytes memory packedBytes = abi.encodePacked(previousBlock, stakingBlock, _requests, supportingData, responses);
-        bytes32 newBlock = keccak256(packedBytes);
-        bytes32 prefixedHash = prefixed(newBlock);
-        address lastSigner = address(0);
-        uint stake = 0;
-        bool wasMatch = false;
-        for (uint i = 0; i < signers.length; i++) {
-            lastSigner = signers[i];
-            wasMatch = lastSigner == ecrecover(prefixedHash, sigV[i], sigR[i], sigS[i]);
-            stake = stake.add(stakeeStake[lastSigner].activeStake);
-        }
-        emit LogTest(packedBytes, newBlock, wasMatch, lastSigner, prefixedHash, stake);
     }
 
     /**
