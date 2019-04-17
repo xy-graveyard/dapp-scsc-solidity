@@ -378,7 +378,7 @@ contract(
         let newBalance = await erc20.balanceOf(spender)
         newBalance.toNumber().should.be.equal(originalBalance.toNumber() - stake)
       })
-      it.only(`should allow approve and staking multiple`, async () => {
+      it(`should allow approve and staking multiple`, async () => {
           const stake = 100 // divisible by 3 stakees
           const spender = d1
           const stakees = [d2, d4, spender]

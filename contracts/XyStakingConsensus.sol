@@ -158,8 +158,6 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
         } else if (method == 3) {
             (address[] memory stakers, address[] memory stakees, uint[] memory amounts) = abi.decode(data, (address[], address[], uint[]));
             stakeMultiple(_spender, stakers, stakees, amounts);
-        } else {
-            require(false, "Unhandled method");
         }
     }
 

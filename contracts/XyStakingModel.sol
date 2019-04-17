@@ -175,7 +175,6 @@ contract XyStakingModel is IXyVotingData {
     }
 
     function stakeMultiple(address spender, address[] memory stakers, address[] memory stakees, uint[] memory amounts) internal {
-        require((stakers.length == stakees.length) && (stakers.length == amounts.length), "lengths need to match");
         for (uint i = 0; i < stakees.length; i++) {
             stakeFrom(spender, stakers[i], stakees[i], amounts[i]);
         }
@@ -299,9 +298,7 @@ contract XyStakingModel is IXyVotingData {
         internal 
     {
         address stakee = stakeData[stakingId].stakee;
-
         uint stakeeIndex = stakingStakeeIndex[stakingId];
-
         uint lastStakeeIndex = stakeeToStakingIds[stakee].length - 1;
         bytes32 lastStakeeId = stakeeToStakingIds[stakee][lastStakeeIndex];
             
@@ -321,9 +318,7 @@ contract XyStakingModel is IXyVotingData {
         internal 
     {
         address staker = stakeData[stakingId].staker;
-
         uint stakerIndex = stakingStakerIndex[stakingId];
-
         uint lastStakerIndex = stakerToStakingIds[staker].length - 1;
         bytes32 lastStakerId = stakerToStakingIds[staker][lastStakerIndex];
             
