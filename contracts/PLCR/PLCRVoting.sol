@@ -5,7 +5,6 @@ import "./attrstore/AttributeStore.sol";
 import "../utils/SafeMath.sol";
 import "../utils/Initializable.sol";
 import "../token/ERC20/SafeERC20.sol";
-import "../token/ERC20/IERC20.sol";
 
 /**
 @title Partial-Lock-Commit-Reveal Voting scheme with ERC20 tokens
@@ -78,7 +77,7 @@ contract PLCRVoting is Initializable {
     @param _numTokens The number of votingTokens desired in exchange for ERC20 tokens
     */
     function requestVotingRights(uint _numTokens) public {
-        require(IERC20(token).balanceOf(msg.sender) >= _numTokens, "Not enough balance");
+        require(SafeERC20.balanceOf(token, msg.sender) >= _numTokens, "Not enough balance");
         voteTokenBalance[msg.sender] += _numTokens;
         SafeERC20.transferFrom(token, msg.sender,  address(this), _numTokens);
         emit _VotingRightsGranted(_numTokens, msg.sender);

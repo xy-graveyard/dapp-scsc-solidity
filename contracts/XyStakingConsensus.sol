@@ -3,13 +3,14 @@ pragma solidity >=0.5.0 <0.6.0;
 import "./utils/Initializable.sol";
 import "./XyStakingModel.sol";
 import "./IXyRequester.sol";
+import "./token/ERC20/IApprovalRecipient.sol"
 
  /**
     @title XyStakingConsensus
     @dev Manages the Stake for multiple clients in a decentralized consensus 
     system to trustlessly answer requests
   */
-contract XyStakingConsensus is Initializable, XyStakingModel {
+contract XyStakingConsensus is Initializable, XyStakingModel, IApprovalRecipient {
     using SafeMath for uint;
     
     /** STRUCTS */
@@ -133,6 +134,30 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
         submitRequest(requestId, xyoBounty, msg.sender, uint8(IXyRequester.RequestType.WITHDRAW));
         return requestId;
     }
+
+
+    /** 
+        Implements IApprovalRecipient
+    */
+    function receiveApproval(
+        address _spender, 
+        uint256 _value, 
+        bytes memory _extraData
+    ) 
+        external 
+    {
+        (uint method, bytes data) = abi.decode(_extraData, (uint, bytes));
+
+        if (method == 1) {
+            (uint method, bytes data) = abi.decode(data, (uint, bytes));
+            stakeFrom(_spender, stakee, _value);
+        } else if (method == 2) {
+            ( bytes32 request, uint xyoBounty, address xyoSender, uint8 requestType) = abi.decode(data, (bytes32, uint, address, uint8));
+            submitRequest(request, bounty, sender, requestType);
+        }
+        assert(false, "bad method");
+    }
+
 
     /**
         @dev Escrow eth and xyo, making sure it covers the answer mining cost
