@@ -323,8 +323,8 @@ contract(
       })
       await advanceBlock()
     })
-    describe(`Approve and request`, async () => {
-      it(`should allow approve and sending to multiple addresses and amounts`, async () => {
+    describe(`Approve and call`, async () => {
+      it(`should allow approve and requesting`, async () => {
         const bounty = 10
         await erc20.transfer(d1, 500, { from: erc20owner })
 
@@ -343,7 +343,7 @@ contract(
             ['uint', 
             'bytes'],
             [
-              2,
+              2, // submitRequest
               data
             ]
           )}`
@@ -352,6 +352,30 @@ contract(
         await erc20.approveAndCall(consensus.address, bounty, solidityEncoded, { from: d1 }).should.be.fulfilled
         let newBalance = await erc20.balanceOf(d1)
         newBalance.toNumber().should.be.equal(originalBalance.toNumber() - bounty)
+      })
+      it(`should allow approve and staking`, async () => {
+        const stake = 10
+        const staker = d1
+        const stakee = d2
+        await erc20.transfer(staker, 500, { from: erc20owner })
+        let originalBalance = await erc20.balanceOf(staker)
+        const data = `${web3.eth.abi.encodeParameters(
+            ['address'],
+            [ stakee ]
+          )}`
+        const encodedMethod = `${web3.eth.abi.encodeParameters(
+            ['uint', 
+            'bytes'],
+            [
+              1, // stake
+              data
+            ]
+          )}`
+        const solidityEncoded = web3.utils.toHex(encodedMethod)
+
+        const tx = await erc20.approveAndCall(consensus.address, stake, solidityEncoded, { from: staker }).should.be.fulfilled
+        let newBalance = await erc20.balanceOf(staker)
+        newBalance.toNumber().should.be.equal(originalBalance.toNumber() - stake)
       })
     })
     describe(`Submit Request`, () => {
