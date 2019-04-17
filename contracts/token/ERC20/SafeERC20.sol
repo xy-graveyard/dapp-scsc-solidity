@@ -1,4 +1,4 @@
-pragma solidity ^0.5.4;
+pragma solidity >=0.5.0 <0.6.0;
 
 interface GeneralERC20 {
 	function transfer(address to, uint256 value) external;
@@ -53,5 +53,9 @@ library SafeERC20 {
 	function approve(address token, address spender, uint256 amount) internal {
 		GeneralERC20(token).approve(spender, amount);
 		require(checkSuccess(), "approve fail");
+	}
+
+	function balanceOf(address token, address spender) internal view returns (uint) {
+		return GeneralERC20(token).balanceOf(spender);
 	}
 }

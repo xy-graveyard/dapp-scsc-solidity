@@ -57,7 +57,7 @@ contract(
     let stakableToken
     let parameterizer
     let plcr
-    const diviners = [consensusOwner, d1, d3, d4]
+    const diviners = [consensusOwner, d1, d2, d3, d4]
     const numDiviners = diviners.length
     const numRequests = 1
     let payOnD
@@ -314,7 +314,7 @@ contract(
         stakableToken.address,
         parameterizer.address,
         {
-          from: consensusOwner, gasPrice: 0
+          from: consensusOwner
         }
       )
       await parameterizer.initializeGovernor(consensus.address)
@@ -322,6 +322,61 @@ contract(
         from: payOnDeliveryOwner
       })
       await advanceBlock()
+    })
+    describe(`Approve and call`, async () => {
+      it(`should allow approve and requesting`, async () => {
+        const bounty = 10
+        await erc20.transfer(d1, 500, { from: erc20owner })
+
+        let originalBalance = await erc20.balanceOf(d1)
+
+        const data = `${web3.eth.abi.encodeParameters(
+            ['bytes32', 
+            'uint', 
+            'address',
+            'uint8'],
+            [
+              `0x1`, bounty, d1, 4
+            ]
+          )}`
+        const encodedMethod = `${web3.eth.abi.encodeParameters(
+            ['uint', 
+            'bytes'],
+            [
+              2, // submitRequest
+              data
+            ]
+          )}`
+        const solidityEncoded = web3.utils.toHex(encodedMethod)
+
+        await erc20.approveAndCall(consensus.address, bounty, solidityEncoded, { from: d1 }).should.be.fulfilled
+        let newBalance = await erc20.balanceOf(d1)
+        newBalance.toNumber().should.be.equal(originalBalance.toNumber() - bounty)
+      })
+      it(`should allow approve and staking`, async () => {
+        const stake = 10
+        const staker = d1
+        const stakee = d2
+        await erc20.transfer(staker, 500, { from: erc20owner })
+        let originalBalance = await erc20.balanceOf(staker)
+        const data = `${web3.eth.abi.encodeParameters(
+            ['address'],
+            [ stakee ]
+          )}`
+        const encodedMethod = `${web3.eth.abi.encodeParameters(
+            ['uint', 
+            'bytes'],
+            [
+              1, // stake
+              data
+            ]
+          )}`
+        const solidityEncoded = web3.utils.toHex(encodedMethod)
+
+        const tx = await erc20.approveAndCall(consensus.address, stake, solidityEncoded, { from: staker }).should.be.fulfilled
+        let newBalance = await erc20.balanceOf(staker)
+        newBalance.toNumber().should.be.equal(originalBalance.toNumber() - stake)
+      })
     })
     describe(`Submit Request`, () => {
       it(`Should allow creating requests with many request types`, async () => {
@@ -463,17 +518,14 @@ contract(
 
       it(`should fail if signers not passed in order`, async () => {
         const subParams = await generateArgs(true)
-        if (
-          diviners !== diviners.map(d => d.toLowerCase()).sort(compareDiviners)
-        ) {
-          await consensus.mock_checkSigsAndStakes(
+        const unsorted = diviners.map(d => d.toLowerCase()).sort(compareDiviners).reverse()
+        await consensus.mock_checkSigsAndStakes(
             subParams[SubmitArgsEnum.SIGHASH],
-            diviners,
+            unsorted,
             subParams[SubmitArgsEnum.R],
             subParams[SubmitArgsEnum.S],
             subParams[SubmitArgsEnum.V]
           ).should.not.be.fulfilled
-        }
       })
 
       it(`should fail if quorum not met`, async () => {

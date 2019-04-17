@@ -174,6 +174,40 @@ contract XyStakingModel is IXyVotingData {
         }
     }
 
+
+    function stakeFrom(address staker, address stakee, uint amount)  
+        internal
+        returns (bytes32) 
+    {
+        // this causes revert if this contract has not been approved for transferring
+        SafeERC20.transferFrom(xyoToken, staker, address(this), amount);
+
+        require(govContract.hasUnresolvedAction(stakee) == false, "All actions on stakee must be resolved");
+        updateCacheOnStake(amount, stakee);
+
+        // random generated token id
+        bytes32 newToken = keccak256(abi.encodePacked(stakee, staker, block.number));
+        Stake memory data = Stake(
+            amount,         // amount
+            block.number,   // stakeBlock
+            0,              // unstakeBlock
+            stakee,         // stakee 
+            staker,         // staker
+            false,          // isActivated
+            false           // isCooledDown
+        );
+
+        // Store the staking data
+        stakingStakeeIndex[newToken] = stakeeToStakingIds[stakee].length;
+        stakeeToStakingIds[stakee].push(newToken);
+        stakingStakerIndex[newToken] = stakerToStakingIds[staker].length;
+        stakerToStakingIds[staker].push(newToken);
+        stakeData[newToken] = data;
+
+        emit StakeEvent(newToken, amount, staker, stakee, StakeTransition.STAKED);
+        return newToken;
+    }
+
     /** 
         Adds stake to a stakable token id
         @dev This contract must be approved to transfer tokens by token holder
@@ -185,33 +219,7 @@ contract XyStakingModel is IXyVotingData {
         public
         returns (bytes32)
     {
-        require(govContract.hasUnresolvedAction(stakee) == false, "All actions on stakee must be resolved");
-        updateCacheOnStake(amount, stakee);
-
-        // random generated token id
-        bytes32 newToken = keccak256(abi.encodePacked(stakee, msg.sender, block.number));
-        Stake memory data = Stake(
-            amount,         // amount
-            block.number,   // stakeBlock
-            0,              // unstakeBlock
-            stakee,         // stakee 
-            msg.sender,     // staker
-            false,          // isActivated
-            false           // isCooledDown
-        );
-
-        // Store the staking data
-        stakingStakeeIndex[newToken] = stakeeToStakingIds[stakee].length;
-        stakeeToStakingIds[stakee].push(newToken);
-        stakingStakerIndex[newToken] = stakerToStakingIds[msg.sender].length;
-        stakerToStakingIds[msg.sender].push(newToken);
-        stakeData[newToken] = data;
-
-        // Escrow the ERC20
-        SafeERC20.transferFrom(xyoToken, msg.sender, address(this), amount);
-
-        emit StakeEvent(newToken, amount, msg.sender, stakee, StakeTransition.STAKED);
-        return newToken;
+        return stakeFrom(msg.sender, stakee, amount);
     }
     
     function _requireStakeCooledDown(bytes32 stakingId)
