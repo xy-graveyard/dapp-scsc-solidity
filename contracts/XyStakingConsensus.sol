@@ -150,11 +150,14 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
         (uint method, bytes memory data) = abi.decode(_extraData, (uint, bytes));
         
         if (method == 1) {
-            (address stakee) = abi.decode(data, (address));
-            stakeFrom(_spender, stakee, _value);
+            (address staker, address stakee) = abi.decode(data, (address, address));
+            stakeFrom(_spender, staker, stakee, _value);
         } else if (method == 2) {
             ( bytes32 request, uint xyoBounty, address xyoSender, uint8 requestType) = abi.decode(data, (bytes32, uint, address, uint8));
             submitRequest(request, xyoBounty, xyoSender, requestType);
+        } else if (method == 3) {
+            (address[] memory stakers, address[] memory stakees, uint[] memory amounts) = abi.decode(data, (address[], address[], uint[]));
+            stakeMultiple(_spender, stakers, stakees, amounts);
         } else {
             require(false, "Unhandled method");
         }
