@@ -55,7 +55,7 @@ library SafeERC20 {
 		require(checkSuccess(), "approve fail");
 	}
 
-	function balanceOf(address token, address spender) internal {
+	function balanceOf(address token, address spender) internal view returns (uint) {
 		return GeneralERC20(token).balanceOf(spender);
 	}
 }
