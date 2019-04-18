@@ -7,7 +7,7 @@ import "./utils/SafeMath.sol";
 
 contract XyStakingModel is IXyVotingData {
     using SafeMath for uint;
-    
+
     // SafeERC20 wrapped token contract for stake denomination
     address public xyoToken;
     // 721 contract that we reference for all things staked
@@ -53,7 +53,6 @@ contract XyStakingModel is IXyVotingData {
 
     // StakeEvent transitions
     enum StakeTransition { STAKED, ACTIVATED, COOLED, UNSTAKED, WITHDREW }
-
     
     /** EVENTS */
     event StakeEvent(

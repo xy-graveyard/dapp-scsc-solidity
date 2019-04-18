@@ -1,0 +1,38 @@
+Main net deploy
+
+1. Contract for kovan:
+
+npx zos session --network kovan --from 0x316D5E10f4E4ad94499149c0131a44FC17EF995B --expires 5000
+
+// Initialize the contracts for session
+npx zos push
+
+Kovan:
+npx zos create XyBlockProducer --init initialize
+
+0xb9452ee24cf08eaedf64F3B81f8727f5bd0Ea084
+
+npx zos create PLCRVoting --init initialize --args "0x9071a6fc3c23eb6f4a8f7a2bc2309a7b368f272f"
+
+0x210241f42bC94Eb9da7b4E0A841f3b340B569291
+
+npx zos create XyGovernance --init initialize --args "0x9071a6fc3c23eb6f4a8f7a2bc2309a7b368f272f,0x210241f42bC94Eb9da7b4E0A841f3b340B569291,[400000000000000000000000,172800,172800,172800,50,50,50,66,1000000000000000,1,11520,11520,0,20]"
+
+0xbF68070E5E84cae28f10161088edA1747A5963Ee
+
+npx zos create XyStakingConsensus --init initialize --args "0x9071a6fc3c23eb6f4a8f7a2bc2309a7b368f272f,0xb9452ee24cf08eaedf64F3B81f8727f5bd0Ea084,0xbF68070E5E84cae28f10161088edA1747A5963Ee"
+
+0x1a2C4a6Ffd72848E7bD63d2177c29a0aC80c6386
+
+IPFS:
+QmNPKPDj8UjNyy3ewLpyCUAcrAPEZoRtpAFwWtrZP3uEXX XyBlockProducer.json
+QmZrbFNd21fY1Q6tJb1hLthaUyfHTEvVc5eJJdSdHQSTXi XyFaucet.json
+QmcQhGekFrFGDPSy8epReXyBiYqLLgNd9rCcjMz341pF8L XyGovernance.json
+QmTbUrie2GyVm6yJjQ3RHxinQtaqmLdtor1FpsYJD5kiA3 XyStakingConsensus.json
+QmTGsMMiy2doKXWyEYci11btTpSQFnFJEowbFhzuVnjTcy kovanABI
+
+Kovan:
+0x1a2C4a6Ffd72848E7bD63d2177c29a0aC80c6386 XyStakingConsensus
+0xb9452ee24cf08eaedf64F3B81f8727f5bd0Ea084 XyBlockProducer.json
+0xbF68070E5E84cae28f10161088edA1747A5963Ee XyGovernance.json
+0x9071a6fc3c23eb6f4a8f7a2bc2309a7b368f272f XyFaucet.json
