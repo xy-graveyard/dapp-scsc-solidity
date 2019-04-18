@@ -1,13 +1,15 @@
 Main net deploy
 
-1. Contract for kovan:
+Deployer for kovan: 0x316D5E10f4E4ad94499149c0131a44FC17EF995B
+
+
+Kovan:
 
 npx zos session --network kovan --from 0x316D5E10f4E4ad94499149c0131a44FC17EF995B --expires 5000
 
 // Initialize the contracts for session
 npx zos push
 
-Kovan:
 npx zos create XyBlockProducer --init initialize
 
 0xb9452ee24cf08eaedf64F3B81f8727f5bd0Ea084
@@ -36,3 +38,15 @@ Kovan:
 0xb9452ee24cf08eaedf64F3B81f8727f5bd0Ea084 XyBlockProducer.json
 0xbF68070E5E84cae28f10161088edA1747A5963Ee XyGovernance.json
 0x9071a6fc3c23eb6f4a8f7a2bc2309a7b368f272f XyFaucet.json
+
+Minimized Kovan:
+QmPSNLi99b91AR93AhS7P8TzgETp299R4KurSaFzqn2Dsa XyBlockProducer.json
+QmZrbFNd21fY1Q6tJb1hLthaUyfHTEvVc5eJJdSdHQSTXi XyFaucet.json
+QmYJhLPmq5GNTQDkWonHV4693YdoEJ1Bt9yz5yz15r6s2Z XyGovernance.json
+Qmf6MHXSe4mKYTXbB5nEyUdKagpFo8ZWMSU96rNWqx293D XyStakingConsensus.json
+QmYBBNitDFPJVkQkXpZbS16rqJhRU2Eg2teCzaT6jGGY7o minimizedABI
+
+Mainnet:
+
+npx zos session --network mainnet --from 0x6792B02f88b32C4FE8e31cfA41ae5aF44865f930 --expires 5000
+
