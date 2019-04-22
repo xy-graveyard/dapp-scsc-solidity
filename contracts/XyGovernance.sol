@@ -11,18 +11,17 @@ import "./XyParameterizer.sol";
 contract XyGovernance is Initializable, XyParameterizer {
     using SafeMath for uint;
 
-
     event NewActionAccepted(bytes32 indexed propId, ActionType actionType);
     event ActionResolved(bytes32 indexed propId, address stakee, ActionType actionType);
 
     struct GovernanceAction {
         bytes32 propId;         // proposal id must be unique
         uint stakePenaltyPct;   // amount that is transferred from the active stake to the penalty balance
-        ActionType actionType;       // type of action              
-        bool accepted;
+        ActionType actionType;  // type of action              
+        bool accepted;          // cannot be re-ran after accepted
     }
 
-    enum  ActionType { UNSTAKE, ADD_BP, REMOVE_BP }
+    enum ActionType { UNSTAKE, ADD_BP, REMOVE_BP }
 
     mapping (address => GovernanceAction[]) public resolutions;
     mapping (address => GovernanceAction) public actions;

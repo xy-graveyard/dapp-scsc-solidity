@@ -1,12 +1,11 @@
 {
   "zosversion": "2.2",
   "name": "dapp-scsc-solidity",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "contracts": {
     "XyGovernance": "XyGovernance",
     "XyBlockProducer": "XyBlockProducer",
     "XyStakingConsensus": "XyStakingConsensus",
-    "XyPayOnDelivery": "XyPayOnDelivery",
     "PLCRVoting": "PLCRVoting"
   },
   "dependencies": {
