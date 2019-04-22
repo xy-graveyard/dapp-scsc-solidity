@@ -9,6 +9,7 @@ interface IXyVotingData {
 }
 
 contract XyParameterizer {
+    using SafeMath for uint;
 
     // ------
     // EVENTS
@@ -132,6 +133,8 @@ contract XyParameterizer {
             }
         }
     }
+
+    
 
     // -----------------------
     // TOKEN HOLDER INTERFACE
@@ -316,7 +319,7 @@ contract XyParameterizer {
         uint winningTokens = challenges[_challengeID].winningTokens;
         uint rewardPool = challenges[_challengeID].rewardPool;
         uint voterTokens = voting.getNumPassingTokens(_voter, _challengeID);
-        return (voterTokens * rewardPool) / winningTokens;
+        return (voterTokens.mul(rewardPool)).div(winningTokens);
     }
 
     /**
@@ -358,7 +361,7 @@ contract XyParameterizer {
             return 2 * challenges[_challengeID].stake;
         }
 
-        return (2 * challenges[_challengeID].stake) - challenges[_challengeID].rewardPool;
+        return (2 * challenges[_challengeID].stake).sub(challenges[_challengeID].rewardPool);
     }
 
     /**
@@ -381,7 +384,7 @@ contract XyParameterizer {
     function isPassed(uint _pollId) public view returns (bool) {
         // success pct fullfilled
         bool voteSuccess = voting.isPassed(_pollId);
-        bool quorumMet = (100 * voting.getTotalVotes(_pollId)) > (get("pVoteQuorum") * IXyVotingData(governorAddress).totalVotingStake());
+        bool quorumMet = (100 * voting.getTotalVotes(_pollId)) > (get("pVoteQuorum").mul(IXyVotingData(governorAddress).totalVotingStake()));
 
         // check also if meets poll quorum (true def of quorum)
         return voteSuccess && quorumMet;

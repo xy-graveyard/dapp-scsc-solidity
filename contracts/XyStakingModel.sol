@@ -6,8 +6,8 @@ import "./XyGovernance.sol";
 import "./utils/SafeMath.sol";
 
 contract XyStakingModel is IXyVotingData {
-
     using SafeMath for uint;
+
     // SafeERC20 wrapped token contract for stake denomination
     address public xyoToken;
     // 721 contract that we reference for all things staked
@@ -34,13 +34,13 @@ contract XyStakingModel is IXyVotingData {
 
     // Stake data associated with all staking tokens
     struct Stake {
-        uint amount;
-        uint stakeBlock;
-        uint unstakeBlock;
-        address stakee; 
-        address staker;
-        bool isActivated;
-        bool isCooledDown;
+        uint amount;            // amount of token on this stake
+        uint stakeBlock;        // the creation block
+        uint unstakeBlock;      // if unstaked, non-zero unstake block
+        address stakee;         // who was staked
+        address staker;         // who owns the stake
+        bool isActivated;       // qualifies for block production and governance
+        bool isCooledDown;      // qualifies for governance
     } 
 
     // Cached Total/Active stake amounts
@@ -50,10 +50,11 @@ contract XyStakingModel is IXyVotingData {
         uint cooldownStake;
         uint totalUnstake;
     }
-    
-    /** EVENTS */
+
+    // StakeEvent transitions
     enum StakeTransition { STAKED, ACTIVATED, COOLED, UNSTAKED, WITHDREW }
     
+    /** EVENTS */
     event StakeEvent(
         bytes32 stakingId,
         uint amount,
@@ -127,33 +128,19 @@ contract XyStakingModel is IXyVotingData {
         }
     }
 
-    function _unstakeGovernanceAction(address stakee, uint startIndex, uint batchSize, uint penalty) private {
-        for (uint i = startIndex; i < batchSize + startIndex; i++) {
-            bytes32 token = stakeeToStakingIds[stakee][i];
-            Stake storage data = stakeData[token];
-            if (data.unstakeBlock == 0) {
-                if (penalty > 0) {
-                    uint penaltyAmount = penalty.mul(data.amount).div(100);
-                    reduceStake(data, penaltyAmount);
-                    penaltyStake.add(penaltyAmount);
-                }
-                updateCacheOnUnstake(data);
-                data.unstakeBlock = block.number;
-            }
-        }
-    }
-
-    function isUnstakeAction(XyGovernance.ActionType actionType) pure public returns (bool) {
-        return (actionType == XyGovernance.ActionType.UNSTAKE  || actionType == XyGovernance.ActionType.REMOVE_BP);
-    }
-
     /** 
         Call this when it's time to resolve a passed governance action
         @param stakee the staked item receiving action
         @param startIndex if a batchable action, where to start
         @param batchSize if batchable action, batchSize
     */
-    function resolveGovernanceAction(address stakee, uint startIndex, uint batchSize) public {
+    function resolveGovernanceAction (
+        address stakee, 
+        uint startIndex, 
+        uint batchSize
+    ) 
+        public 
+    {
         (,uint penalty,XyGovernance.ActionType actionType,bool accepted) = govContract.actions(stakee);
         require(accepted == true, "action must be accepted");
         // unstake action
@@ -174,6 +161,83 @@ contract XyStakingModel is IXyVotingData {
         }
     }
 
+    function _unstakeGovernanceAction(
+        address stakee, 
+        uint startIndex, 
+        uint batchSize, 
+        uint penalty
+    ) 
+        private
+    {
+        for (uint i = startIndex; i < batchSize + startIndex; i++) {
+            bytes32 token = stakeeToStakingIds[stakee][i];
+            Stake storage data = stakeData[token];
+            if (data.unstakeBlock == 0) {
+                if (penalty > 0) {
+                    uint penaltyAmount = penalty.mul(data.amount).div(100);
+                    reduceStake(data, penaltyAmount);
+                    penaltyStake.add(penaltyAmount);
+                }
+                updateCacheOnUnstake(data);
+                data.unstakeBlock = block.number;
+            }
+        }
+    }
+
+    /* 
+        Is this actiontype an action that must unstake any stake on the address
+    */
+    function isUnstakeAction (XyGovernance.ActionType actionType) 
+        pure public 
+        returns (bool) 
+    {
+        return (actionType == XyGovernance.ActionType.UNSTAKE  || actionType == XyGovernance.ActionType.REMOVE_BP);
+    }
+
+    function stakeMultiple (address spender, address[] memory stakers, address[] memory stakees, uint[] memory amounts) internal {
+        for (uint i = 0; i < stakees.length; i++) {
+            stakeFrom(spender, stakers[i], stakees[i], amounts[i]);
+        }
+    }
+
+    function stakeFrom (
+        address spender, 
+        address staker, 
+        address stakee, 
+        uint amount
+    )  
+        internal
+        returns (bytes32) 
+    {
+        // this causes revert if this contract has not been approved for transferring
+        SafeERC20.transferFrom(xyoToken, spender, address(this), amount);
+
+        require(govContract.hasUnresolvedAction(stakee) == false, "All actions on stakee must be resolved");
+        updateCacheOnStake(amount, stakee);
+
+        // random generated token id
+        bytes32 newToken = keccak256(abi.encodePacked(stakee, staker, block.number));
+        Stake memory data = Stake(
+            amount,         // amount
+            block.number,   // stakeBlock
+            0,              // unstakeBlock
+            stakee,         // stakee 
+            staker,         // staker
+            false,          // isActivated
+            false           // isCooledDown
+        );
+
+        // Store the staking data
+        stakingStakeeIndex[newToken] = stakeeToStakingIds[stakee].length;
+        stakeeToStakingIds[stakee].push(newToken);
+        stakingStakerIndex[newToken] = stakerToStakingIds[staker].length;
+        stakerToStakingIds[staker].push(newToken);
+        stakeData[newToken] = data;
+
+        emit StakeEvent(newToken, amount, staker, stakee, StakeTransition.STAKED);
+        return newToken;
+    }
+
     /** 
         Adds stake to a stakable token id
         @dev This contract must be approved to transfer tokens by token holder
@@ -185,33 +249,7 @@ contract XyStakingModel is IXyVotingData {
         public
         returns (bytes32)
     {
-        require(govContract.hasUnresolvedAction(stakee) == false, "All actions on stakee must be resolved");
-        updateCacheOnStake(amount, stakee);
-
-        // random generated token id
-        bytes32 newToken = keccak256(abi.encodePacked(stakee, msg.sender, block.number));
-        Stake memory data = Stake(
-            amount,         // amount
-            block.number,   // stakeBlock
-            0,              // unstakeBlock
-            stakee,         // stakee 
-            msg.sender,     // staker
-            false,          // isActivated
-            false           // isCooledDown
-        );
-
-        // Store the staking data
-        stakingStakeeIndex[newToken] = stakeeToStakingIds[stakee].length;
-        stakeeToStakingIds[stakee].push(newToken);
-        stakingStakerIndex[newToken] = stakerToStakingIds[msg.sender].length;
-        stakerToStakingIds[msg.sender].push(newToken);
-        stakeData[newToken] = data;
-
-        // Escrow the ERC20
-        SafeERC20.transferFrom(xyoToken, msg.sender, address(this), amount);
-
-        emit StakeEvent(newToken, amount, msg.sender, stakee, StakeTransition.STAKED);
-        return newToken;
+        return stakeFrom(msg.sender, msg.sender, stakee, amount);
     }
     
     function _requireStakeCooledDown(bytes32 stakingId)
@@ -285,9 +323,7 @@ contract XyStakingModel is IXyVotingData {
         internal 
     {
         address stakee = stakeData[stakingId].stakee;
-
         uint stakeeIndex = stakingStakeeIndex[stakingId];
-
         uint lastStakeeIndex = stakeeToStakingIds[stakee].length - 1;
         bytes32 lastStakeeId = stakeeToStakingIds[stakee][lastStakeeIndex];
             
@@ -307,9 +343,7 @@ contract XyStakingModel is IXyVotingData {
         internal 
     {
         address staker = stakeData[stakingId].staker;
-
         uint stakerIndex = stakingStakerIndex[stakingId];
-
         uint lastStakerIndex = stakerToStakingIds[staker].length - 1;
         bytes32 lastStakerId = stakerToStakingIds[staker][lastStakerIndex];
             

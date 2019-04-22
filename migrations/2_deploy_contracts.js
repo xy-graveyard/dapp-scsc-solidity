@@ -2,7 +2,7 @@ const PLCR = artifacts.require(`PLCRVoting.sol`)
 const attrStore = artifacts.require(`AttributeStore.sol`)
 const dll = artifacts.require(`DLL.sol`)
 const XYOERC20 = artifacts.require(`XyFaucet.sol`)
-const Stakable = artifacts.require(`XyBlockProducer.sol`)
+const BlockProducer = artifacts.require(`XyBlockProducer.sol`)
 const SCSC = artifacts.require(`XyStakingConsensus.sol`)
 const Governance = artifacts.require(`XyGovernance.sol`)
 const PayOnD = artifacts.require(`XyPayOnDelivery.sol`)
@@ -42,30 +42,30 @@ module.exports = async function (deployer, network, [contractsOwner, bp2]) {
   const plcrVoting = await deployer.deploy(PLCR)
   const erc20 = await deployer.deploy(XYOERC20, totalSupply, `XYO Token`, `XYO`, { from: contractsOwner })
   const gov = await deployer.deploy(Governance)
-  const stakableToken = await deployer.deploy(Stakable)
+  const blockProducerInstance = await deployer.deploy(BlockProducer)
   const consensus = await deployer.deploy(SCSC)
   const pOnD = await deployer.deploy(PayOnD)
 
-  await stakableToken.initialize()
+  await blockProducerInstance.initialize()
   await pOnD.initialize(consensus.address, erc20.address)
   await plcrVoting.initialize(erc20.address)
-  await consensus.initialize(erc20.address, stakableToken.address, gov.address)
   await gov.initialize(
     erc20.address,
     plcrVoting.address,
     parameters
   )
+  await consensus.initialize(erc20.address, blockProducerInstance.address, gov.address)
 
   console.log(`INNITIALIZED WITH PARAMS`, parameters)
 
-  printAddress([SCSC, Governance, XYOERC20, PayOnD, Stakable])
+  printAddress([SCSC, Governance, XYOERC20, PayOnD, BlockProducer])
 
-  await setupBP(stakableToken, consensus, erc20, contractsOwner, contractsOwner)
+  await setupBP(blockProducerInstance, consensus, erc20, contractsOwner, contractsOwner)
 
   if (isMatrixDeploy) {
     await erc20.approve(erc20.address, (totalSupply - stakeAmt * 2) * 1 ** 18)
   } else {
-    await setupBP(stakableToken, consensus, erc20, bp2, contractsOwner)
+    await setupBP(blockProducerInstance, consensus, erc20, bp2, contractsOwner)
     await addRequest(pOnD, contractsOwner)
   }
 }

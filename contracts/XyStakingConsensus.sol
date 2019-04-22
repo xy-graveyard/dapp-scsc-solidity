@@ -30,14 +30,14 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
         uint8 requestType;
     }
 
-    // id should be unique (ie ipfs hash) maps to Request data
-    mapping(bytes32 => Request) public requestsById; 
-
-    // an array of the requests useful for diviner reading
+    // the array of request ids
     bytes32[] public requestChain;
-
-    mapping(bytes32 => Block) public blocks; //The blocks in the blockChain
-    bytes32[] public blockChain; // Store the blockChain as an array
+    // the requests in the requestChain
+    mapping(bytes32 => Request) public requestsById; 
+    // the array of block ids
+    bytes32[] public blockChain; 
+    // The blocks in the blockChain
+    mapping(bytes32 => Block) public blocks; 
 
     /** EVENTS */
     event RequestSubmitted(
@@ -69,6 +69,7 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
         uint result,
         uint8 responseType
     );
+
     /**
         @param _token - The ERC20 token to stake with 
         @param _blockProducerContract - The block producers 
@@ -99,25 +100,6 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
     }
 
     /**
-        Will verify proper mining fees have been applied
-        @param xyoSender who to transfer the fees from (must have approved this contract)
-        @param xyoBounty the amount the xyoSender is paying for this request
-    */
-    function _requireFeesAndTransfer(address xyoSender, uint xyoBounty) 
-        private 
-    {
-        uint weiMiningMin = govContract.get("xyWeiMiningMin");
-        uint bountyMin = govContract.get("xyXYORequestBountyMin");
-        if (weiMiningMin > 0) {
-            require (msg.value >= weiMiningMin, "Not enough wei to cover mining");
-        }
-        if (bountyMin > 0) {
-            require (xyoBounty >= bountyMin, "XYO Bounty less than minimum");
-            SafeERC20.transferFrom(xyoToken, xyoSender, address(this), bountyMin);
-        }
-    }
-
-    /**
         @dev Withdraw reward balance can post same params via raw
         @param xyoBounty bounty for request
     */
@@ -132,6 +114,32 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
         bytes32 requestId = keccak256(abi.encodePacked(msg.sender, xyoBounty, block.number));
         submitRequest(requestId, xyoBounty, msg.sender, uint8(IXyRequester.RequestType.WITHDRAW));
         return requestId;
+    }
+
+    /** 
+        Implements IApprovalRecipient allows approveAndCall in one transaction
+    */
+    function receiveApproval(
+        address _spender, 
+        uint256 _value, 
+        address _token,
+        bytes calldata _extraData
+    ) 
+        external 
+    {
+        require (_token == xyoToken, "Can only be called from the current token");
+        (uint method, bytes memory data) = abi.decode(_extraData, (uint, bytes));
+        
+        if (method == 1) {
+            (address staker, address stakee) = abi.decode(data, (address, address));
+            stakeFrom(_spender, staker, stakee, _value);
+        } else if (method == 2) {
+            ( bytes32 request, uint xyoBounty, address xyoSender, uint8 requestType) = abi.decode(data, (bytes32, uint, address, uint8));
+            submitRequestFrom(_spender, request, xyoBounty, xyoSender, requestType);
+        } else if (method == 3) {
+            (address[] memory stakers, address[] memory stakees, uint[] memory amounts) = abi.decode(data, (address[], address[], uint[]));
+            stakeMultiple(_spender, stakers, stakees, amounts);
+        }
     }
 
     /**
@@ -152,41 +160,58 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
         public
         payable
     {
+        submitRequestFrom(msg.sender, request, xyoBounty, xyoSender, requestType);
+    }
+
+    function submitRequestFrom
+    (   
+        address from,
+        bytes32 request, 
+        uint xyoBounty,
+        address xyoSender, 
+        uint8 requestType
+    )
+        public 
+        payable
+    {
         require (requestsById[request].createdAt == 0, "Duplicate request submitted");
 
         _requireFeesAndTransfer(xyoSender, xyoBounty);
 
         Request memory q = Request (
-            xyoBounty,
-            msg.value, 
-            block.number,
-            0,
-            msg.sender,
-            requestType
+            xyoBounty,      // bounty
+            msg.value,      // wei for mining
+            block.number,   // created at
+            0,              // response block num           
+            from,           // requestSender (receives response cb)
+            requestType     // type of request
         );
 
         requestsById[request] = q;
         requestChain.push(request);
 
-        emit RequestSubmitted(request, xyoBounty, msg.value,  msg.sender, xyoSender, requestType);
+        emit RequestSubmitted(request, xyoBounty, msg.value, from, xyoSender, requestType);
     }
 
     /**
-        @dev Builds a prefixed hash to mimic the behavior of eth_sign
-        @param msgHash bytes32 Message hash to be prefixed
-        @return The hash prefixed with the Erhereum signed message (compatable with the eth_sign)
+        Will verify proper mining fees have been applied
+        @param xyoSender who to transfer the fees from (must have approved this contract)
+        @param xyoBounty the amount the xyoSender is paying for this request
     */
-    function prefixed
-    (
-        bytes32 msgHash
-    )
-        internal
-        pure
-        returns (bytes32)
+    function _requireFeesAndTransfer(address xyoSender, uint xyoBounty) 
+        private 
     {
-        return keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", msgHash));
+        uint weiMiningMin = govContract.get("xyWeiMiningMin");
+        uint bountyMin = govContract.get("xyXYORequestBountyMin");
+        if (weiMiningMin > 0) {
+            require (msg.value >= weiMiningMin, "Not enough wei to cover mining");
+        }
+        if (xyoBounty > 0 || bountyMin > 0) {
+            require (xyoBounty >= bountyMin, "XYO Bounty less than minimum");
+            SafeERC20.transferFrom(xyoToken, xyoSender, address(this), xyoBounty);
+        }
     }
-    
+
     /**
         Requires the length of bytes is more than starting point + 32
         returns 32 bytes memory (reversed to uint) at start + 32 to memory[start]
@@ -273,7 +298,7 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
         view
         internal 
     {
-        bytes32 prefixedHash = prefixed(messageHash);
+        bytes32 prefixedHash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", messageHash));
         address lastStakee = address(0);
         uint stake = 0;
         for (uint i = 0; i < signers.length; i++) {
@@ -292,35 +317,6 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
         blockChain.push(newBlock);
         blocks[newBlock] = b;
         emit BlockCreated(newBlock, previousBlock, supportingData, block.number, msg.sender);
-    }
-
-    event LogTest(bytes packedBytes, bytes32 newBlockHash, bool wasMatch, address lastSigner, bytes32 prefixedHash, uint stake);
-    function testSubmit
-    (
-        bytes32 previousBlock,
-        uint stakingBlock,
-        bytes32[] memory _requests,
-        bytes32 supportingData,
-        bytes memory responses,
-        address[] memory signers,
-        bytes32[] memory sigR,
-        bytes32[] memory sigS,
-        uint8[] memory sigV
-    )
-        public
-    {
-        bytes memory packedBytes = abi.encodePacked(previousBlock, stakingBlock, _requests, supportingData, responses);
-        bytes32 newBlock = keccak256(packedBytes);
-        bytes32 prefixedHash = prefixed(newBlock);
-        address lastSigner = address(0);
-        uint stake = 0;
-        bool wasMatch = false;
-        for (uint i = 0; i < signers.length; i++) {
-            lastSigner = signers[i];
-            wasMatch = lastSigner == ecrecover(prefixedHash, sigV[i], sigR[i], sigS[i]);
-            stake = stake.add(stakeeStake[lastSigner].activeStake);
-        }
-        emit LogTest(packedBytes, newBlock, wasMatch, lastSigner, prefixedHash, stake);
     }
 
     /**
@@ -366,6 +362,10 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
         return newBlock;
     }
 
+    /**
+        Returns a block for a given request id or a undefined block
+        @param requestId the block this request was responded on
+    */
     function blockForRequest(bytes32 requestId) 
         public view 
         returns (
@@ -389,6 +389,11 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
         }
     }
 
+    /**
+        Returns supporting data for a given request id
+        @param requestId the block this request was responded on
+        @return content addressable hash of the data
+    */
     function supportingDataForRequest(bytes32 requestId) public view returns (bytes32 supportingData) {
         (,supportingData,,,) = blockForRequest(requestId);
     }
