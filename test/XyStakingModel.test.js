@@ -514,7 +514,7 @@ contract(
               stakingTokens * 100
             ])
             // not within unstaking cooldown, so should not withdraw
-            await staking.withdrawManyStake(2, { from: withdrawStaker }).should
+            await staking.withdrawManyStake(tokens.slice(0, 1), { from: withdrawStaker }).should.not
               .be.fulfilled
             await stakeCompare(stakerStake(withdrawStaker), [
               0,
@@ -525,15 +525,15 @@ contract(
             const blockNumber2 = await latestBlock()
             await advanceToBlock(blockNumber2 + cooldownUnstake)
 
-            await staking.withdrawManyStake(5, { from: withdrawStaker }).should
+            await staking.withdrawManyStake(tokens.slice(0, 1), { from: withdrawStaker }).should
               .be.fulfilled
             await stakeCompare(stakerStake(withdrawStaker), [
               0,
               0,
               0,
-              (stakingTokens - 5) * 100
+              (stakingTokens - 1) * 100
             ])
-            await staking.withdrawManyStake(15, { from: withdrawStaker }).should
+            await staking.withdrawManyStake(tokens.slice(1, tokens.length), { from: withdrawStaker }).should
               .be.fulfilled
             await stakeCompare(stakerStake(withdrawStaker), [0, 0, 0, 0])
           })

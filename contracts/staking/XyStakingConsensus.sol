@@ -128,6 +128,7 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
         external 
     {
         require (_token == xyoToken, "Can only be called from the current token");
+        require (msg.sender == _token, "sender must be token");
         (uint method, bytes memory data) = abi.decode(_extraData, (uint, bytes));
         
         if (method == 1) {

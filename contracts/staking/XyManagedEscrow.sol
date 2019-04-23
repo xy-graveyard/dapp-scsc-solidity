@@ -24,11 +24,30 @@ contract XyManagedEscrow is GovernorRole, Initializable {
         consensus = _consensusContract;
     }
 
+    function receiveApproval(
+        address _spender, 
+        uint256 _value, 
+        address _token,
+        bytes calldata _extraData
+    ) 
+        external 
+    {
+        require (_token == erc20, "Call from the current token");
+        require (msg.sender == _token, "Sender not token"); 
+        depositFrom(_spender, _value);
+    }
+
+    function depositFrom (address from, uint xyoAmount) 
+        internal 
+    {
+        escrowBalanceXYO[from] = escrowBalanceXYO[from].add(xyoAmount);
+        SafeERC20.transferFrom(erc20, from, address(this), xyoAmount);
+    }
+
     function deposit (uint xyoAmount) 
         public 
     {
-        escrowBalanceXYO[msg.sender] = escrowBalanceXYO[msg.sender].add(xyoAmount);
-        SafeERC20.transferFrom(erc20, msg.sender, address(this), xyoAmount);
+        depositFrom(msg.sender, xyoAmount);
     }
 
     function withdrawManagedEscrow (uint numXyo)
