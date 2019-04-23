@@ -1,8 +1,8 @@
 pragma solidity >=0.5.0 <0.6.0;
 
-import "./utils/Initializable.sol";
+import "../utils/Initializable.sol";
 import "./XyStakingModel.sol";
-import "./IXyRequester.sol";
+import "../IXyRequester.sol";
 
  /**
     @title XyStakingConsensus
@@ -139,6 +139,9 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
         } else if (method == 3) {
             (address[] memory stakers, address[] memory stakees, uint[] memory amounts) = abi.decode(data, (address[], address[], uint[]));
             stakeMultiple(_spender, stakers, stakees, amounts);
+        } else if (method == 4) {
+            (address staker, address stakee) = abi.decode(data, (address, address));
+            stakeAndManage(msg.sender, staker, stakee, _value);
         }
     }
 

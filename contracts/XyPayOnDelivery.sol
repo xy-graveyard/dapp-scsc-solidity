@@ -2,7 +2,7 @@ pragma solidity >=0.5.0 <0.6.0;
 
 import "./utils/Initializable.sol";
 import "./utils/SafeMath.sol";
-import "./XyStakingConsensus.sol";
+import "./staking/XyStakingConsensus.sol";
 import "./IXyRequester.sol";
 import "./token/ERC20/SafeERC20.sol";
 

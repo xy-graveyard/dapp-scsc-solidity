@@ -1,9 +1,9 @@
 pragma solidity >=0.5.0 <0.6.0;
 
-import "./XyBlockProducer.sol";
-import "./token/ERC20/SafeERC20.sol";
-import "./XyGovernance.sol";
-import "./utils/SafeMath.sol";
+import "../XyBlockProducer.sol";
+import "../token/ERC20/SafeERC20.sol";
+import "../XyGovernance.sol";
+import "../utils/SafeMath.sol";
 
 contract XyStakingModel is IXyVotingData {
     using SafeMath for uint;
@@ -32,6 +32,7 @@ contract XyStakingModel is IXyVotingData {
     mapping (address => StakeAmounts) public stakeeStake;
     mapping (address => StakeAmounts) public stakerStake;
 
+
     // Stake data associated with all staking tokens
     struct Stake {
         uint amount;            // amount of token on this stake
@@ -51,6 +52,14 @@ contract XyStakingModel is IXyVotingData {
         uint totalUnstake;
     }
 
+    // mapping from stake that is managed (temporarily) by an address
+    mapping (bytes32 => ManagedStake) public managedStake;
+
+    struct ManagedStake {
+        address manager;
+        bool cancelled;
+    }
+
     // StakeEvent transitions
     enum StakeTransition { STAKED, ACTIVATED, COOLED, UNSTAKED, WITHDREW }
     
@@ -61,6 +70,15 @@ contract XyStakingModel is IXyVotingData {
         address staker,
         address stakee,
         StakeTransition transition
+    );
+
+    event StakeManaged(
+        bytes32 stakingId,
+        uint amount,
+        uint createdAt,
+        address staker,
+        address stakee,
+        address manager
     );
 
     /**
@@ -111,6 +129,13 @@ contract XyStakingModel is IXyVotingData {
     function updateCacheOnWithdraw(uint amount, address stakee) internal {
         stakeeStake[stakee].totalUnstake = stakeeStake[stakee].totalUnstake.sub(amount);
         stakerStake[msg.sender].totalUnstake = stakerStake[msg.sender].totalUnstake.sub(amount);
+    }
+
+    function updateCacheOnManagedWithdraw(Stake memory data, uint quantity) internal {
+        if (data.unstakeBlock==0) {
+            updateCacheOnUnstake(data);
+        }
+        updateCacheOnWithdraw(quantity, data.stakee);
     }
 
     function reduceStake(Stake memory data, uint quantity) internal {
@@ -198,6 +223,13 @@ contract XyStakingModel is IXyVotingData {
         for (uint i = 0; i < stakees.length; i++) {
             stakeFrom(spender, stakers[i], stakees[i], amounts[i]);
         }
+    }
+
+    function stakeAndManage (address manager, address staker, address stakee, uint amount) internal {
+        bytes32 stakingId = stakeFrom(manager, staker, stakee, amount);
+        ManagedStake memory s = ManagedStake(manager, false);
+        managedStake[stakingId] = s;
+        emit StakeManaged(stakingId, amount, block.number, staker, stakee, manager);
     }
 
     function stakeFrom (
@@ -364,49 +396,35 @@ contract XyStakingModel is IXyVotingData {
       public 
     {
         Stake memory data = stakeData[stakingId];
-        require(govContract.hasUnresolvedAction(data.stakee) == false, "All actions on stakee must be resolved");
-        require(data.staker == msg.sender, "Only owner can withdraw");
-        require(data.unstakeBlock > 0 && (data.unstakeBlock + govContract.get("xyUnstakeCooldown")) < block.number, "Not ready for withdraw");
-        emit StakeEvent(stakingId, data.amount, data.staker, data.stakee, StakeTransition.WITHDREW);
+        ManagedStake memory s = managedStake[stakingId];
+        if (s.manager == msg.sender && data.stakeBlock.add(govContract.get('managedStakeLimit')) >= block.number) {
+            require(data.staker == msg.sender, "Only manager can withdraw at this time");
+            updateCacheOnManagedWithdraw(data, data.amount);
+            SafeERC20.transfer(xyoToken, msg.sender, data.amount);
+        } else {
+            require(govContract.hasUnresolvedAction(data.stakee) == false, "All actions on stakee must be resolved");
+            require(data.unstakeBlock > 0 && (data.unstakeBlock + govContract.get("xyUnstakeCooldown")) < block.number, "Not ready for withdraw");
+            require(data.staker == msg.sender, "Only owner can withdraw");
+            updateCacheOnWithdraw(data.amount, data.stakee);
+            SafeERC20.transfer(xyoToken, msg.sender, data.amount);
+        }
+
         removeStakeeData(stakingId);
         removeStakerData(stakingId);
-        updateCacheOnWithdraw(data.amount, data.stakee);
-        SafeERC20.transfer(xyoToken, msg.sender, data.amount);
+        emit StakeEvent(stakingId, data.amount, data.staker, data.stakee, StakeTransition.WITHDREW);
+
     }
 
     /** 
-        Withdraw a batch of first avaliable staking tokens
-        @param batchLimit - Allows iterating over withdrawing due to gas limits
-        if batchlimit is 0, try withdrawing all available tokens (be prepared for out of gas if you've got > 50 tokens)
+        Withdraw a batch of passed staking tokens
+        @param stakingIds - Ids to withdraw
     */
-    function withdrawManyStake(uint batchLimit)
+    function withdrawManyStake(bytes32[] memory stakingIds)
         whenActive
         public
     {
-        uint balance = numStakerStakes(msg.sender);
-        uint limit = batchLimit > 0 ? batchLimit : balance;
-        uint withdrawAmt = 0;
-        bytes32[] memory removeArr = new bytes32[](limit);
-        uint numremove = 0;
-        for (uint i = 0; i < balance && i < limit; i++) {
-            Stake memory data = stakeData[stakerToStakingIds[msg.sender][i]];
-
-            if (data.unstakeBlock > 0 && (data.unstakeBlock + govContract.get("xyUnstakeCooldown")) < block.number && govContract.hasUnresolvedAction(data.stakee) == false) {
-                removeArr[numremove] = stakerToStakingIds[msg.sender][i];      
-                numremove++;
-            }      
-        }
-        for (uint b = 0; b < numremove; b++) {
-            removeStakeeData(removeArr[b]);
-            removeStakerData(removeArr[b]);
-            Stake memory data = stakeData[removeArr[b]];
-            withdrawAmt += data.amount;
-            updateCacheOnWithdraw(data.amount, data.stakee);
-            emit StakeEvent(removeArr[b], data.amount, data.staker, data.stakee, StakeTransition.WITHDREW);
-        }
-
-        if (withdrawAmt > 0) {
-            SafeERC20.transfer(xyoToken, msg.sender, withdrawAmt);
+        for (uint i = 0; i < stakingIds.length; i++) {
+            withdrawStake(stakingIds[i]);  
         }
     }
 
