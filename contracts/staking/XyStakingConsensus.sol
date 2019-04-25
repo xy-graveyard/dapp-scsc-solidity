@@ -127,8 +127,7 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
     ) 
         external 
     {
-        require (_token == xyoToken, "Can only be called from the current token");
-        require (msg.sender == _token, "sender must be token");
+        require (_token == xyoToken && msg.sender == _token, "sender must be token");
         (uint method, bytes memory data) = abi.decode(_extraData, (uint, bytes));
         
         if (method == 1) {
@@ -141,8 +140,8 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
             (address[] memory stakers, address[] memory stakees, uint[] memory amounts) = abi.decode(data, (address[], address[], uint[]));
             stakeMultiple(_spender, stakers, stakees, amounts);
         } else if (method == 4) {
-            (address staker, address stakee) = abi.decode(data, (address, address));
-            stakeAndManage(msg.sender, staker, stakee, _value);
+            (bytes32 bondId, address staker, address[] memory stakees, uint[] memory amounts) = abi.decode(data, (bytes32, address, address[], uint[]));
+            stakeAndBond(bondId, _spender, staker, stakees, amounts);
         }
     }
 

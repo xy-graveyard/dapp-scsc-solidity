@@ -52,10 +52,10 @@ contract XyStakingModel is IXyVotingData {
         uint totalUnstake;
     }
 
-    // mapping from stake that is managed (temporarily) by an address
-    mapping (bytes32 => ManagedStake) public managedStake;
+    // mapping from stake to bond id
+    mapping (bytes32 => bytes32) public bondedStake;
 
-    struct ManagedStake {
+    struct BondedStake {
         address manager;
         bool cancelled;
     }
@@ -70,15 +70,6 @@ contract XyStakingModel is IXyVotingData {
         address staker,
         address stakee,
         StakeTransition transition
-    );
-
-    event StakeManaged(
-        bytes32 stakingId,
-        uint amount,
-        uint createdAt,
-        address staker,
-        address stakee,
-        address manager
     );
 
     /**
@@ -121,21 +112,29 @@ contract XyStakingModel is IXyVotingData {
         stakerStake[msg.sender].cooldownStake = stakerStake[msg.sender].cooldownStake.add(amount);
         totalCooldownStake = totalCooldownStake.add(amount);
     }
-    function updateCacheOnUnstake(Stake memory data) internal {
+    function updateCacheOnUnstake(Stake storage data) internal {
         reduceStake(data, data.amount);
         stakeeStake[data.stakee].totalUnstake = stakeeStake[data.stakee].totalUnstake.add(data.amount);
         stakerStake[data.staker].totalUnstake = stakerStake[data.staker].totalUnstake.add(data.amount);
+        data.isActivated = false;
+        data.isCooledDown = false;
+        data.unstakeBlock = block.number;
     }
     function updateCacheOnWithdraw(uint amount, address stakee) internal {
         stakeeStake[stakee].totalUnstake = stakeeStake[stakee].totalUnstake.sub(amount);
         stakerStake[msg.sender].totalUnstake = stakerStake[msg.sender].totalUnstake.sub(amount);
     }
 
-    function updateCacheOnManagedWithdraw(Stake memory data, uint quantity) internal {
+    function unstakeBonded(bytes32 bondId, bytes32 stakeId, uint quantity) external {
+        address bondContract = address(govContract.get('XyBondContract'));
+        require(bondId == bondedStake[stakeId], "Stake not bonded to this bond");
+        require(msg.sender == bondContract, "only bond contract");
+        Stake storage data = stakeData[stakeId];
         if (data.unstakeBlock==0) {
             updateCacheOnUnstake(data);
         }
         updateCacheOnWithdraw(quantity, data.stakee);
+        SafeERC20.transfer(xyoToken, msg.sender, quantity);
     }
 
     function reduceStake(Stake memory data, uint quantity) internal {
@@ -204,7 +203,6 @@ contract XyStakingModel is IXyVotingData {
                     penaltyStake.add(penaltyAmount);
                 }
                 updateCacheOnUnstake(data);
-                data.unstakeBlock = block.number;
             }
         }
     }
@@ -225,11 +223,12 @@ contract XyStakingModel is IXyVotingData {
         }
     }
 
-    function stakeAndManage (address manager, address staker, address stakee, uint amount) internal {
-        bytes32 stakingId = stakeFrom(manager, staker, stakee, amount);
-        ManagedStake memory s = ManagedStake(manager, false);
-        managedStake[stakingId] = s;
-        emit StakeManaged(stakingId, amount, block.number, staker, stakee, manager);
+    function stakeAndBond (bytes32 bondId, address issuer, address staker, address[] memory stakees, uint[] memory amounts) internal {
+        require(stakees.length == amounts.length, "bad inputs");
+        for (uint i = 0; i < stakees.length; i++) {
+            bytes32 stakingId = stakeFrom(issuer, staker, stakees[i], amounts[i]);
+            bondedStake[stakingId] = bondId;
+        }
     }
 
     function stakeFrom (
@@ -338,12 +337,9 @@ contract XyStakingModel is IXyVotingData {
     {
         Stake storage data = stakeData[stakingId];
         require(data.staker == msg.sender, "Only the staker can unstake a stake");
-        require(data.stakeBlock + govContract.get("xyStakeCooldown") < block.number, "Staking needs to cooldown");
+        require(data.stakeBlock.add(govContract.get("xyStakeCooldown")) < block.number, "Staking needs to cooldown");
         require(data.unstakeBlock == 0, "Cannot re-unstake");
         updateCacheOnUnstake(data);
-        data.isActivated = false;
-        data.isCooledDown = false;
-        data.unstakeBlock = block.number;
         emit StakeEvent(stakingId, data.amount, data.staker, data.stakee, StakeTransition.UNSTAKED);
     }
 
@@ -396,19 +392,12 @@ contract XyStakingModel is IXyVotingData {
       public 
     {
         Stake memory data = stakeData[stakingId];
-        ManagedStake memory s = managedStake[stakingId];
-        if (s.manager == msg.sender && data.stakeBlock.add(govContract.get('managedStakeLimit')) >= block.number) {
-            require(data.staker == msg.sender, "Only manager can withdraw at this time");
-            updateCacheOnManagedWithdraw(data, data.amount);
-            SafeERC20.transfer(xyoToken, msg.sender, data.amount);
-        } else {
-            require(govContract.hasUnresolvedAction(data.stakee) == false, "All actions on stakee must be resolved");
-            require(data.unstakeBlock > 0 && (data.unstakeBlock + govContract.get("xyUnstakeCooldown")) < block.number, "Not ready for withdraw");
-            require(data.staker == msg.sender, "Only owner can withdraw");
-            updateCacheOnWithdraw(data.amount, data.stakee);
-            SafeERC20.transfer(xyoToken, msg.sender, data.amount);
-        }
-
+        require(bondedStake[stakingId] == 0, "Cannot withdraw bonded stake");
+        require(govContract.hasUnresolvedAction(data.stakee) == false, "All actions on stakee must be resolved");
+        require(data.unstakeBlock > 0 && (data.unstakeBlock + govContract.get("xyUnstakeCooldown")) < block.number, "Not ready for withdraw");
+        require(data.staker == msg.sender, "Only owner can withdraw");
+        updateCacheOnWithdraw(data.amount, data.stakee);
+        SafeERC20.transfer(xyoToken, msg.sender, data.amount);
         removeStakeeData(stakingId);
         removeStakerData(stakingId);
         emit StakeEvent(stakingId, data.amount, data.staker, data.stakee, StakeTransition.WITHDREW);
@@ -474,5 +463,9 @@ contract XyStakingModel is IXyVotingData {
     }
     function totalVotingStake() external view returns (uint) {
         return totalCooldownStake.add(totalActiveStake);
+    }
+    function lastStakerStakeId(address staker) public view returns (bytes32) {
+        uint index = numStakerStakes(staker).sub(1);
+        return stakerToStakingIds[staker][index];
     }
 }

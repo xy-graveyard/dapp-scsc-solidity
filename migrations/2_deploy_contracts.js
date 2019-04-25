@@ -5,6 +5,7 @@ const XYOERC20 = artifacts.require(`XyFaucet.sol`)
 const BlockProducer = artifacts.require(`XyBlockProducer.sol`)
 const SCSC = artifacts.require(`XyStakingConsensus.sol`)
 const Governance = artifacts.require(`XyGovernance.sol`)
+const ManagedEscrow = artifacts.require(`XyManagedEscrow.sol`)
 const PayOnD = artifacts.require(`XyPayOnDelivery.sol`)
 const base58 = require(`bs58`)
 const fs = require(`fs`)
@@ -45,6 +46,7 @@ module.exports = async function (deployer, network, [contractsOwner, bp2]) {
   const blockProducerInstance = await deployer.deploy(BlockProducer)
   const consensus = await deployer.deploy(SCSC)
   const pOnD = await deployer.deploy(PayOnD)
+  const managedEscrow = await deployer.deploy(ManagedEscrow)
 
   await blockProducerInstance.initialize()
   await pOnD.initialize(consensus.address, erc20.address)
@@ -55,10 +57,11 @@ module.exports = async function (deployer, network, [contractsOwner, bp2]) {
     parameters
   )
   await consensus.initialize(erc20.address, blockProducerInstance.address, gov.address)
+  await managedEscrow.initialize(erc20.address, consensus.address)
 
   console.log(`INNITIALIZED WITH PARAMS`, parameters)
 
-  printAddress([SCSC, Governance, XYOERC20, PayOnD, BlockProducer])
+  printAddress([SCSC, Governance, XYOERC20, PayOnD, BlockProducer, ManagedEscrow])
 
   await setupBP(blockProducerInstance, consensus, erc20, contractsOwner, contractsOwner)
 
