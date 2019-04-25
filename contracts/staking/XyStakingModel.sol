@@ -52,13 +52,8 @@ contract XyStakingModel is IXyVotingData {
         uint totalUnstake;
     }
 
-    // mapping from stake to bond id
+    // mapping from stake id to bond id
     mapping (bytes32 => bytes32) public bondedStake;
-
-    struct BondedStake {
-        address manager;
-        bool cancelled;
-    }
 
     // StakeEvent transitions
     enum StakeTransition { STAKED, ACTIVATED, COOLED, UNSTAKED, WITHDREW }

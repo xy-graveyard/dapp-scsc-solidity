@@ -7,11 +7,12 @@ import "../token/ERC20/IXYOERC20.sol";
 import "../utils/Initializable.sol";
 import "../access/GovernorRole.sol";
 
-contract XyBondedStake is GovernorRole, Initializable {
+contract XyBond is GovernorRole, Initializable {
     using SafeMath for uint;
 
     address public erc20;
     address public consensus;
+    uint public governablePeriod; // seconds after bond creation it's governable
     mapping (bytes32 => address) public stakeIdManager;
 
     event BondDeposit(bytes32 bondId, address beneficiary, uint amount, uint expiration);
@@ -19,7 +20,7 @@ contract XyBondedStake is GovernorRole, Initializable {
     event BondStake(bytes32 bondId, address sender, address beneficiary, uint amount);
     event BondUnstake(bytes32 bondId, address sender, bytes32 stakingId, uint amount);
 
-    struct BondedStake {
+    struct Bond {
         uint value;             // amount staked
         uint expirationSec;     // expiration date in seconds
         uint creationSec;       // creation date in seconds
@@ -28,20 +29,23 @@ contract XyBondedStake is GovernorRole, Initializable {
         uint8 interest;         // possibly add interest or relationship here
     }
 
-    mapping (bytes32 => BondedStake) public bondedStake;
-    mapping (bytes32 => uint) public bondedStakeIndex;
-    mapping (address => bytes32[]) public stakerStake;
-    bytes32[] public bondedStakes;
+    mapping (bytes32 => Bond) public bond;
+    mapping (bytes32 => uint) public bondIndex;
+    mapping (address => bytes32[]) public ownerBonds;
+    bytes32[] public bonds;
 
     function initialize (
         address _token,
-        address _consensusContract
+        address _consensusContract,
+        uint _governablePeriod
     )
         initializer 
         public
     {
         erc20 = _token;
         consensus = _consensusContract;
+        governablePeriod = _governablePeriod;
+        super.init();
     }
 
     /**
@@ -49,8 +53,9 @@ contract XyBondedStake is GovernorRole, Initializable {
     */
     function deposit (uint xyoAmount, uint expirationDate) 
         public 
+        returns (bytes32)
     {
-        depositTo(msg.sender, xyoAmount, expirationDate);
+        return depositTo(msg.sender, xyoAmount, expirationDate);
     }
 
     function receiveApproval(
@@ -70,9 +75,11 @@ contract XyBondedStake is GovernorRole, Initializable {
 
     function depositTo (address to, uint xyoAmount, uint expirationDate) 
         internal 
+        returns (bytes32)
     {
+        require (expirationDate > now, "Expiry must be in the future");
         bytes32 bondId = keccak256(abi.encode(to, xyoAmount, expirationDate, block.number));
-        BondedStake memory ns = BondedStake(
+        Bond memory ns = Bond(
             xyoAmount,
             expirationDate,
             block.timestamp,
@@ -80,25 +87,26 @@ contract XyBondedStake is GovernorRole, Initializable {
             to,
             0
         );
-        bondedStakeIndex[bondId] = bondedStakes.length;
-        bondedStake[bondId] = ns;
-        stakerStake[to].push(bondId);
-        bondedStakes.push(bondId);
+        bondIndex[bondId] = bonds.length;
+        bond[bondId] = ns;
+        ownerBonds[to].push(bondId);
+        bonds.push(bondId);
         
         SafeERC20.transferFrom(erc20, to, address(this), xyoAmount);
         emit BondDeposit(bondId, to, xyoAmount, expirationDate);
+        return bondId;
     }
 
     function withdrawTo (bytes32 bondId, address to) 
         public
     {
-        BondedStake storage bs = bondedStake[bondId];
+        Bond storage bs = bond[bondId];
         uint withdrawAmount = bs.value;
         require (withdrawAmount > 0, "Bond has no value");
         bs.value = 0; // erase value of bond
         bool isOwner = msg.sender == bs.owner;
         require (bs.allocated == 0, "Bond must have no allocated stake");
-        require (isOwner || isGovernor(msg.sender), "Only owner or governor can withdraw");
+        require (isOwner || governable(bs), "owner or governable can withdraw");
         if (isOwner) {
             require (now > bs.expirationSec, "Bond is still active");
         }
@@ -114,9 +122,8 @@ contract XyBondedStake is GovernorRole, Initializable {
         (uint amount,,,,,,) = XyStakingConsensus(consensus).stakeData(stakingId);
         require(checkBondId == bondId, "Stake needs to be bonded");
 
-        BondedStake storage bs = bondedStake[bondId];
-        bool isOwner = msg.sender == bs.owner;
-        require (isOwner || isGovernor(msg.sender), "Only owner or governor can unstake");
+        Bond storage bs = bond[bondId];
+        require (msg.sender == bs.owner || governable(bs), "owner or governable can unstake");
         
         require(bs.allocated >= amount, "Cannot unstake over bond allocation");
         bs.allocated = bs.allocated.sub(amount);
@@ -130,9 +137,9 @@ contract XyBondedStake is GovernorRole, Initializable {
     function stake (bytes32 bondId, address payable beneficiary, address[] memory stakees, uint[] memory amounts)
         public
     {
-        BondedStake storage bs = bondedStake[bondId];
+        Bond storage bs = bond[bondId];
         bool isOwner = msg.sender == bs.owner;
-        require (isOwner || isGovernor(msg.sender), "Only owner or governor can stake");
+        require (isOwner || governable(bs), "owner or governable can stake");
         
         uint total = 0;
         for (uint i = 0; i < amounts.length; i++) {
@@ -162,11 +169,21 @@ contract XyBondedStake is GovernorRole, Initializable {
         stake(bondId, beneficiary, stakees, amounts);
     }
 
-    function isBondExpired(bytes32 bondId) 
+    function isExpired(bytes32 bondId) 
         public 
         view 
         returns (bool)
     {
-        return bondedStake[bondId].expirationSec < now;
+        return bond[bondId].expirationSec < now;
+    }
+
+    function governable(Bond memory bs) 
+        private 
+        view
+        returns (bool) 
+    {
+        bool isGov = isGovernor(msg.sender);
+        bool govActive = now <= bs.creationSec.add(governablePeriod);
+        return isGov && govActive;
     }
 }
