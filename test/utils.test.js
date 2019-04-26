@@ -10,6 +10,7 @@ const coerceNumber = (val) => {
   return -1
 }
 
+export const testParams = () => parameters(config.paramDefaults)
 export const parameters = params => [
   params.pMinDeposit,
   params.pApplyStageSec,

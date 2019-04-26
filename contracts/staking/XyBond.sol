@@ -115,25 +115,6 @@ contract XyBond is GovernorRole, Initializable {
         emit BondWithdraw(bondId, to, withdrawAmount);
     }
 
-    function unstake (bytes32 bondId, bytes32 stakingId) 
-        public  
-    {
-        bytes32 checkBondId = XyStakingConsensus(consensus).bondedStake(stakingId);
-        (uint amount,,,,,,) = XyStakingConsensus(consensus).stakeData(stakingId);
-        require(checkBondId == bondId, "Stake needs to be bonded");
-
-        Bond storage bs = bond[bondId];
-        require (msg.sender == bs.owner || governable(bs), "owner or governable can unstake");
-        
-        require(bs.allocated >= amount, "Cannot unstake over bond allocation");
-        bs.allocated = bs.allocated.sub(amount);
-
-        // will fail if already withdrew  
-        XyStakingConsensus(consensus).unstakeBonded(bondId, stakingId, amount);
-
-        emit BondUnstake(bondId, msg.sender, stakingId, amount);
-    }
-
     function stake (bytes32 bondId, address payable beneficiary, address[] memory stakees, uint[] memory amounts)
         public
     {
@@ -167,6 +148,25 @@ contract XyBond is GovernorRole, Initializable {
             beneficiary.transfer(msg.value);
         }
         stake(bondId, beneficiary, stakees, amounts);
+    }
+
+    function unstake (bytes32 bondId, bytes32 stakingId) 
+        public  
+    {
+        bytes32 checkBondId = XyStakingConsensus(consensus).bondedStake(stakingId);
+        (uint amount,,,,,,) = XyStakingConsensus(consensus).stakeData(stakingId);
+        require(checkBondId == bondId, "Stake needs to be bonded");
+
+        Bond storage bs = bond[bondId];
+        require (msg.sender == bs.owner || governable(bs), "owner or governable can unstake");
+        
+        require(bs.allocated >= amount, "Cannot unstake over bond allocation");
+        bs.allocated = bs.allocated.sub(amount);
+
+        // will fail if already withdrew  
+        XyStakingConsensus(consensus).unstakeBonded(bondId, stakingId);
+
+        emit BondUnstake(bondId, msg.sender, stakingId, amount);
     }
 
     function isExpired(bytes32 bondId) 
