@@ -1,20 +1,8 @@
 import { BigNumber } from "bignumber.js"
 
-import { expectEvent } from "openzeppelin-test-helpers"
-import { request } from "http"
-import { expect } from 'chai'
-
-const { encodeCall } = require(`zos-lib`)
-const abi = require(`ethereumjs-abi`)
-const { toChecksumAddress } = require(`ethereumjs-util`)
-const PayOnDeliveryMock = artifacts.require(`XyPayOnDeliveryMock.sol`)
-
-const PayOnDelivery = artifacts.require(`XyPayOnDelivery.sol`)
-const StakingConsensus = artifacts.require(`XyConsensusMock2.sol`)
 const ERC20 = artifacts.require(`XyERC20Token.sol`)
 const Governance = artifacts.require(`XyGovernance.sol`)
 const PLCR = artifacts.require(`PLCRVoting.sol`)
-const stripHexPrefix = require(`strip-hex-prefix`)
 const erc20TotalSupply = 1000000
 const fs = require(`fs`)
 const config = JSON.parse(fs.readFileSync(`./config/testParams.json`))

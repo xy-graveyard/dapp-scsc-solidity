@@ -1,8 +1,8 @@
 pragma solidity >=0.5.0 <0.6.0;
-import "../XyStakingModel.sol";
+import "../staking/XyStakingModel.sol";
 
 contract XyStakingMock is XyStakingModel {
-
+  Stake public tempStake;
     constructor(address _token,
         address _stakableToken,
         address _governance)
@@ -29,7 +29,8 @@ contract XyStakingMock is XyStakingModel {
             true,          // isActivated
             false           // is coolded down
         );
-      updateCacheOnUnstake(data);
+      tempStake = data;
+      updateCacheOnUnstake(tempStake);
   }
     function fake_updateCacheOnWithdraw(uint amount, address stakee) public {
       updateCacheOnWithdraw(amount, stakee);

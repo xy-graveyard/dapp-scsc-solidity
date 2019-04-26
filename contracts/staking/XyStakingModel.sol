@@ -1,9 +1,9 @@
 pragma solidity >=0.5.0 <0.6.0;
 
-import "./XyBlockProducer.sol";
-import "./token/ERC20/SafeERC20.sol";
-import "./XyGovernance.sol";
-import "./utils/SafeMath.sol";
+import "../XyBlockProducer.sol";
+import "../token/ERC20/SafeERC20.sol";
+import "../XyGovernance.sol";
+import "../utils/SafeMath.sol";
 
 contract XyStakingModel is IXyVotingData {
     using SafeMath for uint;
@@ -32,6 +32,7 @@ contract XyStakingModel is IXyVotingData {
     mapping (address => StakeAmounts) public stakeeStake;
     mapping (address => StakeAmounts) public stakerStake;
 
+
     // Stake data associated with all staking tokens
     struct Stake {
         uint amount;            // amount of token on this stake
@@ -50,6 +51,9 @@ contract XyStakingModel is IXyVotingData {
         uint cooldownStake;
         uint totalUnstake;
     }
+
+    // mapping from stake id to bond id
+    mapping (bytes32 => bytes32) public bondedStake;
 
     // StakeEvent transitions
     enum StakeTransition { STAKED, ACTIVATED, COOLED, UNSTAKED, WITHDREW }
@@ -103,14 +107,29 @@ contract XyStakingModel is IXyVotingData {
         stakerStake[msg.sender].cooldownStake = stakerStake[msg.sender].cooldownStake.add(amount);
         totalCooldownStake = totalCooldownStake.add(amount);
     }
-    function updateCacheOnUnstake(Stake memory data) internal {
+    function updateCacheOnUnstake(Stake storage data) internal {
         reduceStake(data, data.amount);
         stakeeStake[data.stakee].totalUnstake = stakeeStake[data.stakee].totalUnstake.add(data.amount);
         stakerStake[data.staker].totalUnstake = stakerStake[data.staker].totalUnstake.add(data.amount);
+        data.isActivated = false;
+        data.isCooledDown = false;
+        data.unstakeBlock = block.number;
     }
     function updateCacheOnWithdraw(uint amount, address stakee) internal {
         stakeeStake[stakee].totalUnstake = stakeeStake[stakee].totalUnstake.sub(amount);
         stakerStake[msg.sender].totalUnstake = stakerStake[msg.sender].totalUnstake.sub(amount);
+    }
+
+    function unstakeBonded(bytes32 bondId, bytes32 stakeId, uint quantity) external {
+        address bondContract = address(govContract.get('XyBondContract'));
+        require(bondId == bondedStake[stakeId], "Stake not bonded to this bond");
+        require(msg.sender == bondContract, "only bond contract");
+        Stake storage data = stakeData[stakeId];
+        if (data.unstakeBlock==0) {
+            updateCacheOnUnstake(data);
+        }
+        updateCacheOnWithdraw(quantity, data.stakee);
+        SafeERC20.transfer(xyoToken, msg.sender, quantity);
     }
 
     function reduceStake(Stake memory data, uint quantity) internal {
@@ -179,7 +198,6 @@ contract XyStakingModel is IXyVotingData {
                     penaltyStake.add(penaltyAmount);
                 }
                 updateCacheOnUnstake(data);
-                data.unstakeBlock = block.number;
             }
         }
     }
@@ -197,6 +215,14 @@ contract XyStakingModel is IXyVotingData {
     function stakeMultiple (address spender, address[] memory stakers, address[] memory stakees, uint[] memory amounts) internal {
         for (uint i = 0; i < stakees.length; i++) {
             stakeFrom(spender, stakers[i], stakees[i], amounts[i]);
+        }
+    }
+
+    function stakeAndBond (bytes32 bondId, address issuer, address staker, address[] memory stakees, uint[] memory amounts) internal {
+        require(stakees.length == amounts.length, "bad inputs");
+        for (uint i = 0; i < stakees.length; i++) {
+            bytes32 stakingId = stakeFrom(issuer, staker, stakees[i], amounts[i]);
+            bondedStake[stakingId] = bondId;
         }
     }
 
@@ -306,12 +332,9 @@ contract XyStakingModel is IXyVotingData {
     {
         Stake storage data = stakeData[stakingId];
         require(data.staker == msg.sender, "Only the staker can unstake a stake");
-        require(data.stakeBlock + govContract.get("xyStakeCooldown") < block.number, "Staking needs to cooldown");
+        require(data.stakeBlock.add(govContract.get("xyStakeCooldown")) < block.number, "Staking needs to cooldown");
         require(data.unstakeBlock == 0, "Cannot re-unstake");
         updateCacheOnUnstake(data);
-        data.isActivated = false;
-        data.isCooledDown = false;
-        data.unstakeBlock = block.number;
         emit StakeEvent(stakingId, data.amount, data.staker, data.stakee, StakeTransition.UNSTAKED);
     }
 
@@ -364,49 +387,28 @@ contract XyStakingModel is IXyVotingData {
       public 
     {
         Stake memory data = stakeData[stakingId];
+        require(bondedStake[stakingId] == 0, "Cannot withdraw bonded stake");
         require(govContract.hasUnresolvedAction(data.stakee) == false, "All actions on stakee must be resolved");
-        require(data.staker == msg.sender, "Only owner can withdraw");
         require(data.unstakeBlock > 0 && (data.unstakeBlock + govContract.get("xyUnstakeCooldown")) < block.number, "Not ready for withdraw");
-        emit StakeEvent(stakingId, data.amount, data.staker, data.stakee, StakeTransition.WITHDREW);
-        removeStakeeData(stakingId);
-        removeStakerData(stakingId);
+        require(data.staker == msg.sender, "Only owner can withdraw");
         updateCacheOnWithdraw(data.amount, data.stakee);
         SafeERC20.transfer(xyoToken, msg.sender, data.amount);
+        removeStakeeData(stakingId);
+        removeStakerData(stakingId);
+        emit StakeEvent(stakingId, data.amount, data.staker, data.stakee, StakeTransition.WITHDREW);
+
     }
 
     /** 
-        Withdraw a batch of first avaliable staking tokens
-        @param batchLimit - Allows iterating over withdrawing due to gas limits
-        if batchlimit is 0, try withdrawing all available tokens (be prepared for out of gas if you've got > 50 tokens)
+        Withdraw a batch of passed staking tokens
+        @param stakingIds - Ids to withdraw
     */
-    function withdrawManyStake(uint batchLimit)
+    function withdrawManyStake(bytes32[] memory stakingIds)
         whenActive
         public
     {
-        uint balance = numStakerStakes(msg.sender);
-        uint limit = batchLimit > 0 ? batchLimit : balance;
-        uint withdrawAmt = 0;
-        bytes32[] memory removeArr = new bytes32[](limit);
-        uint numremove = 0;
-        for (uint i = 0; i < balance && i < limit; i++) {
-            Stake memory data = stakeData[stakerToStakingIds[msg.sender][i]];
-
-            if (data.unstakeBlock > 0 && (data.unstakeBlock + govContract.get("xyUnstakeCooldown")) < block.number && govContract.hasUnresolvedAction(data.stakee) == false) {
-                removeArr[numremove] = stakerToStakingIds[msg.sender][i];      
-                numremove++;
-            }      
-        }
-        for (uint b = 0; b < numremove; b++) {
-            removeStakeeData(removeArr[b]);
-            removeStakerData(removeArr[b]);
-            Stake memory data = stakeData[removeArr[b]];
-            withdrawAmt += data.amount;
-            updateCacheOnWithdraw(data.amount, data.stakee);
-            emit StakeEvent(removeArr[b], data.amount, data.staker, data.stakee, StakeTransition.WITHDREW);
-        }
-
-        if (withdrawAmt > 0) {
-            SafeERC20.transfer(xyoToken, msg.sender, withdrawAmt);
+        for (uint i = 0; i < stakingIds.length; i++) {
+            withdrawStake(stakingIds[i]);  
         }
     }
 
@@ -456,5 +458,9 @@ contract XyStakingModel is IXyVotingData {
     }
     function totalVotingStake() external view returns (uint) {
         return totalCooldownStake.add(totalActiveStake);
+    }
+    function lastStakerStakeId(address staker) public view returns (bytes32) {
+        uint index = numStakerStakes(staker).sub(1);
+        return stakerToStakingIds[staker][index];
     }
 }
