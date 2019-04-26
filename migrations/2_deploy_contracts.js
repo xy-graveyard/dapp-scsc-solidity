@@ -59,6 +59,7 @@ module.exports = async function (deployer, network, [contractsOwner, bp2]) {
   await consensus.initialize(erc20.address, blockProducerInstance.address, gov.address)
   await bonder.initialize(erc20.address, consensus.address, bondPeriodSeconds)
 
+  await gov.ownerSet(`XyBondContract`, bonder.address)
   console.log(`INNITIALIZED WITH PARAMS`, parameters)
 
   printAddress([SCSC, Governance, XYOERC20, PayOnD, BlockProducer, Bond])

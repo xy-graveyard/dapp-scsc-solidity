@@ -12,12 +12,25 @@ contract XyStakingMock is XyStakingModel {
     {
       init(_token, _stakableToken, _governance);
     }
+
+    function fake_data(uint amount, address stakee) internal view returns (Stake memory) {
+      Stake memory data = Stake(
+          amount,         // amount
+          block.number,   // stakeBlock
+          0,              // unstakeBlock
+          stakee,         // stakee 
+          msg.sender,     // staker
+          true,          // isActivated
+          false           // is coolded down
+      );
+      return data;
+    }
      /** Increase and decrease cached stake amounts */
     function fake_updateCacheOnStake(uint amount, address stakee) public {
-      updateCacheOnStake(amount, stakee);
+      updateCacheOnStake(fake_data(amount, stakee));
     }
     function fake_updateCacheOnActivate(uint amount, address stakee) public {
-      updateCacheOnActivate(amount, stakee);
+      updateCacheOnActivate(fake_data(amount, stakee));
     }
     function stub_updateCacheOnUnstake(uint amount, address stakee) public {
         Stake memory data = Stake(
@@ -33,6 +46,6 @@ contract XyStakingMock is XyStakingModel {
       updateCacheOnUnstake(tempStake);
   }
     function fake_updateCacheOnWithdraw(uint amount, address stakee) public {
-      updateCacheOnWithdraw(amount, stakee);
+      updateCacheOnWithdraw(fake_data(amount, stakee));
    }
 }
