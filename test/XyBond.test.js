@@ -71,7 +71,7 @@ contract(
       })
 
     })
-    describe.only(`Withdrawing`, () => {
+    describe(`Withdrawing`, () => {
       const amount = 100
       let bondId
       
