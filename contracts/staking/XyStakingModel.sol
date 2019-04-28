@@ -52,12 +52,9 @@ contract XyStakingModel is IXyVotingData {
         uint totalUnstake;
     }
 
-    // mapping from stake id to bond id
-    mapping (bytes32 => bytes32) public bondedStake;
-
     // StakeEvent transitions
     enum StakeTransition { STAKED, ACTIVATED, COOLED, UNSTAKED, WITHDREW }
-    
+
     /** EVENTS */
     event StakeEvent(
         bytes32 stakingId,
@@ -66,6 +63,9 @@ contract XyStakingModel is IXyVotingData {
         address stakee,
         StakeTransition transition
     );
+
+    // mapping from stake id to bond id
+    mapping (bytes32 => bytes32) public bondedStake;
 
     /**
     * @dev Throws if called by any account other than the owner.

@@ -1,4 +1,66 @@
-Main net deploy
+V0.2.0 Main net deploy
+
+Deployer for kovan: 0x316D5E10f4E4ad94499149c0131a44FC17EF995B
+
+
+Kovan:
+
+npx zos session --network kovan --from 0x316D5E10f4E4ad94499149c0131a44FC17EF995B --expires 5000
+
+npx zos add XyBond
+
+npx zos bump 0.2.0
+
+// Initialize the contracts for session
+npx zos push
+
+npx zos create XyBlockProducer --init initialize
+
+0xb9452ee24cf08eaedf64F3B81f8727f5bd0Ea084
+
+npx zos create XyBond --init initialize --args "0x9071a6fc3c23eb6f4a8f7a2bc2309a7b368f272f,0x1a2C4a6Ffd72848E7bD63d2177c29a0aC80c6386,14515200"
+
+0xadA734D5e82EeaBE71D36c89A5Fd0cdD84017922
+
+
+Minimized Kovan:
+QmWFxz7suqhbpscabQA75VECbDQoBD2FmBjKLMbGLTL5pn minimized/PLCRVoting.json
+QmaNvLFBuakAppxc3v1FRmnin3KYZXLWqumQbLrwv3dwJF minimized/XyBlockProducer.json
+QmYSaq4BkTvovtUim4M5a1diYehWKYiCNULcxWsrKtyvMa minimized/XyBond.json
+Qmck9Z9TiHpwN5tptpmaA13eHNutBHJw7q2TqKnvDJ1chY minimized/XyFaucet.json
+QmPAd9cmNJhRDVMFMdzo1Mx9JEyJXEhTN7wrP9xAq8JJ81 minimized/XyGovernance.json
+QmT4bZcM8CoWkRsjuCQvctsH5x75QRc5K5Hdk47kcgiDUA minimized/XyStakingConsensus.json
+QmUm9ciaXm77UYS31MLxUv8j6LUTjP2LQS2SMhhDtkFKeg minimized
+
+Kovan:
+0x1a2C4a6Ffd72848E7bD63d2177c29a0aC80c6386 XyStakingConsensus
+0xb9452ee24cf08eaedf64F3B81f8727f5bd0Ea084 XyBlockProducer.json
+0xbF68070E5E84cae28f10161088edA1747A5963Ee XyGovernance.json
+0x9071a6fc3c23eb6f4a8f7a2bc2309a7b368f272f XyFaucet.json
+0xadA734D5e82EeaBE71D36c89A5Fd0cdD84017922 XyBond.json
+
+
+
+Mainnet:
+
+npx zos session --network mainnet --from 0x6792B02f88b32C4FE8e31cfA41ae5aF44865f930 --expires 5000
+
+npx zos push
+
+npx zos create XyBond --init initialize --args "0x55296f69f40Ea6d20E478533C15A6B08B654E758,0x0242514106114DEaA99Fd81574142c36Edb03B6D,14515200"
+
+
+Mainnet Minimized ABI:
+
+
+0x0242514106114DEaA99Fd81574142c36Edb03B6D XyStakingConsensus
+0xd3034c290E19959Fdc18E5597F375CA51BFB0c41 XyBlockProducer.json
+0x01925d0fFE4a6a6162B51ba611e3D4780Fc2dF42 XyGovernance.json
+0x72bCDb36d1545FEA06905a1bb4998424580AAee6 PLCRVoting.json
+0x55296f69f40Ea6d20E478533C15A6B08B654E758 XYO
+
+
+V1.1 deploy
 
 Deployer for kovan: 0x316D5E10f4E4ad94499149c0131a44FC17EF995B
 

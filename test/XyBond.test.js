@@ -238,6 +238,18 @@ contract(
         await bonder.unstake(bondId, stakingId, { from: user1 }).should.be.fulfilled
         await consensus.stakerToStakingIds(user1, 0).should.not.be.fulfilled
       })
+
+      it(`should allow govenor to unstake stakees`, async () => {
+        const stakingId = await consensus.stakerToStakingIds(user1, 0)
+        await bonder.unstake(bondId, stakingId, { from: governor }).should.be.fulfilled
+        await consensus.stakerToStakingIds(user1, 0).should.not.be.fulfilled
+      })
+
+      it(`should not allow multiple unstakes`, async () => {
+        const stakingId = await consensus.stakerToStakingIds(user1, 0)
+        await bonder.unstake(bondId, stakingId, { from: user1 }).should.be.fulfilled
+        await bonder.unstake(bondId, stakingId, { from: user1 }).should.not.be.fulfilled
+      })
     })
   }
 )
