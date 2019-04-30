@@ -14,7 +14,7 @@ require(`chai`)
 
 const erc20TotalSupply = 1000000
 const governablePeriod = 200
-const bondPeriod = 100
+const bondPeriod = 60*60*24*3 // 3 day bond
 
 contract(
   `XyBond`,
@@ -71,7 +71,7 @@ contract(
         const amount = 100
 
         await erc20.approve(bonder.address, amount, { from: erc20Owner }).should.be.fulfilled
-        await bonder.deposit(amount, expirationDate, { from: erc20Owner }).should.be.fulfilled
+        await bonder.createBond(amount, expirationDate, { from: erc20Owner }).should.be.fulfilled
 
         const bondId = await bonder.bonds(0)
         const bond = await bonder.bond(bondId)
@@ -138,15 +138,15 @@ contract(
 
       it(`should not allow governor to withdraw after governable period`, async () => {
         const bond = await bonder.bond(bondId)
-        await time.increaseTo(bondPeriod + bond.creationSec.toNumber()) // move to after reveal period
-        await bonder.withdrawTo(bondId, user1, { from: governor }).should.be.fulfilled
+        await time.increaseTo(governablePeriod + bond.creationSec.toNumber() + 1) // move to after reveal period
+        await bonder.withdrawTo(bondId, user1, { from: governor }).should.not.be.fulfilled
       })
 
       it(`should not allow user to withdraw until after expiry`, async () => {
         const bal1 = await erc20.balanceOf(user1)
 
         await bonder.withdrawTo(bondId, user1, { from: user1 }).should.not.be.fulfilled
-        await time.increaseTo(expirationDate + 1) // move to after reveal period
+        await time.increaseTo(expirationDate + 1) 
         await bonder.withdrawTo(bondId, user1, { from: erc20Owner }).should.not.be.fulfilled
         await bonder.withdrawTo(bondId, user1, { from: user1 }).should.be.fulfilled
         const userBalance = await erc20.balanceOf(user1)
@@ -237,6 +237,18 @@ contract(
         const stakingId = await consensus.stakerToStakingIds(user1, 0)
         await bonder.unstake(bondId, stakingId, { from: user1 }).should.be.fulfilled
         await consensus.stakerToStakingIds(user1, 0).should.not.be.fulfilled
+      })
+
+      it(`should allow govenor to unstake stakees`, async () => {
+        const stakingId = await consensus.stakerToStakingIds(user1, 0)
+        await bonder.unstake(bondId, stakingId, { from: governor }).should.be.fulfilled
+        await consensus.stakerToStakingIds(user1, 0).should.not.be.fulfilled
+      })
+
+      it(`should not allow multiple unstakes`, async () => {
+        const stakingId = await consensus.stakerToStakingIds(user1, 0)
+        await bonder.unstake(bondId, stakingId, { from: user1 }).should.be.fulfilled
+        await bonder.unstake(bondId, stakingId, { from: user1 }).should.not.be.fulfilled
       })
     })
   }

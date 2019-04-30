@@ -1,12 +1,13 @@
 {
   "zosversion": "2.2",
   "name": "dapp-scsc-solidity",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "contracts": {
     "XyGovernance": "XyGovernance",
     "XyBlockProducer": "XyBlockProducer",
     "XyStakingConsensus": "XyStakingConsensus",
-    "PLCRVoting": "PLCRVoting"
+    "PLCRVoting": "PLCRVoting",
+    "XyBond": "XyBond"
   },
   "dependencies": {
     "openzeppelin-eth": "^2.1.3"
