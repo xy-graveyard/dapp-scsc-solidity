@@ -53,17 +53,23 @@ contract XyBond is GovernorRole, Initializable {
         super.init();
     }
 
+    /**
+        Update period a bond is governable
+        @param newPeriod the new static period we allow to revoke
+    */
     function setGovernablePeriod(uint newPeriod) 
         public 
         onlyGovernor 
     {
-        // governable period must be less than a year
-        require (newPeriod < 31536000, "Over governable period limit");
+        require (newPeriod < 31536000, "Max 1 year governable");
         governablePeriod = newPeriod;
     }
 
     /**
-        Must approve before deposit can transfer in token
+        Create a bonded (network stake)
+        Sender must approve before bond can be created
+        @param xyoAmount amount to bond
+        @param expirationDate date the bond expires
     */
     function createBond (uint xyoAmount, uint expirationDate) 
         public 
@@ -72,21 +78,32 @@ contract XyBond is GovernorRole, Initializable {
         return _createBond(msg.sender, xyoAmount, expirationDate);
     }
 
+    /**
+        Called from erc20 token that allows approval and calling function in a single call
+        @param _spender who approved the token
+        @param _value amount approved
+        @param _extraData contains expiration date
+    */
     function receiveApproval(
         address _spender, 
         uint256 _value, 
-        address _token,
+        address,
         bytes calldata _extraData
     ) 
         external 
     {
-        require (_token == erc20, "Call from the current token");
-        require (msg.sender == _token, "Sender not token"); 
+        require (msg.sender == erc20, "Call from the current token");
         (uint expireDate) = abi.decode(_extraData, (uint));
 
         _createBond(_spender, _value, expireDate);
     }
 
+    /**
+        Creates a bond to 'to' for 'xyoAmount' until 'expirationDate'
+        @param to who receives bond
+        @param xyoAmount how much
+        @param expirationDate until when
+    */
     function _createBond (address to, uint xyoAmount, uint expirationDate) 
         private 
         returns (bytes32)
@@ -112,6 +129,13 @@ contract XyBond is GovernorRole, Initializable {
         return bondId;
     }
 
+    /**
+        Withdraws an expired or governed bond's value to 'to'
+        Prerequisites: Bond must be entirely unstaked. Sender is owner or bond is governable.  Bond cannot be already emptied
+        @param bondId the bond id
+        @param to who receives the withdrawl
+        sender - owner of bond or governor
+    */
     function withdrawTo (bytes32 bondId, address to) 
         public
     {
@@ -121,7 +145,7 @@ contract XyBond is GovernorRole, Initializable {
         bs.value = 0; // erase value of bond
         bool isOwner = msg.sender == bs.owner;
         require (bs.allocated == 0, "Bond must have no allocated stake");
-        require (isOwner || governable(bs), "owner or governable can withdraw");
+        require (isOwner || _governable(bs), "owner or governable can withdraw");
         if (isOwner) {
             require (now > bs.expirationSec, "Bond is still active");
         }
@@ -130,12 +154,19 @@ contract XyBond is GovernorRole, Initializable {
         emit BondWithdraw(bondId, to, withdrawAmount);
     }
 
+    /**
+        Add node stakes associated from this bond.
+        @param bondId Id of the bond to use for node stake
+        @param beneficiary who will own the stakeid
+        @param stakees which stakees to create stake for
+        @param amounts which amounts to use for stakees
+    */
     function stake (bytes32 bondId, address payable beneficiary, address[] memory stakees, uint[] memory amounts)
         public
     {
         Bond storage bs = bond[bondId];
         bool isOwner = msg.sender == bs.owner;
-        require (isOwner || governable(bs), "owner or governable can stake");
+        require (isOwner || _governable(bs), "owner or governable can stake");
         
         uint total = 0;
         for (uint i = 0; i < amounts.length; i++) {
@@ -155,6 +186,14 @@ contract XyBond is GovernorRole, Initializable {
         emit BondStake(bondId, msg.sender, beneficiary, total);
     }
 
+     /**
+        Helper for onboarding user with ETH and adding node stakes associated to their bond.
+        @param bondId Id of the bond to use for node stake
+        @param beneficiary who will own the stakeid
+        @param stakees which stakees to create stake for
+        @param amounts which amounts to use for stakees
+        msg.value send with some value to transfer eth to user in a single call
+    */
     function sendEthAndStake(bytes32 bondId, address payable beneficiary, address[] memory stakees, uint[] memory amounts) 
         public
         payable
@@ -165,15 +204,20 @@ contract XyBond is GovernorRole, Initializable {
         stake(bondId, beneficiary, stakees, amounts);
     }
 
+    /**
+        Called by owner or governable to unstake bonded node-stake
+        @param bondId The bond to unstake
+        @param stakingId the id of the associated node-stake
+    */
     function unstake (bytes32 bondId, bytes32 stakingId) 
         public  
     {
         bytes32 checkBondId = XyStakingConsensus(staking).bondedStake(stakingId);
-        (uint amount,,,,,,) = XyStakingConsensus(staking).stakeData(stakingId);
         require(checkBondId == bondId, "Stake needs to be bonded");
 
+        (uint amount,,,,,,) = XyStakingConsensus(staking).stakeData(stakingId);
         Bond storage bs = bond[bondId];
-        require (msg.sender == bs.owner || governable(bs), "owner or governable can unstake");
+        require (msg.sender == bs.owner || _governable(bs), "owner or governable can unstake");
         
         require(bs.allocated >= amount, "Cannot unstake over bond allocation");
         bs.allocated = bs.allocated.sub(amount);
@@ -184,6 +228,10 @@ contract XyBond is GovernorRole, Initializable {
         emit BondUnstake(bondId, msg.sender, stakingId, amount);
     }
 
+    /**
+        Helper to know if bond is expired
+        @param bondId which bond are we looking at
+    */
     function isExpired(bytes32 bondId) 
         public 
         view 
@@ -192,8 +240,12 @@ contract XyBond is GovernorRole, Initializable {
         return bond[bondId].expirationSec < now;
     }
 
-    function governable(Bond memory bs) 
-        private 
+    /** 
+        True if the governable period has not elapsed since the bond creation
+        @param bs bond to check
+    */
+    function _governable(Bond memory bs) 
+        private
         view
         returns (bool) 
     {
@@ -202,10 +254,18 @@ contract XyBond is GovernorRole, Initializable {
         return isGov && govActive;
     }
 
+
+    /** 
+        Returns total count of bonds created
+    */
     function numBonds() public view returns (uint) {
         return bonds.length;
     }
 
+    /** 
+        Returns the total count of bonds created by owner
+        @param owner count bonds of this hodler
+    */
     function numOwnerBonds(address owner) public view returns (uint) {
         return ownerBonds[owner].length;
     }

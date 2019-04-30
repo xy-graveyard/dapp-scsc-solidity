@@ -122,12 +122,12 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
     function receiveApproval(
         address _spender, 
         uint256 _value, 
-        address _token,
+        address,
         bytes calldata _extraData
     ) 
         external 
     {
-        require (_token == xyoToken && msg.sender == _token, "sender must be token");
+        require (msg.sender == xyoToken, "sender must be token");
         (uint method, bytes memory data) = abi.decode(_extraData, (uint, bytes));
         
         if (method == 1) {
@@ -230,8 +230,7 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
         }
 
         return tempUint;
-    }    
-
+    }
 
     /** 
         @dev Calls Request interface submitResponse function for each answer.

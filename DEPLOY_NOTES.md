@@ -20,6 +20,9 @@ npx zos create XyBond --init initialize --args "0x9071a6fc3c23eb6f4a8f7a2bc2309a
 
 npx zos update XyStakingConsensus
 
+Update bond contract on stakingConsensusContract using XyBondContract governance param and dapper.layerone.co
+ownerSet('XyBondContract', 0xadA734D5e82EeaBE71D36c89A5Fd0cdD84017922)
+
 
 Minimized Kovan:
 QmWFxz7suqhbpscabQA75VECbDQoBD2FmBjKLMbGLTL5pn minimized/PLCRVoting.json
@@ -38,7 +41,6 @@ Kovan:
 0xadA734D5e82EeaBE71D36c89A5Fd0cdD84017922 XyBond.json
 
 
-
 Mainnet:
 
 npx zos session --network mainnet --from 0x6792B02f88b32C4FE8e31cfA41ae5aF44865f930 --expires 2500
@@ -47,9 +49,12 @@ npx zos push
 
 npx zos create XyBond --init initialize --args "0x55296f69f40Ea6d20E478533C15A6B08B654E758,0x0242514106114DEaA99Fd81574142c36Edb03B6D,14515200"
 
+TODO
+
 npx zos update XyStakingConsensus
 
 Mainnet Minimized ABI:
+ownerSet('XyBondContract', TODO)
 
 
 0x0242514106114DEaA99Fd81574142c36Edb03B6D XyStakingConsensus

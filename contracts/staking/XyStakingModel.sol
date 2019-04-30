@@ -325,11 +325,30 @@ contract XyStakingModel is IXyVotingData {
         public
     {
         Stake storage data = stakeData[stakingId];
+        require(bondedStake[stakingId] == 0, "Only unstake bonded-stake via bond contract");
         require(data.staker == msg.sender, "Only the staker can unstake a stake");
         require(data.stakeBlock.add(govContract.get("xyStakeCooldown")) < block.number, "Staking needs to cooldown");
         require(data.unstakeBlock == 0, "Cannot re-unstake");
         updateCacheOnUnstake(data);
         emit StakeEvent(stakingId, data.amount, data.staker, data.stakee, StakeTransition.UNSTAKED);
+    }
+
+    /**
+        Unstakes/withdraws to bonded stake
+        @param bondId - the bond id to ensure the correct stake
+        @param stakingId - the id of the stake to withdraw to bond contract
+    */
+    function unstakeBonded(bytes32 bondId, bytes32 stakingId) external {
+        address bondContract = address(govContract.get('XyBondContract'));
+        require(msg.sender == bondContract, "only from bond contract");
+        require(bondId == bondedStake[stakingId], "Stake not bonded to this bond");
+        Stake storage data = stakeData[stakingId];
+        if (data.unstakeBlock==0) {
+            updateCacheOnUnstake(data);
+            emit StakeEvent(stakingId, data.amount, data.staker, data.stakee, StakeTransition.UNSTAKED);
+        }
+        _withdrawStakeData(stakingId, data);
+        delete bondedStake[stakingId];
     }
 
     /** 
@@ -394,23 +413,6 @@ contract XyStakingModel is IXyVotingData {
         require(data.unstakeBlock > 0 && (data.unstakeBlock + govContract.get("xyUnstakeCooldown")) < block.number, "Not ready for withdraw");
         require(data.staker == msg.sender, "Only owner can withdraw");
         _withdrawStakeData(stakingId, data);
-    }
-
-    /**
-        unstakes/withdraws to bonded stake
-    */
-    function unstakeBonded(bytes32 bondId, bytes32 stakingId) external {
-        address bondContract = address(govContract.get('XyBondContract'));
-        require(msg.sender == bondContract, "only bond contract");
-
-        require(bondId == bondedStake[stakingId], "Stake not bonded to this bond");
-        Stake storage data = stakeData[stakingId];
-        if (data.unstakeBlock==0) {
-            updateCacheOnUnstake(data);
-            emit StakeEvent(stakingId, data.amount, data.staker, data.stakee, StakeTransition.UNSTAKED);
-        }
-        _withdrawStakeData(stakingId, data);
-        delete bondedStake[stakingId];
     }
 
     /** 
