@@ -452,6 +452,18 @@ contract(
               .be.fulfilled
           })
 
+          it(`should not allow re-withdrawing after unstake cooldown`, async () => {
+            await staking.withdrawStake(stakingToken, { from: staker1 }).should
+              .not.be.fulfilled
+            const balance = await erc20.balanceOf(staking.address)
+            const blockNumber = await latestBlock()
+            await advanceToBlock(blockNumber + cooldownUnstake)
+            await staking.withdrawStake(stakingToken, { from: staker1 }).should
+              .be.fulfilled
+            await staking.withdrawStake(stakingToken, { from: staker1 }).should.
+              not.be.fulfilled
+          })
+
           it(`should transfer stake on withdraw from contract to staker`, async () => {
             const blockNumber = await latestBlock()
             await advanceToBlock(blockNumber + cooldownUnstake)

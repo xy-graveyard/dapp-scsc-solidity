@@ -63,9 +63,6 @@ contract XyStakingModel is IXyVotingData {
         StakeTransition transition
     );
 
-    // mapping from stake id to bond id
-    mapping (bytes32 => bytes32) public bondedStake;
-
     /**
     * @dev Throws if called by any account other than the owner.
     */
@@ -206,15 +203,6 @@ contract XyStakingModel is IXyVotingData {
         }
     }
 
-    function stakeAndBond (bytes32 bondId, address issuer, address staker, address[] memory stakees, uint[] memory amounts) internal {
-        require(stakees.length == amounts.length, "bad inputs");
-        for (uint i = 0; i < stakees.length; i++) {
-            bytes32 stakingId = stakeFrom(issuer, staker, stakees[i], amounts[i]);
-            bondedStake[stakingId] = bondId;
-            _activateStake(stakingId, blockProducerContract.exists(stakees[i]) != true);
-        }
-    }
-
     function stakeFrom (
         address spender, 
         address staker, 
@@ -273,7 +261,7 @@ contract XyStakingModel is IXyVotingData {
         returns (Stake storage)
     {
         Stake storage data = stakeData[stakingId];
-        if (bondedStake[stakingId] == 0) {
+        if (!isBondedStake(stakingId)) {
             require(data.staker == msg.sender, "Only the staker can activate");
             require(data.stakeBlock + govContract.get("xyStakeCooldown") < block.number, "Not ready to activate stake yet");
         }
@@ -304,7 +292,7 @@ contract XyStakingModel is IXyVotingData {
     */
     function _activateStake(bytes32 stakingId, bool cooldown) 
         whenActive
-        private 
+        internal 
     {
         Stake storage data = _requireStakeCooledDown(stakingId);
         require(data.isCooledDown == false && data.isActivated == false, "cannot re-activate stake");
@@ -324,30 +312,12 @@ contract XyStakingModel is IXyVotingData {
         public
     {
         Stake storage data = stakeData[stakingId];
-        require(bondedStake[stakingId] == 0, "Only unstake bonded-stake via bond contract");
+        require(!isBondedStake(stakingId), "Only unstake bonded-stake via parent");
         require(data.staker == msg.sender, "Only the staker can unstake a stake");
         require(data.stakeBlock.add(govContract.get("xyStakeCooldown")) < block.number, "Staking needs to cooldown");
         require(data.unstakeBlock == 0, "Cannot re-unstake");
         updateCacheOnUnstake(data);
         emit StakeEvent(stakingId, data.amount, data.staker, data.stakee, StakeTransition.UNSTAKED);
-    }
-
-    /**
-        Unstakes/withdraws to bonded stake
-        @param bondId - the bond id to ensure the correct stake
-        @param stakingId - the id of the stake to withdraw to bond contract
-    */
-    function unstakeBonded(bytes32 bondId, bytes32 stakingId) external {
-        address bondContract = address(govContract.get('XyBondContract'));
-        require(msg.sender == bondContract, "only from bond contract");
-        require(bondId == bondedStake[stakingId], "Stake not bonded to this bond");
-        Stake storage data = stakeData[stakingId];
-        if (data.unstakeBlock==0) {
-            updateCacheOnUnstake(data);
-            emit StakeEvent(stakingId, data.amount, data.staker, data.stakee, StakeTransition.UNSTAKED);
-        }
-        _withdrawStakeData(stakingId, data);
-        delete bondedStake[stakingId];
     }
 
     /** 
@@ -390,7 +360,7 @@ contract XyStakingModel is IXyVotingData {
         stakingStakerIndex[lastStakerId] = stakerIndex;
     }
 
-    function _withdrawStakeData(bytes32 stakingId, Stake storage data) private {
+    function _withdrawStakeData(bytes32 stakingId, Stake storage data) internal {
         updateCacheOnWithdraw(data);
         SafeERC20.transfer(xyoToken, msg.sender, data.amount);
         emit StakeEvent(stakingId, data.amount, data.staker, data.stakee, StakeTransition.WITHDREW);
@@ -408,7 +378,7 @@ contract XyStakingModel is IXyVotingData {
       public 
     {
         Stake storage data = stakeData[stakingId];
-        require(bondedStake[stakingId] == 0, "Cannot withdraw bonded stake");
+        require(!isBondedStake(stakingId), "Cannot withdraw bonded stake");
         require(govContract.hasUnresolvedAction(data.stakee) == false, "All actions on stakee must be resolved");
         require(data.unstakeBlock > 0 && (data.unstakeBlock + govContract.get("xyUnstakeCooldown")) < block.number, "Not ready for withdraw");
         require(data.staker == msg.sender, "Only owner can withdraw");
@@ -474,5 +444,15 @@ contract XyStakingModel is IXyVotingData {
     }
     function totalVotingStake() external view returns (uint) {
         return totalCooldownStake.add(totalActiveStake);
+    }
+
+    /* Network Staking Support 
+        We cannot modify the state of this staking model base contract, 
+        so instead we call up to parent contract. It's not possible
+        to call to a base contract function externally when deployed
+    */
+    function isBondedStake(bytes32) internal view returns (bool) {
+        // call up to parent isBondedStake
+        return false;
     }
 }

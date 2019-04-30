@@ -224,12 +224,14 @@
       "links": {},
       "events": {},
       "address": "0xd3034c290E19959Fdc18E5597F375CA51BFB0c41",
+      "transactionHash": "0x72bb143538dfbd77f2c061c85d55beba803631fd21523614262ebef6245e9190",
       "updated_at": 1555605227780
     },
     "42": {
       "links": {},
       "events": {},
       "address": "0xb9452ee24cf08eaedf64F3B81f8727f5bd0Ea084",
+      "transactionHash": "0x6d331d7fbfdfe798d75d0e9eaaa6bdbaf4e48ff928bef74003ac96035f6a7402",
       "updated_at": 1555544302299
     }
   },
