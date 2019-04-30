@@ -1096,16 +1096,9 @@
     "name": "solc",
     "version": "0.5.4+commit.9549d8ff.Emscripten.clang"
   },
-  "networks": {
-    "42": {
-      "links": {},
-      "events": {},
-      "address": "0x1a2C4a6Ffd72848E7bD63d2177c29a0aC80c6386",
-      "updated_at": 1555545130803
-    }
-  },
+  "networks": {},
   "schemaVersion": "3.0.6",
-  "updatedAt": "2019-04-29T21:19:22.715Z",
+  "updatedAt": "2019-04-30T17:49:33.770Z",
   "devdoc": {
     "details": "Manages the Stake for multiple clients in a decentralized consensus  system to trustlessly answer requests",
     "methods": {

@@ -10,10 +10,9 @@ import "../access/GovernorRole.sol";
 contract XyBond is GovernorRole, Initializable {
     using SafeMath for uint;
 
-    address public erc20;
-    address public consensus;
+    address public erc20;         // the token for staking
+    address public staking;       // node-staking contract
     uint public governablePeriod; // seconds after bond creation it's governable
-    mapping (bytes32 => address) public stakeIdManager;
 
     event BondDeposit(bytes32 bondId, address beneficiary, uint amount, uint expiration);
     event BondWithdraw(bytes32 bondId, address beneficiary, uint amount);
@@ -34,28 +33,43 @@ contract XyBond is GovernorRole, Initializable {
     mapping (address => bytes32[]) public ownerBonds;
     bytes32[] public bonds;
 
+    /**
+        initializes upgradeable contract
+        @param _token the token to stake
+        @param _stakingContract the contract used for staking 
+        @param _governablePeriod the period a governor can revoke bonded stake (chargeback avoidance)
+    */
     function initialize (
         address _token,
-        address _consensusContract,
+        address _stakingContract,
         uint _governablePeriod
     )
         initializer 
         public
     {
         erc20 = _token;
-        consensus = _consensusContract;
+        staking = _stakingContract;
         governablePeriod = _governablePeriod;
         super.init();
+    }
+
+    function setGovernablePeriod(uint newPeriod) 
+        public 
+        onlyGovernor 
+    {
+        // governable period must be less than a year
+        require (newPeriod < 31536000, "Over governable period limit");
+        governablePeriod = newPeriod;
     }
 
     /**
         Must approve before deposit can transfer in token
     */
-    function deposit (uint xyoAmount, uint expirationDate) 
+    function createBond (uint xyoAmount, uint expirationDate) 
         public 
         returns (bytes32)
     {
-        return depositTo(msg.sender, xyoAmount, expirationDate);
+        return _createBond(msg.sender, xyoAmount, expirationDate);
     }
 
     function receiveApproval(
@@ -70,14 +84,15 @@ contract XyBond is GovernorRole, Initializable {
         require (msg.sender == _token, "Sender not token"); 
         (uint expireDate) = abi.decode(_extraData, (uint));
 
-        depositTo(_spender, _value, expireDate);
+        _createBond(_spender, _value, expireDate);
     }
 
-    function depositTo (address to, uint xyoAmount, uint expirationDate) 
-        internal 
+    function _createBond (address to, uint xyoAmount, uint expirationDate) 
+        private 
         returns (bytes32)
     {
-        require (expirationDate > now, "Expiry must be in the future");
+        require (expirationDate < now.add(946080000), "Expiry must be less than 30 years");
+        require (expirationDate > now.add(172800), "Expiry must be at least 2 days in the future");
         bytes32 bondId = keccak256(abi.encode(to, xyoAmount, expirationDate, block.number));
         Bond memory ns = Bond(
             xyoAmount,
@@ -135,7 +150,7 @@ contract XyBond is GovernorRole, Initializable {
         bytes memory methodData = abi.encode(4, encoded);
         
         // stake bonded nodes
-        IXYOERC20(erc20).approveAndCall(consensus, total, methodData);
+        IXYOERC20(erc20).approveAndCall(staking, total, methodData);
 
         emit BondStake(bondId, msg.sender, beneficiary, total);
     }
@@ -153,8 +168,8 @@ contract XyBond is GovernorRole, Initializable {
     function unstake (bytes32 bondId, bytes32 stakingId) 
         public  
     {
-        bytes32 checkBondId = XyStakingConsensus(consensus).bondedStake(stakingId);
-        (uint amount,,,,,,) = XyStakingConsensus(consensus).stakeData(stakingId);
+        bytes32 checkBondId = XyStakingConsensus(staking).bondedStake(stakingId);
+        (uint amount,,,,,,) = XyStakingConsensus(staking).stakeData(stakingId);
         require(checkBondId == bondId, "Stake needs to be bonded");
 
         Bond storage bs = bond[bondId];
@@ -164,7 +179,7 @@ contract XyBond is GovernorRole, Initializable {
         bs.allocated = bs.allocated.sub(amount);
 
         // will fail if already withdrew  
-        XyStakingConsensus(consensus).unstakeBonded(bondId, stakingId);
+        XyStakingConsensus(staking).unstakeBonded(bondId, stakingId);
 
         emit BondUnstake(bondId, msg.sender, stakingId, amount);
     }
@@ -185,5 +200,13 @@ contract XyBond is GovernorRole, Initializable {
         bool isGov = isGovernor(msg.sender);
         bool govActive = now <= bs.creationSec.add(governablePeriod);
         return isGov && govActive;
+    }
+
+    function numBonds() public view returns (uint) {
+        return bonds.length;
+    }
+
+    function numOwnerBonds(address owner) public view returns (uint) {
+        return ownerBonds[owner].length;
     }
 }

@@ -1244,11 +1244,11 @@
       }
     },
     "XyBond": {
-      "address": "0xE7d3d8D8E308f9C37ad54D8Ca2Cc7E82BCAC11FC",
-      "constructorCode": "608060405234801561001057600080fd5b50611c94806100206000396000f3fe",
-      "bodyBytecodeHash": "8f1d0c09089dc81c860bd5f3f6014ce25110b765f0674edbb6c00d8b790f9818",
-      "localBytecodeHash": "720d7cef858404d881ec6c5d6dca59aaa19f34bfd31455a46061850f04ce18ad",
-      "deployedBytecodeHash": "720d7cef858404d881ec6c5d6dca59aaa19f34bfd31455a46061850f04ce18ad",
+      "address": "0xBe2e27C7f1C08D837D3244dF2CC4B3b745d77712",
+      "constructorCode": "608060405234801561001057600080fd5b50611ec4806100206000396000f3fe",
+      "bodyBytecodeHash": "368639c4df1d27c68c6f0493c26a32052e0ccdc983b6db0b2ce99de8984259ea",
+      "localBytecodeHash": "866a4bebfae61cefc40779ada3e26318b5cbaa0851defa83b079ff7c710e15d3",
+      "deployedBytecodeHash": "866a4bebfae61cefc40779ada3e26318b5cbaa0851defa83b079ff7c710e15d3",
       "types": {
         "t_struct<Roles.Role>": {
           "id": "t_struct<Roles.Role>",
@@ -1389,7 +1389,7 @@
           "contract": "Initializable",
           "path": "contracts/utils/Initializable.sol",
           "label": "initialized",
-          "astId": 8952,
+          "astId": 9006,
           "type": "t_bool",
           "src": "757:24:29"
         },
@@ -1397,7 +1397,7 @@
           "contract": "Initializable",
           "path": "contracts/utils/Initializable.sol",
           "label": "initializing",
-          "astId": 8954,
+          "astId": 9008,
           "type": "t_bool",
           "src": "876:25:29"
         },
@@ -1405,7 +1405,7 @@
           "contract": "Initializable",
           "path": "contracts/utils/Initializable.sol",
           "label": "______gap",
-          "astId": 9003,
+          "astId": 9057,
           "type": "t_array:50<t_uint256>",
           "src": "1891:29:29"
         },
@@ -1479,7 +1479,26 @@
         "hasSelfDestruct": false,
         "hasDelegateCall": false,
         "hasInitialValuesInDeclarations": false,
-        "uninitializedBaseContracts": []
+        "uninitializedBaseContracts": [],
+        "storageUncheckedVars": [
+          {
+            "contract": "GovernorRole",
+            "path": "contracts/access/GovernorRole.sol",
+            "label": "governors",
+            "astId": 3854,
+            "type": "t_struct<Roles.Role>",
+            "src": "113:28:9"
+          },
+          {
+            "contract": "XyBond",
+            "path": "contracts/staking/XyBond.sol",
+            "label": "bond",
+            "astId": 4322,
+            "type": "t_mapping<t_struct<XyBond.Bond>>",
+            "src": "1263:37:14"
+          }
+        ],
+        "storageDiff": []
       }
     }
   },
@@ -1522,15 +1541,15 @@
     "dapp-scsc-solidity/XyStakingConsensus": [
       {
         "address": "0x1a2C4a6Ffd72848E7bD63d2177c29a0aC80c6386",
-        "version": "0.1.1",
-        "implementation": "0x435C4bf5AA2daF6306a46a60347cDD08B22E28DA"
+        "version": "0.2.0",
+        "implementation": "0x08e24E4e667D4834ad1c0134E92ee35ceecA0A22"
       }
     ],
     "dapp-scsc-solidity/XyBond": [
       {
         "address": "0xadA734D5e82EeaBE71D36c89A5Fd0cdD84017922",
         "version": "0.2.0",
-        "implementation": "0xE7d3d8D8E308f9C37ad54D8Ca2Cc7E82BCAC11FC"
+        "implementation": "0xBe2e27C7f1C08D837D3244dF2CC4B3b745d77712"
       }
     ]
   },

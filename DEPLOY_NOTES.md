@@ -5,7 +5,7 @@ Deployer for kovan: 0x316D5E10f4E4ad94499149c0131a44FC17EF995B
 
 Kovan:
 
-npx zos session --network kovan --from 0x316D5E10f4E4ad94499149c0131a44FC17EF995B --expires 5000
+npx zos session --network kovan --from 0x316D5E10f4E4ad94499149c0131a44FC17EF995B --expires 2500
 
 npx zos add XyBond
 
@@ -14,23 +14,21 @@ npx zos bump 0.2.0
 // Initialize the contracts for session
 npx zos push
 
-npx zos create XyBlockProducer --init initialize
-
-0xb9452ee24cf08eaedf64F3B81f8727f5bd0Ea084
-
 npx zos create XyBond --init initialize --args "0x9071a6fc3c23eb6f4a8f7a2bc2309a7b368f272f,0x1a2C4a6Ffd72848E7bD63d2177c29a0aC80c6386,14515200"
 
 0xadA734D5e82EeaBE71D36c89A5Fd0cdD84017922
+
+npx zos update XyStakingConsensus
 
 
 Minimized Kovan:
 QmWFxz7suqhbpscabQA75VECbDQoBD2FmBjKLMbGLTL5pn minimized/PLCRVoting.json
 QmaNvLFBuakAppxc3v1FRmnin3KYZXLWqumQbLrwv3dwJF minimized/XyBlockProducer.json
-QmYSaq4BkTvovtUim4M5a1diYehWKYiCNULcxWsrKtyvMa minimized/XyBond.json
+QmQhfuhFr3Jn6LFT5XNB4dm2qeC8a8gBx4R7WwJuYDsExK minimized/XyBond.json
 Qmck9Z9TiHpwN5tptpmaA13eHNutBHJw7q2TqKnvDJ1chY minimized/XyFaucet.json
 QmPAd9cmNJhRDVMFMdzo1Mx9JEyJXEhTN7wrP9xAq8JJ81 minimized/XyGovernance.json
-QmT4bZcM8CoWkRsjuCQvctsH5x75QRc5K5Hdk47kcgiDUA minimized/XyStakingConsensus.json
-QmUm9ciaXm77UYS31MLxUv8j6LUTjP2LQS2SMhhDtkFKeg minimized
+Qmc5ePnw8KLBTfntYf37KEXPH7DXJ7sv2FjX6kxosk6FBy minimized/XyStakingConsensus.json
+QmPGN3pWV613rhrNvcxQz2WkhErR8BvMfJhCU7iCwVXnTr minimized
 
 Kovan:
 0x1a2C4a6Ffd72848E7bD63d2177c29a0aC80c6386 XyStakingConsensus
@@ -43,12 +41,13 @@ Kovan:
 
 Mainnet:
 
-npx zos session --network mainnet --from 0x6792B02f88b32C4FE8e31cfA41ae5aF44865f930 --expires 5000
+npx zos session --network mainnet --from 0x6792B02f88b32C4FE8e31cfA41ae5aF44865f930 --expires 2500
 
 npx zos push
 
 npx zos create XyBond --init initialize --args "0x55296f69f40Ea6d20E478533C15A6B08B654E758,0x0242514106114DEaA99Fd81574142c36Edb03B6D,14515200"
 
+npx zos update XyStakingConsensus
 
 Mainnet Minimized ABI:
 
