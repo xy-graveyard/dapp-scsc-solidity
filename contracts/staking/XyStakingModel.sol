@@ -32,7 +32,6 @@ contract XyStakingModel is IXyVotingData {
     mapping (address => StakeAmounts) public stakeeStake;
     mapping (address => StakeAmounts) public stakerStake;
 
-
     // Stake data associated with all stake
     struct Stake {
         uint amount;            // amount on this stake
@@ -397,6 +396,7 @@ contract XyStakingModel is IXyVotingData {
         emit StakeEvent(stakingId, data.amount, data.staker, data.stakee, StakeTransition.WITHDREW);
         removeStakeeData(stakingId);
         removeStakerData(stakingId);
+        delete stakeData[stakingId];
     }
 
     /** 
