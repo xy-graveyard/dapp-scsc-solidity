@@ -75,7 +75,7 @@ contract XyBond is GovernorRole, Initializable {
         public 
         returns (bytes32)
     {
-        return _createBond(msg.sender, xyoAmount, expirationDate);
+        return _createBond(msg.sender, msg.sender, xyoAmount, expirationDate);
     }
 
     /**
@@ -93,9 +93,9 @@ contract XyBond is GovernorRole, Initializable {
         external 
     {
         require (msg.sender == erc20, "Call from the current token");
-        (uint expireDate) = abi.decode(_extraData, (uint));
+        (address beneficiary, uint expireDate) = abi.decode(_extraData, (address, uint));
 
-        _createBond(_spender, _value, expireDate);
+        _createBond(_spender, beneficiary, _value, expireDate);
     }
 
     /**
@@ -104,7 +104,7 @@ contract XyBond is GovernorRole, Initializable {
         @param xyoAmount how much
         @param expirationDate until when
     */
-    function _createBond (address to, uint xyoAmount, uint expirationDate) 
+    function _createBond (address spender, address to, uint xyoAmount, uint expirationDate) 
         private 
         returns (bytes32)
     {
@@ -124,7 +124,7 @@ contract XyBond is GovernorRole, Initializable {
         ownerBonds[to].push(bondId);
         bonds.push(bondId);
         
-        SafeERC20.transferFrom(erc20, to, address(this), xyoAmount);
+        SafeERC20.transferFrom(erc20, spender, address(this), xyoAmount);
         emit BondDeposit(bondId, to, xyoAmount, expirationDate);
         return bondId;
     }

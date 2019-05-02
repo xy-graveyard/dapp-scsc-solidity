@@ -72,6 +72,10 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
 
     // mapping from stake id to bond id
     mapping (bytes32 => bytes32) public bondedStake;
+    // mapping from bond id to stake ids
+    mapping (bytes32 => bytes32[]) public bondStakes;
+    // mapping from stake id to index in bond stake
+    mapping (bytes32 => uint) public bondStakeIndex;
 
     /**
         @param _token - The ERC20 token to stake with 
@@ -441,9 +445,30 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
         for (uint i = 0; i < stakees.length; i++) {
             bytes32 stakingId = stakeFrom(issuer, staker, stakees[i], amounts[i]);
             bondedStake[stakingId] = bondId;
+            bondStakeIndex[stakingId] = bondStakes[bondId].length;
+            bondStakes[bondId].push(stakingId);
             _activateStake(stakingId, blockProducerContract.exists(stakees[i]) != true);
         }
     } 
+
+    function _removeBondedStake(
+        bytes32 bondId, 
+        bytes32 stakingId 
+    )
+        private
+    {
+        uint lastI = bondStakes[bondId].length.sub(1);
+        uint index = bondStakeIndex[stakingId];
+
+        bytes32 last = bondStakes[bondId][lastI];
+        bondStakes[bondId][index] = last;
+
+        bondStakes[bondId].length--;
+        bondStakeIndex[stakingId] = 0;
+        
+        bondStakeIndex[last] = index;
+        bondedStake[stakingId] = 0;
+    }
 
     /**
         Unstakes/withdraws to bonded stake
@@ -464,7 +489,11 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
             updateCacheOnUnstake(data);
             emit StakeEvent(stakingId, data.amount, data.staker, data.stakee, StakeTransition.UNSTAKED);
         }
+        _removeBondedStake(bondId, stakingId);
         _withdrawStakeData(stakingId, data);
-        bondedStake[stakingId] = 0;
+    }
+
+    function numBondStakes(bytes32 bondId) public view returns(uint) {
+        return bondStakes[bondId].length;
     }
 }
