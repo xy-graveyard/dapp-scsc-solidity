@@ -398,40 +398,6 @@ contract XyStakingModel is IXyVotingData {
         }
     }
 
-    /** Get the available unstake, counting only stakes that can be withdrawn */    
-    function getAvailableStakerUnstake(address staker)
-        external
-        view
-        returns(uint)
-    {
-        uint stakeTotal = 0;
-        uint num = numStakerStakes(staker);
-        for (uint i = 0; i < num; i++) {
-            Stake memory data = stakeData[stakerToStakingIds[staker][i]];
-            if (data.unstakeBlock > 0 && (data.unstakeBlock + govContract.get("xyUnstakeCooldown")) < block.number) {
-                stakeTotal += data.amount;
-            }
-        }
-        return stakeTotal;
-    }
-
-    /** Get the available unstake, counting only stakes that can be withdrawn */    
-    function getAvailableStakeeUnstake(address stakee)
-        external
-        view
-        returns(uint)
-    {
-        bytes32[] memory stakeList = stakeeToStakingIds[stakee];
-        uint stakeTotal = 0;
-        for (uint i = 0; i < stakeList.length; i++) {
-            Stake memory data = stakeData[stakeList[i]];
-            if (data.unstakeBlock > 0 && (data.unstakeBlock + govContract.get("xyUnstakeCooldown")) < block.number) {
-                stakeTotal += data.amount;
-            }
-        }
-        return stakeTotal;
-    }
-
     /** Public getters */
     function numStakerStakes(address staker) public view returns (uint) {
         return stakerToStakingIds[staker].length;

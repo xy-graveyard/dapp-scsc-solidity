@@ -16,6 +16,11 @@ const erc20TotalSupply = 1000000
 const governablePeriod = 200
 const bondPeriod = 60*60*24*3 // 3 day bond
 
+const encodeApproveAndCall = (to, expiration) =>  web3.utils.toHex(`${web3.eth.abi.encodeParameters(
+          [`address`, `uint`],
+          [to, expiration]
+        )}`)
+
 contract(
   `XyBond`,
   ([
@@ -84,11 +89,7 @@ contract(
       it(`should allow deposit via approveAndCall`, async () => {
         const amount = 100
 
-        const data = `${web3.eth.abi.encodeParameters(
-          [`uint`],
-          [expirationDate]
-        )}`
-        const solidityEncoded = web3.utils.toHex(data)
+        const solidityEncoded = encodeApproveAndCall(erc20Owner, expirationDate)
 
         await erc20.approveAndCall(bonder.address, amount, solidityEncoded, { from: erc20Owner }).should.be.fulfilled
 
@@ -108,17 +109,9 @@ contract(
       beforeEach(async () => {
         const whatTime = await time.latest()
         expirationDate = whatTime.toNumber() + bondPeriod
-        // console.log("CurTime, Expiration Date", timeSeconds(), expirationDate)
-
-        const data = `${web3.eth.abi.encodeParameters(
-          [`uint`],
-          [expirationDate]
-        )}`
-        const solidityEncoded = web3.utils.toHex(data)
-
         await erc20.transfer(user1, amount, { from: erc20Owner })
         const bal1 = await erc20.balanceOf(user1)
-
+        const solidityEncoded = encodeApproveAndCall(user1, expirationDate)
         await erc20.approveAndCall(bonder.address, amount, solidityEncoded, { from: user1 }).should.be.fulfilled
         bondId = await bonder.bonds(0)
         const userBalance = await erc20.balanceOf(user1)
@@ -153,18 +146,15 @@ contract(
         userBalance.toNumber().should.be.equal(bal1.toNumber() + amount)
       })
     })
+
+
     describe(`staking nodes`, () => {
       const amount = 100
       let bondId
 
       beforeEach(async () => {
         const whatTime = await time.latest()
-        expirationDate = whatTime.toNumber() + bondPeriod
-        const data = `${web3.eth.abi.encodeParameters(
-          [`uint`],
-          [expirationDate]
-        )}`
-        const solidityEncoded = web3.utils.toHex(data)
+        const solidityEncoded = encodeApproveAndCall(user1, expirationDate)
         await erc20.transfer(user1, amount, { from: erc20Owner })
         await erc20.approveAndCall(bonder.address, amount, solidityEncoded, { from: user1 }).should.be.fulfilled
         bondId = await bonder.bonds(0)
@@ -222,11 +212,7 @@ contract(
       beforeEach(async () => {
         const whatTime = await time.latest()
         expirationDate = whatTime.toNumber() + bondPeriod
-        const data = `${web3.eth.abi.encodeParameters(
-          [`uint`],
-          [expirationDate]
-        )}`
-        const solidityEncoded = web3.utils.toHex(data)
+        const solidityEncoded = encodeApproveAndCall(user1, expirationDate)
         await erc20.transfer(user1, amount, { from: erc20Owner })
         await erc20.approveAndCall(bonder.address, amount, solidityEncoded, { from: user1 }).should.be.fulfilled
         bondId = await bonder.bonds(0)

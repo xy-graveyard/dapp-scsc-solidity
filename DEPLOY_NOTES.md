@@ -1,4 +1,59 @@
-V0.2.0 Main net deploy
+V0.2.1 deploy
+
+Deployer for kovan: 0x316D5E10f4E4ad94499149c0131a44FC17EF995B
+
+Kovan:
+
+npx zos session --network kovan --from 0x316D5E10f4E4ad94499149c0131a44FC17EF995B --expires 2500
+
+npx zos bump 0.2.1
+
+// Initialize the contracts for session
+npx zos push
+
+npx zos update XyBond
+
+npx zos update XyStakingConsensus
+
+
+Mainnet:
+
+npx zos session --network mainnet --from 0x6792B02f88b32C4FE8e31cfA41ae5aF44865f930 --expires 2500
+
+npx zos push
+
+npx zos update XyBond
+
+npx zos update XyStakingConsensus
+
+
+Minimized ABI:
+QmXM19CmChak3G3xq2e2XkahouVXNzBtkeGfrsTFBNgrXw v0.2.1/PLCRVoting.json
+Qmc2kRGQQ5GumtFEvZ4EEdZU2nos45bERCbrwxKKYtokxY v0.2.1/XYO.json
+QmbcfMGhtC1PCw6pkjHyv4zAqwvgvqE5xFgMUnj6cvqdEb v0.2.1/XyBlockProducer.json
+QmTxexw2uM2snGsfB5a1n1c1Yv1xMdw9cWDBJEwAufeqR6 v0.2.1/XyBond.json
+Qmck9Z9TiHpwN5tptpmaA13eHNutBHJw7q2TqKnvDJ1chY v0.2.1/XyFaucet.json
+QmQdhZBYc43D3SdTbZFyboUCFjyHi1mX5w2mC5MiCRW4hd v0.2.1/XyGovernance.json
+QmayLT1aR3cN38gW8ckU3nYiRF7MHm4Ytw7kbsTrbVn3x2 v0.2.1/XyStakingConsensus.json
+QmTdEU9e1bM3nafZdRGsmPgs1kmpmmaK45v4WY3j6ZAta8 v0.2.1
+
+Kovan:
+0x1a2C4a6Ffd72848E7bD63d2177c29a0aC80c6386 XyStakingConsensus
+0xb9452ee24cf08eaedf64F3B81f8727f5bd0Ea084 XyBlockProducer
+0xbF68070E5E84cae28f10161088edA1747A5963Ee XyGovernance
+0x210241f42bC94Eb9da7b4E0A841f3b340B569291 PLCRVoting
+0xAB0245d3971E5E01C4E5273350B5cB9CBe46aA8B XyBond
+0x9071a6fc3c23eb6f4a8f7a2bc2309a7b368f272f XyFaucet
+
+Mainnet:
+0x0242514106114DEaA99Fd81574142c36Edb03B6D XyStakingConsensus
+0xd3034c290E19959Fdc18E5597F375CA51BFB0c41 XyBlockProducer
+0x01925d0fFE4a6a6162B51ba611e3D4780Fc2dF42 XyGovernance
+0x72bCDb36d1545FEA06905a1bb4998424580AAee6 PLCRVoting
+0x1a024A698EEBdB86ccf3fCaF2F589839bdc066AD XyBond
+0x55296f69f40Ea6d20E478533C15A6B08B654E758 XYO
+
+V0.2.0 deploy
 
 Deployer for kovan: 0x316D5E10f4E4ad94499149c0131a44FC17EF995B
 
