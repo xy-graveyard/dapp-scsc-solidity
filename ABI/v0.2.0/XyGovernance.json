@@ -852,13 +852,15 @@
     "1": {
       "links": {},
       "events": {},
-      "address": "0x01925d0fFE4a6a6162B51ba611e3D4780Fc2dF42",
+      "address": "0x01925d0fFE4a6a6162B51ba611e3D4780Fc2dF42",   
+      "transactionHash": "0x42c420e422b9d85e80b6a94fefeb60af0f3941a4d81fc5d6b10cf1dbaf630f7d",
       "updated_at": 1555605594670
     },
     "42": {
       "links": {},
       "events": {},
       "address": "0xbF68070E5E84cae28f10161088edA1747A5963Ee",
+      "transactionHash": "0x6b915488e73190ccad7fb35b032060879b5ce26e111d30244d49664c246be8e8",
       "updated_at": 1555544989214
     }
   },

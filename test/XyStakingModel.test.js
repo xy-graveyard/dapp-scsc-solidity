@@ -389,42 +389,43 @@ contract(
               stakeAmt
             ])
           })
-          it(`should reflect proper available staker and stakee unstake before and after cooldown`, async () => {
-            const blockNumber = await latestBlock()
-            await advanceToBlock(blockNumber + cooldownNumBlocks)
-            await staking.unstake(stakingToken, { from: staker1 }).should.be
-              .fulfilled
+          // TODO this off chain
+          // it.only(`should reflect proper available staker and stakee unstake before and after cooldown`, async () => {
+          //   const blockNumber = await latestBlock()
+          //   await advanceToBlock(blockNumber + cooldownNumBlocks)
+          //   await staking.unstake(stakingToken, { from: staker1 }).should.be
+          //     .fulfilled
 
-            await staking.unstake(stakingToken2, { from: staker1 }).should.be
-              .fulfilled
-            const avUnStakee = await staking.getAvailableStakeeUnstake.call(
-              stakee3
-            )
-            const avUnStakee2 = await staking.getAvailableStakeeUnstake.call(
-              stakee4
-            )
-            const avUnStaker = await staking.getAvailableStakerUnstake.call(
-              staker1
-            )
-            avUnStakee.toNumber().should.be.equal(0)
-            avUnStakee2.toNumber().should.be.equal(0)
-            avUnStaker.toNumber().should.be.equal(0)
-            const b2 = await latestBlock()
-            await advanceToBlock(b2 + cooldownUnstake)
-            const avUnStakeeAfter = await staking.getAvailableStakeeUnstake.call(
-              stakee3
-            )
-            const avUnStakeeAfter2 = await staking.getAvailableStakeeUnstake.call(
-              stakee4
-            )
-            const avUnStakerAfter = await staking.getAvailableStakerUnstake.call(
-              staker1
-            )
+          //   await staking.unstake(stakingToken2, { from: staker1 }).should.be
+          //     .fulfilled
+          //   const avUnStakee = await staking.getAvailableStakeeUnstake.call(
+          //     stakee3
+          //   )
+          //   const avUnStakee2 = await staking.getAvailableStakeeUnstake.call(
+          //     stakee4
+          //   )
+          //   const avUnStaker = await staking.getAvailableStakerUnstake.call(
+          //     staker1
+          //   )
+          //   avUnStakee.toNumber().should.be.equal(0)
+          //   avUnStakee2.toNumber().should.be.equal(0)
+          //   avUnStaker.toNumber().should.be.equal(0)
+          //   const b2 = await latestBlock()
+          //   await advanceToBlock(b2 + cooldownUnstake)
+          //   const avUnStakeeAfter = await staking.getAvailableStakeeUnstake.call(
+          //     stakee3
+          //   )
+          //   const avUnStakeeAfter2 = await staking.getAvailableStakeeUnstake.call(
+          //     stakee4
+          //   )
+          //   const avUnStakerAfter = await staking.getAvailableStakerUnstake.call(
+          //     staker1
+          //   )
 
-            avUnStakerAfter.toNumber().should.be.equal(stakeAmt + stakeAmt2)
-            avUnStakeeAfter.toNumber().should.be.equal(stakeAmt)
-            avUnStakeeAfter2.toNumber().should.be.equal(stakeAmt2)
-          })
+          //   avUnStakerAfter.toNumber().should.be.equal(stakeAmt + stakeAmt2)
+          //   avUnStakeeAfter.toNumber().should.be.equal(stakeAmt)
+          //   avUnStakeeAfter2.toNumber().should.be.equal(stakeAmt2)
+          // })
         })
 
         describe(`Withdrawing`, async () => {
@@ -450,6 +451,18 @@ contract(
             await advanceToBlock(blockNumber + cooldownUnstake)
             await staking.withdrawStake(stakingToken, { from: staker1 }).should
               .be.fulfilled
+          })
+
+          it(`should not allow re-withdrawing after unstake cooldown`, async () => {
+            await staking.withdrawStake(stakingToken, { from: staker1 }).should
+              .not.be.fulfilled
+            const balance = await erc20.balanceOf(staking.address)
+            const blockNumber = await latestBlock()
+            await advanceToBlock(blockNumber + cooldownUnstake)
+            await staking.withdrawStake(stakingToken, { from: staker1 }).should
+              .be.fulfilled
+            await staking.withdrawStake(stakingToken, { from: staker1 }).should.
+              not.be.fulfilled
           })
 
           it(`should transfer stake on withdraw from contract to staker`, async () => {
@@ -514,7 +527,7 @@ contract(
               stakingTokens * 100
             ])
             // not within unstaking cooldown, so should not withdraw
-            await staking.withdrawManyStake(2, { from: withdrawStaker }).should
+            await staking.withdrawManyStake(tokens.slice(0, 1), { from: withdrawStaker }).should.not
               .be.fulfilled
             await stakeCompare(stakerStake(withdrawStaker), [
               0,
@@ -525,15 +538,15 @@ contract(
             const blockNumber2 = await latestBlock()
             await advanceToBlock(blockNumber2 + cooldownUnstake)
 
-            await staking.withdrawManyStake(5, { from: withdrawStaker }).should
+            await staking.withdrawManyStake(tokens.slice(0, 1), { from: withdrawStaker }).should
               .be.fulfilled
             await stakeCompare(stakerStake(withdrawStaker), [
               0,
               0,
               0,
-              (stakingTokens - 5) * 100
+              (stakingTokens - 1) * 100
             ])
-            await staking.withdrawManyStake(15, { from: withdrawStaker }).should
+            await staking.withdrawManyStake(tokens.slice(1, tokens.length), { from: withdrawStaker }).should
               .be.fulfilled
             await stakeCompare(stakerStake(withdrawStaker), [0, 0, 0, 0])
           })

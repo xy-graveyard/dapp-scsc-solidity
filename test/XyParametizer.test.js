@@ -8,7 +8,6 @@ const abi = require(`ethereumjs-abi`)
 const { toChecksumAddress } = require(`ethereumjs-util`)
 
 const PayOnDelivery = artifacts.require(`XyPayOnDelivery.sol`)
-const StakingConsensus = artifacts.require(`XyConsensusMock2.sol`)
 const ERC20 = artifacts.require(`XyERC20Token.sol`)
 const Parameterizer = artifacts.require(`XyParameterizer.sol`)
 const parameterizerMock = artifacts.require(`XyParameterizerMock.sol`)
@@ -66,7 +65,6 @@ contract(
       })
     })
     describe(`Function: proposeReparameterization`, (accounts) => {
-
       // Put this first to ensure test does not conflict with proposals already made.
       it(`should not allow a NOOP reparameterization`, async () => {
         await parameterizer.proposeReparameterization().should.not.be.fulfilled
@@ -86,4 +84,3 @@ contract(
     })
   }
 )
-

@@ -1,19 +1,15 @@
 import { BigNumber } from "bignumber.js"
 
-import { expectEvent } from "openzeppelin-test-helpers"
-import { request } from "http"
 import { advanceBlock } from "./utils.test"
 
 const abi = require(`ethereumjs-abi`)
-const { toBuffer } = require(`ethereumjs-util`)
 
 const PayOnDelivery = artifacts.require(`XyPayOnDelivery.sol`)
-const StakingConsensus = artifacts.require(`XyConsensusMock2.sol`)
+const StakingConsensus = artifacts.require(`XyConsensusMock.sol`)
 const ERC20 = artifacts.require(`XyERC20Token.sol`)
 const Stakeable = artifacts.require(`XyBlockProducerMock.sol`)
 const Governance = artifacts.require(`XyGovernance.sol`)
 const PLCR = artifacts.require(`PLCRVoting.sol`)
-const stripHexPrefix = require(`strip-hex-prefix`)
 const erc20TotalSupply = 1000000
 const fs = require(`fs`)
 const config = JSON.parse(fs.readFileSync(`./config/testParams.json`))
@@ -44,7 +40,7 @@ contract(
   ([
     consensusOwner,
     erc20owner,
-    parameterizerOwner,
+    governanceOwner,
     payOnDeliveryOwner,
     stakableTokenOwner,
     stakableContractOwner,
@@ -54,7 +50,7 @@ contract(
     let erc20
     let consensus
     let stakableToken
-    let parameterizer
+    let governance
     let plcr
     let payOnD
     const diviners = [consensusOwner, erc20owner]
@@ -64,7 +60,7 @@ contract(
       })
 
       plcr = await PLCR.new({
-        from: parameterizerOwner
+        from: governanceOwner
       })
 
       await plcr.initialize(erc20.address)
@@ -73,36 +69,31 @@ contract(
       })
     })
     beforeEach(async () => {
-      parameterizer = await Governance.new({
-        from: parameterizerOwner
+      governance = await Governance.new({
+        from: governanceOwner
       })
-      await parameterizer.initialize(
+      await governance.initialize(
         erc20.address,
         plcr.address,
         parameters,
-        { from: parameterizerOwner }
+        { from: governanceOwner }
       )
       consensus = await StakingConsensus.new(
         diviners,
-        erc20.address,
-        stakableToken.address,
-        parameterizer.address,
         {
           from: consensusOwner
         }
-      )
+      ).should.be.fulfilled
+      await consensus.initialize(erc20.address, stakableToken.address, governance.address)
 
-      await parameterizer.initializeGovernor(consensus.address)
+      await governance.initializeGovernor(consensus.address)
       await advanceBlock()
     })
     describe(`Submitting Requests`, () => {
       beforeEach(async () => {
-        payOnD = await PayOnDelivery.new({
-          from: payOnDeliveryOwner,
-          gas: 6721975
-        })
+        payOnD = await PayOnDelivery.new({ from: payOnDeliveryOwner })
         await payOnD.initialize(consensus.address, erc20.address, {
-          gas: 6721975
+          from: payOnDeliveryOwner
         })
       })
       it(`should create requests`, async () => {
@@ -132,11 +123,11 @@ contract(
         Number(balanceEth).should.be.equal(90)
       })
       it(`should fail if not enough funds for mining costs`, async () => {
-        await parameterizer.ownerSet(`xyXYORequestBountyMin`, 100, {
-          from: parameterizerOwner
+        await governance.ownerSet(`xyXYORequestBountyMin`, 100, {
+          from: governanceOwner
         })
-        await parameterizer.ownerSet(`xyWeiMiningMin`, 100, {
-          from: parameterizerOwner
+        await governance.ownerSet(`xyWeiMiningMin`, 100, {
+          from: governanceOwner
         })
         await erc20.approve(payOnD.address, 500, { from: erc20owner })
         await erc20.approve(consensus.address, 500, { from: erc20owner })

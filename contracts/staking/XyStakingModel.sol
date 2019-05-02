@@ -1,9 +1,9 @@
 pragma solidity >=0.5.0 <0.6.0;
 
-import "./XyBlockProducer.sol";
-import "./token/ERC20/SafeERC20.sol";
-import "./XyGovernance.sol";
-import "./utils/SafeMath.sol";
+import "../XyBlockProducer.sol";
+import "../token/ERC20/SafeERC20.sol";
+import "../XyGovernance.sol";
+import "../utils/SafeMath.sol";
 
 contract XyStakingModel is IXyVotingData {
     using SafeMath for uint;
@@ -22,19 +22,19 @@ contract XyStakingModel is IXyVotingData {
     uint public penaltyStake;
     // Mapping from staking model id to stake metadata     
     mapping (bytes32 => Stake) public stakeData;
-    // The staking token id arrays by staker/stakee
+    // The staking id arrays by staker/stakee
     mapping (address => bytes32[]) public stakeeToStakingIds;
     mapping (address => bytes32[]) public stakerToStakingIds;
-    // holds staking token index into staking arrays by staker/stakee
+    // holds staking index into staking arrays by staker/stakee
     mapping (bytes32 => uint) public stakingStakeeIndex;
     mapping (bytes32 => uint) public stakingStakerIndex;
     // Cached total stake amounts by staker/stakee
     mapping (address => StakeAmounts) public stakeeStake;
     mapping (address => StakeAmounts) public stakerStake;
 
-    // Stake data associated with all staking tokens
+    // Stake data associated with all stake
     struct Stake {
-        uint amount;            // amount of token on this stake
+        uint amount;            // amount on this stake
         uint stakeBlock;        // the creation block
         uint unstakeBlock;      // if unstaked, non-zero unstake block
         address stakee;         // who was staked
@@ -53,7 +53,7 @@ contract XyStakingModel is IXyVotingData {
 
     // StakeEvent transitions
     enum StakeTransition { STAKED, ACTIVATED, COOLED, UNSTAKED, WITHDREW }
-    
+
     /** EVENTS */
     event StakeEvent(
         bytes32 stakingId,
@@ -89,41 +89,44 @@ contract XyStakingModel is IXyVotingData {
     }
 
     /** Increase and decrease cached stake amounts */
-    function updateCacheOnStake(uint amount, address stakee) internal {
-        stakeeStake[stakee].totalStake = stakeeStake[stakee].totalStake.add(amount);
-        stakerStake[msg.sender].totalStake = stakerStake[msg.sender].totalStake.add(amount);
-    }
-    function updateCacheOnActivate(uint amount, address stakee) internal {
-        stakeeStake[stakee].activeStake = stakeeStake[stakee].activeStake.add(amount);
-        stakerStake[msg.sender].activeStake = stakerStake[msg.sender].activeStake.add(amount);
-        totalActiveStake = totalActiveStake.add(amount);
-    }
-    function updateCacheOnCoolDown(uint amount, address stakee) internal {
-        stakeeStake[stakee].cooldownStake = stakeeStake[stakee].cooldownStake.add(amount);
-        stakerStake[msg.sender].cooldownStake = stakerStake[msg.sender].cooldownStake.add(amount);
-        totalCooldownStake = totalCooldownStake.add(amount);
-    }
-    function updateCacheOnUnstake(Stake memory data) internal {
-        reduceStake(data, data.amount);
-        stakeeStake[data.stakee].totalUnstake = stakeeStake[data.stakee].totalUnstake.add(data.amount);
-        stakerStake[data.staker].totalUnstake = stakerStake[data.staker].totalUnstake.add(data.amount);
-    }
-    function updateCacheOnWithdraw(uint amount, address stakee) internal {
-        stakeeStake[stakee].totalUnstake = stakeeStake[stakee].totalUnstake.sub(amount);
-        stakerStake[msg.sender].totalUnstake = stakerStake[msg.sender].totalUnstake.sub(amount);
+    function updateCacheOnStake(Stake memory s) internal {
+        stakeeStake[s.stakee].totalStake = stakeeStake[s.stakee].totalStake.add(s.amount);
+        stakerStake[s.staker].totalStake = stakerStake[s.staker].totalStake.add(s.amount);
     }
 
-    function reduceStake(Stake memory data, uint quantity) internal {
-        stakeeStake[data.stakee].totalStake = stakeeStake[data.stakee].totalStake.sub(quantity);
-        stakerStake[data.staker].totalStake = stakerStake[data.staker].totalStake.sub(quantity);
-        if (data.isActivated) {
-            stakeeStake[data.stakee].activeStake = stakeeStake[data.stakee].activeStake.sub(quantity);
-            stakerStake[data.staker].activeStake = stakerStake[data.staker].activeStake.sub(quantity);
-            totalActiveStake = totalActiveStake.sub(quantity);
+    function updateCacheOnActivate(Stake memory s) internal {
+        if (s.isCooledDown) {
+            stakeeStake[s.stakee].cooldownStake = stakeeStake[s.stakee].cooldownStake.add(s.amount);
+            stakerStake[s.staker].cooldownStake = stakerStake[s.staker].cooldownStake.add(s.amount);
+            totalCooldownStake = totalCooldownStake.add(s.amount);
+        } else {
+            stakeeStake[s.stakee].activeStake = stakeeStake[s.stakee].activeStake.add(s.amount);
+            stakerStake[s.staker].activeStake = stakerStake[s.staker].activeStake.add(s.amount);
+            totalActiveStake = totalActiveStake.add(s.amount);
         }
-        if (data.isCooledDown) {
-            stakeeStake[data.stakee].cooldownStake = stakeeStake[data.stakee].cooldownStake.sub(quantity);
-            stakerStake[data.staker].cooldownStake = stakerStake[data.staker].cooldownStake.sub(quantity);
+    }
+    function updateCacheOnUnstake(Stake storage s) internal {
+        reduceStake(s, s.amount);
+        stakeeStake[s.stakee].totalUnstake = stakeeStake[s.stakee].totalUnstake.add(s.amount);
+        stakerStake[s.staker].totalUnstake = stakerStake[s.staker].totalUnstake.add(s.amount);
+        s.isActivated = false;
+        s.isCooledDown = false;
+        s.unstakeBlock = block.number;
+    }
+    function updateCacheOnWithdraw(Stake memory s) internal {
+        stakeeStake[s.stakee].totalUnstake = stakeeStake[s.stakee].totalUnstake.sub(s.amount);
+        stakerStake[s.staker].totalUnstake = stakerStake[s.staker].totalUnstake.sub(s.amount);
+    }  
+    function reduceStake(Stake memory s, uint quantity) internal {
+        stakeeStake[s.stakee].totalStake = stakeeStake[s.stakee].totalStake.sub(quantity);
+        stakerStake[s.staker].totalStake = stakerStake[s.staker].totalStake.sub(quantity);
+        if (s.isActivated) {
+            stakeeStake[s.stakee].activeStake = stakeeStake[s.stakee].activeStake.sub(quantity);
+            stakerStake[s.staker].activeStake = stakerStake[s.staker].activeStake.sub(quantity);
+            totalActiveStake = totalActiveStake.sub(quantity);
+        } else if (s.isCooledDown) {
+            stakeeStake[s.stakee].cooldownStake = stakeeStake[s.stakee].cooldownStake.sub(quantity);
+            stakerStake[s.staker].cooldownStake = stakerStake[s.staker].cooldownStake.sub(quantity);
             totalCooldownStake = totalCooldownStake.sub(quantity);
         }
     }
@@ -170,8 +173,8 @@ contract XyStakingModel is IXyVotingData {
         private
     {
         for (uint i = startIndex; i < batchSize + startIndex; i++) {
-            bytes32 token = stakeeToStakingIds[stakee][i];
-            Stake storage data = stakeData[token];
+            bytes32 stakingId = stakeeToStakingIds[stakee][i];
+            Stake storage data = stakeData[stakingId];
             if (data.unstakeBlock == 0) {
                 if (penalty > 0) {
                     uint penaltyAmount = penalty.mul(data.amount).div(100);
@@ -179,7 +182,7 @@ contract XyStakingModel is IXyVotingData {
                     penaltyStake.add(penaltyAmount);
                 }
                 updateCacheOnUnstake(data);
-                data.unstakeBlock = block.number;
+                emit StakeEvent(stakingId, data.amount, data.staker, data.stakee, StakeTransition.UNSTAKED);
             }
         }
     }
@@ -213,10 +216,9 @@ contract XyStakingModel is IXyVotingData {
         SafeERC20.transferFrom(xyoToken, spender, address(this), amount);
 
         require(govContract.hasUnresolvedAction(stakee) == false, "All actions on stakee must be resolved");
-        updateCacheOnStake(amount, stakee);
 
-        // random generated token id
-        bytes32 newToken = keccak256(abi.encodePacked(stakee, staker, block.number));
+        // pseudo-random generated id
+        bytes32 stakingId = keccak256(abi.encodePacked(stakee, staker, block.number));
         Stake memory data = Stake(
             amount,         // amount
             block.number,   // stakeBlock
@@ -226,21 +228,23 @@ contract XyStakingModel is IXyVotingData {
             false,          // isActivated
             false           // isCooledDown
         );
+        
+        updateCacheOnStake(data);
 
         // Store the staking data
-        stakingStakeeIndex[newToken] = stakeeToStakingIds[stakee].length;
-        stakeeToStakingIds[stakee].push(newToken);
-        stakingStakerIndex[newToken] = stakerToStakingIds[staker].length;
-        stakerToStakingIds[staker].push(newToken);
-        stakeData[newToken] = data;
+        stakingStakeeIndex[stakingId] = stakeeToStakingIds[stakee].length;
+        stakeeToStakingIds[stakee].push(stakingId);
+        stakingStakerIndex[stakingId] = stakerToStakingIds[staker].length;
+        stakerToStakingIds[staker].push(stakingId);
+        stakeData[stakingId] = data;
 
-        emit StakeEvent(newToken, amount, staker, stakee, StakeTransition.STAKED);
-        return newToken;
+        emit StakeEvent(stakingId, amount, staker, stakee, StakeTransition.STAKED);
+        return stakingId;
     }
 
     /** 
-        Adds stake to a stakable token id
-        @dev This contract must be approved to transfer tokens by token holder
+        Create new stake on a stakee
+        @dev This contract must be approved to transfers by holder
         @param stakee - the stakable address 
         @param amount - the amount to stake
     */
@@ -257,43 +261,46 @@ contract XyStakingModel is IXyVotingData {
         returns (Stake storage)
     {
         Stake storage data = stakeData[stakingId];
-        require(data.staker == msg.sender, "Only the staker can activate");
-        require(data.stakeBlock + govContract.get("xyStakeCooldown") < block.number, "Not ready to activate stake yet");
+        if (!isBondedStake(stakingId)) {
+            require(data.staker == msg.sender, "Only the staker can activate");
+            require(data.stakeBlock + govContract.get("xyStakeCooldown") < block.number, "Not ready to activate stake yet");
+        }
         require(data.unstakeBlock == 0, "Cannot activate unstake");
-
         return data;
     }
 
     /**
-        @dev Mark stake as cooled down so we can cache totals for voting
+        @dev Mark stake as cooled down or activated
+        cooled down stake is for non-block producers only
         @param stakingId - the tokenId of the staking token
     */
     function cooldownStake(bytes32 stakingId) 
-        whenActive
         public
     {
-        Stake storage data = _requireStakeCooledDown(stakingId);
-        require(data.isCooledDown == false, "cannot re-cooldown stake");
-        require(blockProducerContract.exists(data.stakee) == false, "Only non BPs can be cooled down");
-        data.isCooledDown = true;
-        updateCacheOnCoolDown(data.amount, data.stakee);
-        emit StakeEvent(stakingId, data.amount, msg.sender, data.stakee, StakeTransition.COOLED);
+        _activateStake(stakingId, true);
+    }
+
+    function activateStake(bytes32 stakingId) 
+        public 
+    {
+        _activateStake(stakingId, false);
     }
 
     /**
         @dev Activate stake on a block producer
         @param stakingId - the tokenId of the staking token
     */
-    function activateStake(bytes32 stakingId) 
+    function _activateStake(bytes32 stakingId, bool cooldown) 
         whenActive
-        public 
+        internal 
     {
         Stake storage data = _requireStakeCooledDown(stakingId);
-        require(data.isActivated == false, "cannot re-activate stake");
-        require(blockProducerContract.exists(data.stakee) == true, "Only BPs can be activated");
-        data.isActivated = true;
-        updateCacheOnActivate(data.amount, data.stakee);
-        emit StakeEvent(stakingId, data.amount, msg.sender, data.stakee, StakeTransition.ACTIVATED);
+        require(data.isCooledDown == false && data.isActivated == false, "cannot re-activate stake");
+        require(blockProducerContract.exists(data.stakee) != cooldown, "Only BPs activated");
+        data.isCooledDown = cooldown;
+        data.isActivated = !cooldown;
+        updateCacheOnActivate(data);
+        emit StakeEvent(stakingId, data.amount, msg.sender, data.stakee, cooldown ? StakeTransition.COOLED : StakeTransition.ACTIVATED);
     }
 
     /** 
@@ -305,13 +312,11 @@ contract XyStakingModel is IXyVotingData {
         public
     {
         Stake storage data = stakeData[stakingId];
+        require(!isBondedStake(stakingId), "Only unstake bonded-stake via parent");
         require(data.staker == msg.sender, "Only the staker can unstake a stake");
-        require(data.stakeBlock + govContract.get("xyStakeCooldown") < block.number, "Staking needs to cooldown");
+        require(data.stakeBlock.add(govContract.get("xyStakeCooldown")) < block.number, "Staking needs to cooldown");
         require(data.unstakeBlock == 0, "Cannot re-unstake");
         updateCacheOnUnstake(data);
-        data.isActivated = false;
-        data.isCooledDown = false;
-        data.unstakeBlock = block.number;
         emit StakeEvent(stakingId, data.amount, data.staker, data.stakee, StakeTransition.UNSTAKED);
     }
 
@@ -336,7 +341,7 @@ contract XyStakingModel is IXyVotingData {
     }
 
     /** 
-        Internally used to remove token and adjust state array with no iterating 
+        Internally used to remove and adjust state array with no iterating 
         @param stakingId - the stakingId to remove
     */
     function removeStakerData(bytes32 stakingId) 
@@ -355,93 +360,42 @@ contract XyStakingModel is IXyVotingData {
         stakingStakerIndex[lastStakerId] = stakerIndex;
     }
 
+    function _withdrawStakeData(bytes32 stakingId, Stake storage data) internal {
+        updateCacheOnWithdraw(data);
+        SafeERC20.transfer(xyoToken, msg.sender, data.amount);
+        emit StakeEvent(stakingId, data.amount, data.staker, data.stakee, StakeTransition.WITHDREW);
+        removeStakeeData(stakingId);
+        removeStakerData(stakingId);
+        delete stakeData[stakingId];
+    }
+
     /** 
-        Withdraw a single token's stake by token id, removes staking token
-        @param stakingId - the tokenId of the staking token to remove
+        Withdraw a single stake by stakingId, removes stake
+        @param stakingId - the id of the stake to remove
     */
     function withdrawStake(bytes32 stakingId)
       whenActive
       public 
     {
-        Stake memory data = stakeData[stakingId];
+        Stake storage data = stakeData[stakingId];
+        require(!isBondedStake(stakingId), "Cannot withdraw bonded stake");
         require(govContract.hasUnresolvedAction(data.stakee) == false, "All actions on stakee must be resolved");
-        require(data.staker == msg.sender, "Only owner can withdraw");
         require(data.unstakeBlock > 0 && (data.unstakeBlock + govContract.get("xyUnstakeCooldown")) < block.number, "Not ready for withdraw");
-        emit StakeEvent(stakingId, data.amount, data.staker, data.stakee, StakeTransition.WITHDREW);
-        removeStakeeData(stakingId);
-        removeStakerData(stakingId);
-        updateCacheOnWithdraw(data.amount, data.stakee);
-        SafeERC20.transfer(xyoToken, msg.sender, data.amount);
+        require(data.staker == msg.sender, "Only owner can withdraw");
+        _withdrawStakeData(stakingId, data);
     }
 
     /** 
-        Withdraw a batch of first avaliable staking tokens
-        @param batchLimit - Allows iterating over withdrawing due to gas limits
-        if batchlimit is 0, try withdrawing all available tokens (be prepared for out of gas if you've got > 50 tokens)
+        Withdraw a batch of passed stake
+        @param stakingIds - Ids to withdraw
     */
-    function withdrawManyStake(uint batchLimit)
+    function withdrawManyStake(bytes32[] memory stakingIds)
         whenActive
         public
     {
-        uint balance = numStakerStakes(msg.sender);
-        uint limit = batchLimit > 0 ? batchLimit : balance;
-        uint withdrawAmt = 0;
-        bytes32[] memory removeArr = new bytes32[](limit);
-        uint numremove = 0;
-        for (uint i = 0; i < balance && i < limit; i++) {
-            Stake memory data = stakeData[stakerToStakingIds[msg.sender][i]];
-
-            if (data.unstakeBlock > 0 && (data.unstakeBlock + govContract.get("xyUnstakeCooldown")) < block.number && govContract.hasUnresolvedAction(data.stakee) == false) {
-                removeArr[numremove] = stakerToStakingIds[msg.sender][i];      
-                numremove++;
-            }      
+        for (uint i = 0; i < stakingIds.length; i++) {
+            withdrawStake(stakingIds[i]);  
         }
-        for (uint b = 0; b < numremove; b++) {
-            removeStakeeData(removeArr[b]);
-            removeStakerData(removeArr[b]);
-            Stake memory data = stakeData[removeArr[b]];
-            withdrawAmt += data.amount;
-            updateCacheOnWithdraw(data.amount, data.stakee);
-            emit StakeEvent(removeArr[b], data.amount, data.staker, data.stakee, StakeTransition.WITHDREW);
-        }
-
-        if (withdrawAmt > 0) {
-            SafeERC20.transfer(xyoToken, msg.sender, withdrawAmt);
-        }
-    }
-
-    /** Get the available unstake, counting only stakes that can be withdrawn */    
-    function getAvailableStakerUnstake(address staker)
-        external
-        view
-        returns(uint)
-    {
-        uint stakeTotal = 0;
-        uint num = numStakerStakes(staker);
-        for (uint i = 0; i < num; i++) {
-            Stake memory data = stakeData[stakerToStakingIds[staker][i]];
-            if (data.unstakeBlock > 0 && (data.unstakeBlock + govContract.get("xyUnstakeCooldown")) < block.number) {
-                stakeTotal += data.amount;
-            }
-        }
-        return stakeTotal;
-    }
-
-    /** Get the available unstake, counting only stakes that can be withdrawn */    
-    function getAvailableStakeeUnstake(address stakee)
-        external
-        view
-        returns(uint)
-    {
-        bytes32[] memory stakeList = stakeeToStakingIds[stakee];
-        uint stakeTotal = 0;
-        for (uint i = 0; i < stakeList.length; i++) {
-            Stake memory data = stakeData[stakeList[i]];
-            if (data.unstakeBlock > 0 && (data.unstakeBlock + govContract.get("xyUnstakeCooldown")) < block.number) {
-                stakeTotal += data.amount;
-            }
-        }
-        return stakeTotal;
     }
 
     /** Public getters */
@@ -456,5 +410,15 @@ contract XyStakingModel is IXyVotingData {
     }
     function totalVotingStake() external view returns (uint) {
         return totalCooldownStake.add(totalActiveStake);
+    }
+
+    /* Network Staking Support 
+        We cannot modify the state of this staking model base contract, 
+        so instead we call up to parent contract. It's not possible
+        to call to a base contract function externally when deployed
+    */
+    function isBondedStake(bytes32) internal view returns (bool) {
+        // call up to parent isBondedStake
+        return false;
     }
 }

@@ -1,10 +1,7 @@
 import { BigNumber } from 'bignumber.js'
-
 import { expectEvent } from 'openzeppelin-test-helpers'
 
 const abi = require(`ethereumjs-abi`)
-const { toChecksumAddress } = require(`ethereumjs-util`)
-
 const PayOnDelivery = artifacts.require(`XyPayOnDeliveryMock.sol`)
 const StakingConsensus = artifacts.require(`XyConsensusMock.sol`)
 const ERC20 = artifacts.require(`XyERC20Token.sol`)
@@ -12,31 +9,12 @@ const BlockProducer = artifacts.require(`XyBlockProducerMock.sol`)
 const Governance = artifacts.require(`XyGovernance.sol`)
 const PLCR = artifacts.require(`PLCRVoting.sol`)
 const erc20TotalSupply = 1000000
-const { advanceBlock } = require(`./utils.test`)
+const { advanceBlock, testParams } = require(`./utils.test`)
 
 require(`chai`)
   .use(require(`chai-as-promised`))
   .use(require(`chai-bignumber`)(BigNumber))
   .should()
-const fs = require(`fs`)
-const config = JSON.parse(fs.readFileSync(`./config/testParams.json`))
-const params = config.paramDefaults
-const parameters = [
-  params.pMinDeposit,
-  params.pApplyStageSec,
-  params.pCommitStageSec,
-  params.pRevealStageSec,
-  params.pDispensationPct,
-  params.pVoteSuccessRate,
-  params.pVoteQuorum,
-  params.xyStakeSuccessPct,
-  params.xyWeiMiningMin,
-  params.xyXYORequestBountyMin,
-  params.xyStakeCooldown,
-  params.xyUnstakeCooldown,
-  params.xyProposalsEnabled,
-  params.xyBlockProducerRewardPct
-]
 
 contract(
   `XyStakingConsensus`,
@@ -45,7 +23,7 @@ contract(
     erc20owner,
     stakableContractOwner,
     stakableTokenOwner,
-    parameterizerOwner,
+    governanceOwner,
     d1,
     d2,
     d3,
@@ -55,9 +33,9 @@ contract(
     let erc20
     let consensus
     let stakableToken
-    let parameterizer
+    let governance
     let plcr
-    const diviners = [consensusOwner, d1, d2, d3, d4]
+    const diviners = [consensusOwner, d1, d2, d4]
     const numDiviners = diviners.length
     const numRequests = 1
     let payOnD
@@ -290,7 +268,7 @@ contract(
         from: erc20owner
       })
       plcr = await PLCR.new({
-        from: parameterizerOwner
+        from: governanceOwner
       })
       await plcr.initialize(erc20.address)
       stakableToken = await BlockProducer.new(diviners, {
@@ -299,25 +277,24 @@ contract(
       await advanceBlock()
     })
     beforeEach(async () => {
-      parameterizer = await Governance.new({
-        from: parameterizerOwner
+      governance = await Governance.new({
+        from: governanceOwner
       })
-      await parameterizer.initialize(
+      await governance.initialize(
         erc20.address,
         plcr.address,
-        parameters,
-        { from: parameterizerOwner }
+        testParams(),
+        { from: governanceOwner }
       )
       consensus = await StakingConsensus.new(
         diviners,
-        erc20.address,
-        stakableToken.address,
-        parameterizer.address,
         {
           from: consensusOwner
         }
       )
-      await parameterizer.initializeGovernor(consensus.address)
+      await consensus.initialize(erc20.address, stakableToken.address, governance.address)
+
+      await governance.initializeGovernor(consensus.address)
       payOnD = await PayOnDelivery.new(consensus.address, erc20.address, {
         from: payOnDeliveryOwner
       })
@@ -328,29 +305,29 @@ contract(
         const bounty = 10
         await erc20.transfer(d1, 500, { from: erc20owner })
 
-        let originalBalance = await erc20.balanceOf(d1)
+        const originalBalance = await erc20.balanceOf(d1)
 
         const data = `${web3.eth.abi.encodeParameters(
-            ['bytes32', 
-            'uint', 
-            'address',
-            'uint8'],
-            [
-              `0x1`, bounty, d1, 4
-            ]
-          )}`
+          [`bytes32`,
+            `uint`,
+            `address`,
+            `uint8`],
+          [
+            `0x1`, bounty, d1, 4
+          ]
+        )}`
         const encodedMethod = `${web3.eth.abi.encodeParameters(
-            ['uint', 
-            'bytes'],
-            [
-              2, // submitRequest
-              data
-            ]
-          )}`
+          [`uint`,
+            `bytes`],
+          [
+            2, // submitRequest
+            data
+          ]
+        )}`
         const solidityEncoded = web3.utils.toHex(encodedMethod)
 
         await erc20.approveAndCall(consensus.address, bounty, solidityEncoded, { from: d1 }).should.be.fulfilled
-        let newBalance = await erc20.balanceOf(d1)
+        const newBalance = await erc20.balanceOf(d1)
         newBalance.toNumber().should.be.equal(originalBalance.toNumber() - bounty)
       })
       it(`should allow approve and staking`, async () => {
@@ -359,51 +336,51 @@ contract(
         const stakee = d2
         const staker = d3
         await erc20.transfer(spender, 500, { from: erc20owner })
-        let originalBalance = await erc20.balanceOf(spender)
+        const originalBalance = await erc20.balanceOf(spender)
         const data = `${web3.eth.abi.encodeParameters(
-            ['address', 'address'],
-            [ staker, stakee ]
-          )}`
+          [`address`, `address`],
+          [staker, stakee]
+        )}`
         const encodedMethod = `${web3.eth.abi.encodeParameters(
-            ['uint', 
-            'bytes'],
-            [
-              1, // stake
-              data
-            ]
-          )}`
+          [`uint`,
+            `bytes`],
+          [
+            1, // stake
+            data
+          ]
+        )}`
         const solidityEncoded = web3.utils.toHex(encodedMethod)
 
         const tx = await erc20.approveAndCall(consensus.address, stake, solidityEncoded, { from: spender }).should.be.fulfilled
-        let newBalance = await erc20.balanceOf(spender)
+        const newBalance = await erc20.balanceOf(spender)
         newBalance.toNumber().should.be.equal(originalBalance.toNumber() - stake)
       })
       it(`should allow approve and staking multiple`, async () => {
-          const stake = 100 // divisible by 3 stakees
-          const spender = d1
-          const stakees = [d2, d4, spender]
-          const stakers = [d3, d3, d3]
-          const amounts = [33,33,34]
-          await erc20.transfer(spender, 500, { from: erc20owner })
-          let originalBalance = await erc20.balanceOf(spender)
-          const data = `${web3.eth.abi.encodeParameters(
-              ['address[]', 'address[]', 'uint[]'],
-              [ stakers, stakees, amounts ]
-            )}`
-          const encodedMethod = `${web3.eth.abi.encodeParameters(
-              ['uint', 
-              'bytes'],
-              [
-                3, // stake multiple
-                data
-              ]
-            )}`
-          const solidityEncoded = web3.utils.toHex(encodedMethod)
+        const stake = 100 // divisible by 3 stakees
+        const spender = d1
+        const stakees = [d2, d4, spender]
+        const stakers = [d3, d3, d3]
+        const amounts = [33, 33, 34]
+        await erc20.transfer(spender, 500, { from: erc20owner })
+        const originalBalance = await erc20.balanceOf(spender)
+        const data = `${web3.eth.abi.encodeParameters(
+          [`address[]`, `address[]`, `uint[]`],
+          [stakers, stakees, amounts]
+        )}`
+        const encodedMethod = `${web3.eth.abi.encodeParameters(
+          [`uint`,
+            `bytes`],
+          [
+            3, // stake multiple
+            data
+          ]
+        )}`
+        const solidityEncoded = web3.utils.toHex(encodedMethod)
 
-          const tx = await erc20.approveAndCall(consensus.address, stake, solidityEncoded, { from: spender }).should.be.fulfilled
-          let newBalance = await erc20.balanceOf(spender)
-          newBalance.toNumber().should.be.equal(originalBalance.toNumber() - stake)
-        })
+        const tx = await erc20.approveAndCall(consensus.address, stake, solidityEncoded, { from: spender }).should.be.fulfilled
+        const newBalance = await erc20.balanceOf(spender)
+        newBalance.toNumber().should.be.equal(originalBalance.toNumber() - stake)
+      })
     })
     describe(`Submit Request`, () => {
       it(`Should allow creating requests with many request types`, async () => {
@@ -419,11 +396,11 @@ contract(
       })
       it(`Should not allow requests under minimum bounty if in place`, async () => {
         const min = 100
-        await parameterizer.ownerSet(`xyXYORequestBountyMin`, min, {
-          from: parameterizerOwner
+        await governance.ownerSet(`xyXYORequestBountyMin`, min, {
+          from: governanceOwner
         })
-        await parameterizer.ownerSet(`xyWeiMiningMin`, min, {
-          from: parameterizerOwner
+        await governance.ownerSet(`xyWeiMiningMin`, min, {
+          from: governanceOwner
         })
         await erc20.transfer(d1, 500, { from: erc20owner })
         await erc20.approve(consensus.address, 500, { from: d1 })
@@ -547,17 +524,17 @@ contract(
         const subParams = await generateArgs(true)
         const unsorted = diviners.map(d => d.toLowerCase()).sort(compareDiviners).reverse()
         await consensus.mock_checkSigsAndStakes(
-            subParams[SubmitArgsEnum.SIGHASH],
-            unsorted,
-            subParams[SubmitArgsEnum.R],
-            subParams[SubmitArgsEnum.S],
-            subParams[SubmitArgsEnum.V]
-          ).should.not.be.fulfilled
+          subParams[SubmitArgsEnum.SIGHASH],
+          unsorted,
+          subParams[SubmitArgsEnum.R],
+          subParams[SubmitArgsEnum.S],
+          subParams[SubmitArgsEnum.V]
+        ).should.not.be.fulfilled
       })
 
       it(`should fail if quorum not met`, async () => {
-        await parameterizer.ownerSet(`xyStakeSuccessPct`, 66, {
-          from: parameterizerOwner
+        await governance.ownerSet(`xyStakeSuccessPct`, 66, {
+          from: governanceOwner
         })
         await advanceBlock()
 

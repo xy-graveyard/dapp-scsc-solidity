@@ -1,23 +1,31 @@
 pragma solidity >=0.5.0 <0.6.0;
-import "../XyStakingConsensus.sol";
+import "../staking/XyStakingConsensus.sol";
+import "../XyPayOnDelivery.sol";
 
 contract XyConsensusMock is XyStakingConsensus {
-
+    function fake_data(uint amount, address stakee) internal view returns (Stake memory) {
+      Stake memory data = Stake(
+          amount,         // amount
+          block.number,   // stakeBlock
+          0,              // unstakeBlock
+          stakee,         // stakee 
+          msg.sender,     // staker
+          true,          // isActivated
+          false           // is coolded down
+      );
+      return data;
+    }
     constructor(
-        address[] memory stakees,
-        address _token,
-        address _stakableToken,
-        address _governance)
+        address[] memory stakees)
         public
-    XyStakingConsensus()
+        XyStakingConsensus()
     {
-      initialize(_token, _stakableToken, _governance);
       uint activeAmount = 1000;
       for (uint i = 0; i < stakees.length; i++) {
-        updateCacheOnStake(activeAmount, stakees[i]);
-        updateCacheOnActivate(activeAmount, stakees[i]);
+        Stake memory data = fake_data(activeAmount, stakees[i]);
+        updateCacheOnStake(data);
+        updateCacheOnActivate(data);
       }
-
     }
     function mock_handleResponses(bytes32[] memory _requests, bytes memory responses)
         public 
@@ -40,9 +48,20 @@ contract XyConsensusMock is XyStakingConsensus {
       checkSigsAndStakes(messageHash, signers, sigR, sigS, sigV);
     }
     function fake_updateCacheOnStake(uint amount, address stakee) public {
-      updateCacheOnStake(amount, stakee);
+      updateCacheOnStake(fake_data(amount, stakee));
     }
     function fake_updateCacheOnActivate(uint amount, address stakee) public {
-      updateCacheOnActivate(amount, stakee);
+      updateCacheOnActivate(fake_data(amount, stakee));
+    }
+    function submitResponse(
+        bytes32 requestId, 
+        uint8 requestType, 
+        bytes memory responseData,
+        address pOnDAddress
+    ) 
+        public
+        payable
+    {
+       XyPayOnDelivery(pOnDAddress).submitResponse(requestId,requestType,responseData);
     }
 }

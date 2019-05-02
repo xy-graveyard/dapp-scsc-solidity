@@ -1,8 +1,8 @@
 pragma solidity >=0.5.0 <0.6.0;
 
-import "./utils/Initializable.sol";
+import "../utils/Initializable.sol";
 import "./XyStakingModel.sol";
-import "./IXyRequester.sol";
+import "../IXyRequester.sol";
 
  /**
     @title XyStakingConsensus
@@ -70,6 +70,13 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
         uint8 responseType
     );
 
+    // mapping from stake id to bond id
+    mapping (bytes32 => bytes32) public bondedStake;
+    // mapping from bond id to stake ids
+    mapping (bytes32 => bytes32[]) public bondStakes;
+    // mapping from stake id to index in bond stake
+    mapping (bytes32 => uint) public bondStakeIndex;
+
     /**
         @param _token - The ERC20 token to stake with 
         @param _blockProducerContract - The block producers 
@@ -122,12 +129,12 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
     function receiveApproval(
         address _spender, 
         uint256 _value, 
-        address _token,
+        address,
         bytes calldata _extraData
     ) 
         external 
     {
-        require (_token == xyoToken, "Can only be called from the current token");
+        require (msg.sender == xyoToken, "sender must be token");
         (uint method, bytes memory data) = abi.decode(_extraData, (uint, bytes));
         
         if (method == 1) {
@@ -139,6 +146,9 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
         } else if (method == 3) {
             (address[] memory stakers, address[] memory stakees, uint[] memory amounts) = abi.decode(data, (address[], address[], uint[]));
             stakeMultiple(_spender, stakers, stakees, amounts);
+        } else if (method == 4) {
+            (bytes32 bondId, address staker, address[] memory stakees, uint[] memory amounts) = abi.decode(data, (bytes32, address, address[], uint[]));
+            _stakeAndBond(bondId, _spender, staker, stakees, amounts);
         }
     }
 
@@ -227,8 +237,7 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
         }
 
         return tempUint;
-    }    
-
+    }
 
     /** 
         @dev Calls Request interface submitResponse function for each answer.
@@ -404,5 +413,87 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
     
     function numBlocks() public view returns (uint) {
         return blockChain.length;
+    }
+
+    /* Network Staking Support */
+
+    /**
+        Called from StakingModel base class to see if this is bonded stake
+    */
+    function isBondedStake(bytes32 stakingId) internal view returns (bool) {
+        return bondedStake[stakingId] != 0;
+    }
+
+    /**
+        stakes a bonded stake
+        @param bondId - the bond id to ensure the correct stake
+        @param issuer - Who provides the xyo
+        @param staker - the beneficiary of the stake
+        @param stakees - the stakees to stake
+        @param amounts - the amounts to stake by stakee
+    */
+    function _stakeAndBond (
+        bytes32 bondId, 
+        address issuer, 
+        address staker, 
+        address[] memory stakees, 
+        uint[] memory amounts
+    ) 
+        private 
+    {
+        require(stakees.length == amounts.length, "bad inputs");
+        for (uint i = 0; i < stakees.length; i++) {
+            bytes32 stakingId = stakeFrom(issuer, staker, stakees[i], amounts[i]);
+            bondedStake[stakingId] = bondId;
+            bondStakeIndex[stakingId] = bondStakes[bondId].length;
+            bondStakes[bondId].push(stakingId);
+            _activateStake(stakingId, blockProducerContract.exists(stakees[i]) != true);
+        }
+    } 
+
+    function _removeBondedStake(
+        bytes32 bondId, 
+        bytes32 stakingId 
+    )
+        private
+    {
+        uint lastI = bondStakes[bondId].length.sub(1);
+        uint index = bondStakeIndex[stakingId];
+
+        bytes32 last = bondStakes[bondId][lastI];
+        bondStakes[bondId][index] = last;
+
+        bondStakes[bondId].length--;
+        bondStakeIndex[stakingId] = 0;
+        
+        bondStakeIndex[last] = index;
+        bondedStake[stakingId] = 0;
+    }
+
+    /**
+        Unstakes/withdraws to bonded stake
+        @param bondId - the bond id to ensure the correct stake
+        @param stakingId - the id of the stake to withdraw to bond contract
+    */
+    function unstakeBonded (
+        bytes32 bondId, 
+        bytes32 stakingId
+    ) 
+        external 
+    {
+        address bondContract = address(govContract.get('XyBondContract'));
+        require(msg.sender == bondContract, "only from bond contract");
+        require(bondId != 0 && bondId == bondedStake[stakingId], "Stake not bonded to this bond");
+        Stake storage data = stakeData[stakingId];
+        if (data.unstakeBlock==0) {
+            updateCacheOnUnstake(data);
+            emit StakeEvent(stakingId, data.amount, data.staker, data.stakee, StakeTransition.UNSTAKED);
+        }
+        _removeBondedStake(bondId, stakingId);
+        _withdrawStakeData(stakingId, data);
+    }
+
+    function numBondStakes(bytes32 bondId) public view returns(uint) {
+        return bondStakes[bondId].length;
     }
 }
