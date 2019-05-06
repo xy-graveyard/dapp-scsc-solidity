@@ -631,9 +631,9 @@
     "@types/node" "*"
 
 "@types/node@*":
-  version "11.13.8"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-11.13.8.tgz#e5d71173c95533be9842b2c798978f095f912aab"
-  integrity sha512-szA3x/3miL90ZJxUCzx9haNbK5/zmPieGraZEe4WI+3srN0eGLiT22NXeMHmyhNEopn+IrxqMc7wdVwvPl8meg==
+  version "12.0.0"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-12.0.0.tgz#d11813b9c0ff8aaca29f04cbc12817f4c7d656e5"
+  integrity sha512-Jrb/x3HT4PTJp6a4avhmJCDEVrPdqLfl3e8GGMbpkGGdwAV5UGlIs4vVEfsHHfylZVOKZWpOqmqFH8CbfOZ6kg==
 
 "@types/node@^10.3.2":
   version "10.14.6"
@@ -1944,13 +1944,13 @@ browserslist@^3.2.6:
     electron-to-chromium "^1.3.47"
 
 browserslist@^4.5.2, browserslist@^4.5.4:
-  version "4.5.5"
-  resolved "https://registry.yarnpkg.com/browserslist/-/browserslist-4.5.5.tgz#fe1a352330d2490d5735574c149a85bc18ef9b82"
-  integrity sha512-0QFO1r/2c792Ohkit5XI8Cm8pDtZxgNl2H6HU4mHrpYz7314pEYcsAVVatM0l/YmxPnEzh9VygXouj4gkFUTKA==
+  version "4.5.6"
+  resolved "https://registry.yarnpkg.com/browserslist/-/browserslist-4.5.6.tgz#ea42e8581ca2513fa7f371d4dd66da763938163d"
+  integrity sha512-o/hPOtbU9oX507lIqon+UvPYqpx3mHc8cV3QemSBTXwkG8gSQSK6UKvXcE/DcleU3+A59XTUHyCvZ5qGy8xVAg==
   dependencies:
-    caniuse-lite "^1.0.30000960"
-    electron-to-chromium "^1.3.124"
-    node-releases "^1.1.14"
+    caniuse-lite "^1.0.30000963"
+    electron-to-chromium "^1.3.127"
+    node-releases "^1.1.17"
 
 bs58@^4.0.1:
   version "4.0.1"
@@ -2050,10 +2050,10 @@ camelcase@^4.1.0:
   resolved "https://registry.yarnpkg.com/camelcase/-/camelcase-4.1.0.tgz#d545635be1e33c542649c69173e5de6acfae34dd"
   integrity sha1-1UVjW+HjPFQmScaRc+Xeas+uNN0=
 
-caniuse-lite@^1.0.30000844, caniuse-lite@^1.0.30000960:
-  version "1.0.30000963"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30000963.tgz#5be481d5292f22aff5ee0db4a6c049b65b5798b1"
-  integrity sha512-n4HUiullc7Lw0LyzpeLa2ffP8KxFBGdxqD/8G3bSL6oB758hZ2UE2CVK+tQN958tJIi0/tfpjAc67aAtoHgnrQ==
+caniuse-lite@^1.0.30000844, caniuse-lite@^1.0.30000963:
+  version "1.0.30000966"
+  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30000966.tgz#f3c6fefacfbfbfb981df6dfa68f2aae7bff41b64"
+  integrity sha512-qqLQ/uYrpZmFhPY96VuBkMEo8NhVFBZ9y/Bh+KnvGzGJ5I8hvpIaWlF2pw5gqe4PLAL+ZjsPgMOvoXSpX21Keg==
 
 caseless@~0.12.0:
   version "0.12.0"
@@ -2851,10 +2851,10 @@ ee-first@1.1.1:
   resolved "https://registry.yarnpkg.com/ee-first/-/ee-first-1.1.1.tgz#590c61156b0ae2f4f0255732a158b266bc56b21d"
   integrity sha1-WQxhFWsK4vTwJVcyoViyZrxWsh0=
 
-electron-to-chromium@^1.3.124, electron-to-chromium@^1.3.47:
-  version "1.3.127"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.127.tgz#9b34d3d63ee0f3747967205b953b25fe7feb0e10"
-  integrity sha512-1o25iFRf/dbgauTWalEzmD1EmRN3a2CzP/K7UVpYLEBduk96LF0FyUdCcf4Ry2mAWJ1VxyblFjC93q6qlLwA2A==
+electron-to-chromium@^1.3.127, electron-to-chromium@^1.3.47:
+  version "1.3.131"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.131.tgz#205a0b7a276b3f56bc056f19178909243054252a"
+  integrity sha512-NSO4jLeyGLWrT4mzzfYX8vt1MYCoMI5LxSYAjt0H9+LF/14JyiKJSyyjA6AJTxflZlEM5v3QU33F0ohbPMCAPg==
 
 elliptic@6.3.3:
   version "6.3.3"
@@ -3071,17 +3071,17 @@ eslint-plugin-promise@^4.1.1:
   integrity sha512-faAHw7uzlNPy7b45J1guyjazw28M+7gJokKUjC5JSFoYfUEyy6Gw/i7YQvmv2Yk00sUjWcmzXQLpU1Ki/C2IZQ==
 
 eslint-plugin-react@^7.12.4:
-  version "7.12.4"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-react/-/eslint-plugin-react-7.12.4.tgz#b1ecf26479d61aee650da612e425c53a99f48c8c"
-  integrity sha512-1puHJkXJY+oS1t467MjbqjvX53uQ05HXwjqDgdbGBqf5j9eeydI54G3KwiJmWciQ0HTBacIKw2jgwSBSH3yfgQ==
+  version "7.13.0"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-react/-/eslint-plugin-react-7.13.0.tgz#bc13fd7101de67996ea51b33873cd9dc2b7e5758"
+  integrity sha512-uA5LrHylu8lW/eAH3bEQe9YdzpPaFd9yAJTwTi/i/BKTD7j6aQMKVAdGM/ML72zD6womuSK7EiGtMKuK06lWjQ==
   dependencies:
     array-includes "^3.0.3"
     doctrine "^2.1.0"
     has "^1.0.3"
-    jsx-ast-utils "^2.0.1"
+    jsx-ast-utils "^2.1.0"
     object.fromentries "^2.0.0"
-    prop-types "^15.6.2"
-    resolve "^1.9.0"
+    prop-types "^15.7.2"
+    resolve "^1.10.1"
 
 eslint-plugin-standard@^4.0.0:
   version "4.0.0"
@@ -5027,7 +5027,7 @@ jsprim@^1.2.2:
     json-schema "0.2.3"
     verror "1.10.0"
 
-jsx-ast-utils@^2.0.1:
+jsx-ast-utils@^2.0.1, jsx-ast-utils@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/jsx-ast-utils/-/jsx-ast-utils-2.1.0.tgz#0ee4e2c971fb9601c67b5641b71be80faecf0b36"
   integrity sha512-yDGDG2DS4JcqhA6blsuYbtsT09xL8AoLuUR2Gb5exrw7UEM19sBcOTq+YBBhrNbl0PUC4R4LnFu+dHg2HKeVvA==
@@ -5879,7 +5879,7 @@ node-pre-gyp@^0.12.0:
     semver "^5.3.0"
     tar "^4"
 
-node-releases@^1.1.14:
+node-releases@^1.1.17:
   version "1.1.17"
   resolved "https://registry.yarnpkg.com/node-releases/-/node-releases-1.1.17.tgz#71ea4631f0a97d5cd4f65f7d04ecf9072eac711a"
   integrity sha512-/SCjetyta1m7YXLgtACZGDYJdCSIBAWorDWkGCGZlydP2Ll7J48l7j/JxNYZ+xsgSPbWfdulVS/aY+GdjUsQ7Q==
@@ -6453,7 +6453,7 @@ promisify-es6@^1.0.3:
   resolved "https://registry.yarnpkg.com/promisify-es6/-/promisify-es6-1.0.3.tgz#b012668c4df3c965ce13daac2b3a4d1726a96346"
   integrity sha512-N9iVG+CGJsI4b4ZGazjwLnxErD2d9Pe4DPvvXSxYA9tFNu8ymXME4Qs5HIQ0LMJpNM7zj+m0NlNnNeqFpKzqnA==
 
-prop-types@^15.6.2:
+prop-types@^15.7.2:
   version "15.7.2"
   resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.7.2.tgz#52c41e75b8c87e72b9d9360e0206b99dcbffa6c5"
   integrity sha512-8QQikdH7//R2vurIJSutZ1smHYTcLpRWEOlHnzcWHmBYrOGUysKwSsrC89BCiFj3CbrfJ/nXFdJepOVrY1GCHQ==
@@ -6518,9 +6518,9 @@ pull-defer@~0.2.3:
   integrity sha512-/An3KE7mVjZCqNhZsr22k1Tx8MACnUnHZZNPSJ0S62td8JtYr/AiRG42Vz7Syu31SoTLUzVIe61jtT/pNdjVYA==
 
 pull-stream@^3.2.3, pull-stream@^3.6.9:
-  version "3.6.9"
-  resolved "https://registry.yarnpkg.com/pull-stream/-/pull-stream-3.6.9.tgz#c774724cd63bc0984c3695f74c819aa02e977320"
-  integrity sha512-hJn4POeBrkttshdNl0AoSCVjMVSuBwuHocMerUdoZ2+oIUzrWHFTwJMlbHND7OiKLVgvz6TFj8ZUVywUMXccbw==
+  version "3.6.11"
+  resolved "https://registry.yarnpkg.com/pull-stream/-/pull-stream-3.6.11.tgz#601956610952a76defdcb18e4435e2478659cead"
+  integrity sha512-43brwtqO0OSltctKbW1mgzzKH4TNE8egkW+Y4BFzlDWiG2Ayl7VKr4SeuoKacfgPfUWcSwcPlHsf40BEqNR32A==
 
 pull-to-stream@~0.1.1:
   version "0.1.1"
@@ -6894,7 +6894,7 @@ resolve-url@^0.2.1:
   resolved "https://registry.yarnpkg.com/resolve-url/-/resolve-url-0.2.1.tgz#2c637fe77c893afd2a663fe21aa9080068e2052a"
   integrity sha1-LGN/53yJOv0qZj/iGqkIAGjiBSo=
 
-resolve@^1.10.0, resolve@^1.5.0, resolve@^1.8.1, resolve@^1.9.0, resolve@~1.10.0:
+resolve@^1.10.0, resolve@^1.10.1, resolve@^1.5.0, resolve@^1.8.1, resolve@~1.10.0:
   version "1.10.1"
   resolved "https://registry.yarnpkg.com/resolve/-/resolve-1.10.1.tgz#664842ac960795bbe758221cdccda61fb64b5f18"
   integrity sha512-KuIe4mf++td/eFb6wkaPbMDnP6kObCaEtIDuHOUED6MNUo4K670KZUHuuvYPZDxNF0WVLw49n06M2m2dXphEzA==
@@ -7837,26 +7837,26 @@ truffle-config@1.1.2:
     truffle-error "^0.0.3"
     truffle-provider "^0.1.2"
 
-truffle-contract-schema@^3.0.8:
-  version "3.0.8"
-  resolved "https://registry.yarnpkg.com/truffle-contract-schema/-/truffle-contract-schema-3.0.8.tgz#6fdff1e656dced1c59ce643a128b67b894ec5d46"
-  integrity sha512-gj3i5jmCZHjn7/3q7vyrkUtdG8WB8KC5lb3n9FkDML90exDX/D3bzA2e+ghgMbI3xUJPHeE9ni51U9u3k0dbhQ==
+truffle-contract-schema@^3.0.9:
+  version "3.0.9"
+  resolved "https://registry.yarnpkg.com/truffle-contract-schema/-/truffle-contract-schema-3.0.9.tgz#8dff0b254561194f64452cf9c6c9fefdd7d46fe4"
+  integrity sha512-V1gwOeOPj7h0cM427KeMnTJZfotBqkISMLb9zq7bDj+iy/i05Ug7vyYaqCYnC5ignSnfNYgmJt8VsIt0UGI4lg==
   dependencies:
     ajv "^5.1.1"
     crypto-js "^3.1.9-1"
     debug "^4.1.0"
 
 truffle-contract@^4.0.8:
-  version "4.0.13"
-  resolved "https://registry.yarnpkg.com/truffle-contract/-/truffle-contract-4.0.13.tgz#dab4d7e6136060fa3044e53232802ce81e4277fe"
-  integrity sha512-GogN8/y47cyoJBEGLpMe4yl+f0DzZkSkY5rsY2LuJ+vax/3jMMxoH1cOyn+98/c2kgdAORAQz5+7s52MRVLEig==
+  version "4.0.14"
+  resolved "https://registry.yarnpkg.com/truffle-contract/-/truffle-contract-4.0.14.tgz#3fbf080f9d7dbc37ad76f80c4a14f0753421db71"
+  integrity sha512-gPSNNR/ozIkEVJO+rOu6wElNgy6NT6uH4+Bm6Kwerpnzo8eCTCTTSmBbJcaTKm+YAei7Dw7v427yU3gXPDkK/A==
   dependencies:
     bignumber.js "^7.2.1"
     ethers "^4.0.0-beta.1"
     truffle-blockchain-utils "^0.0.8"
-    truffle-contract-schema "^3.0.8"
+    truffle-contract-schema "^3.0.9"
     truffle-error "^0.0.4"
-    truffle-interface-adapter "^0.1.3"
+    truffle-interface-adapter "^0.1.4"
     web3 "1.0.0-beta.37"
     web3-core-promievent "1.0.0-beta.37"
     web3-eth-abi "1.0.0-beta.37"
@@ -7893,21 +7893,21 @@ truffle-hdwallet-provider@^1.0.8:
     web3 "1.0.0-beta.37"
     websocket "^1.0.28"
 
-truffle-interface-adapter@^0.1.3:
-  version "0.1.3"
-  resolved "https://registry.yarnpkg.com/truffle-interface-adapter/-/truffle-interface-adapter-0.1.3.tgz#512f5fe1f2345431adc1647c9918e46728351709"
-  integrity sha512-OjV89mwf3JFXvca8fUTdzgDJg9stUqO5XXZVqa3BphiWEMhEUFEjh/tfiGfeplxq77kVOMLul6FXb75daKVF2Q==
+truffle-interface-adapter@^0.1.4:
+  version "0.1.4"
+  resolved "https://registry.yarnpkg.com/truffle-interface-adapter/-/truffle-interface-adapter-0.1.4.tgz#d2fabd01733991e1ba5df3f98142470c19a373cd"
+  integrity sha512-BVqHzsqHO1KKjTLLmkphmPxdeSvlpqPmDrAVg5QzOpAjqtBE0QV6bQOtBcZGCVY6eh37mfbNpaKKSXauziRr6w==
   dependencies:
     bn.js "^4.11.8"
     web3 "1.0.0-beta.37"
 
 truffle-provider@^0.1.2:
-  version "0.1.7"
-  resolved "https://registry.yarnpkg.com/truffle-provider/-/truffle-provider-0.1.7.tgz#017d9b22387b6764c873cd76ce5569d97d4c3eea"
-  integrity sha512-ARCZrx39grvFGSRb+KTd4dYOCBVnwKwPidsOUxm94TU55WGGltpPsAtEDrKB9aD8xhan1xF6WaIzD8sehd5TSQ==
+  version "0.1.8"
+  resolved "https://registry.yarnpkg.com/truffle-provider/-/truffle-provider-0.1.8.tgz#0538484268d63f2f12349ca0762cc57b9a72b4a5"
+  integrity sha512-L7KAw9BOYJP2/b74LMw1iSXnG1vfQdahWIk5ueZ/6AEvwzlln2+fO6YnD6WHjs/K8sdIxhF9ZOgJ/8ydQ9ZZDQ==
   dependencies:
     truffle-error "^0.0.4"
-    truffle-interface-adapter "^0.1.3"
+    truffle-interface-adapter "^0.1.4"
     web3 "1.0.0-beta.37"
 
 truffle@5.0.14:

@@ -14,12 +14,12 @@ require(`chai`)
 
 const erc20TotalSupply = 1000000
 const governablePeriod = 200
-const bondPeriod = 60*60*24*3 // 3 day bond
+const bondPeriod = 60 * 60 * 24 * 3 // 3 day bond
 
-const encodeApproveAndCall = (to, expiration) =>  web3.utils.toHex(`${web3.eth.abi.encodeParameters(
-          [`address`, `uint`],
-          [to, expiration]
-        )}`)
+const encodeApproveAndCall = (to, expiration) => web3.utils.toHex(`${web3.eth.abi.encodeParameters(
+  [`address`, `uint`],
+  [to, expiration]
+)}`)
 
 contract(
   `XyBond`,
@@ -101,6 +101,21 @@ contract(
         bond.expirationSec.toNumber().should.be.equal(expirationDate)
         bond.owner.should.be.equal(erc20Owner)
       })
+      it.only(`should allow bonding via approveAndCall for third party`, async () => {
+        const amount = 100
+
+        const solidityEncoded = encodeApproveAndCall(user2, expirationDate)
+
+        await erc20.approveAndCall(bonder.address, amount, solidityEncoded, { from: erc20Owner }).should.be.fulfilled
+
+        const bondId = await bonder.bonds(0)
+        const bond = await bonder.bond(bondId)
+        const balance = await erc20.balanceOf(bonder.address)
+        balance.toNumber().should.be.equal(amount)
+        bond.value.toNumber().should.be.equal(amount)
+        bond.expirationSec.toNumber().should.be.equal(expirationDate)
+        bond.owner.should.be.equal(user2)
+      })
     })
     describe(`Withdrawing`, () => {
       const amount = 100
@@ -139,14 +154,13 @@ contract(
         const bal1 = await erc20.balanceOf(user1)
 
         await bonder.withdrawTo(bondId, user1, { from: user1 }).should.not.be.fulfilled
-        await time.increaseTo(expirationDate + 1) 
+        await time.increaseTo(expirationDate + 1)
         await bonder.withdrawTo(bondId, user1, { from: erc20Owner }).should.not.be.fulfilled
         await bonder.withdrawTo(bondId, user1, { from: user1 }).should.be.fulfilled
         const userBalance = await erc20.balanceOf(user1)
         userBalance.toNumber().should.be.equal(bal1.toNumber() + amount)
       })
     })
-
 
     describe(`staking nodes`, () => {
       const amount = 100

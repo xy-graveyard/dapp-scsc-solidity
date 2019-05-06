@@ -1517,5 +1517,14 @@
   },
   "proxyAdmin": {
     "address": "0x87496544C02C05c5967463Ec22aD70aAd4311FcC"
+  },
+  "app": {
+    "address": "0x05bf20D3190cc42C3615797a6B50D19Cedb25814"
+  },
+  "package": {
+    "address": "0x7849439d0eeDa8931521263312348df97a095acc"
+  },
+  "provider": {
+    "address": "0x22f8517215bFbDeaF8B76750541bE56ef57f6Ec3"
   }
 }
