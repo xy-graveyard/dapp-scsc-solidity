@@ -8,10 +8,7 @@
   "scripts": {
     "build": "dapploy",
     "deploy": "dapploy -p",
-    "chain": "ganache-cli",
-    "snyk-test": "snyk test --debug --file=./package.json",
-    "snyk-protect": "snyk protect --debug",
-    "prepublish": "npm run snyk-protect"
+    "chain": "ganache-cli"
   },
   "author": "Kevin Weiler",
   "license": "MIT",
@@ -38,7 +35,6 @@
     "ethereumjs-util": "^6.1.0",
     "ipfs-http-client": "^31.0.1",
     "openzeppelin-eth": "^2.1.3",
-    "snyk": "^1.163.0",
     "zos": "^2.2.3",
     "zos-lib": "^2.2.3"
   },
