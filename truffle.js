@@ -4,7 +4,7 @@ require(`babel-register`)({
 require(`babel-polyfill`)
 const HDWalletProvider = require(`truffle-hdwallet-provider`)
 require(`dotenv`).config() // Store environment-specific variable from '.env' to process.env
-const NonceTrackerSubprovider = require(`web3-provider-engine/subproviders/nonce-tracker`)
+// const NonceTrackerSubprovider = require(`web3-provider-engine/subproviders/nonce-tracker`)
 
 // NOTE: If retreiving mnemonic from Metamask - use 1st wallet in profile list.
 
@@ -24,32 +24,23 @@ module.exports = {
     kovan: {
       network_id: 42,
       from: wallet,
-      provider: () => new HDWalletProvider(
-        mnemonic,
-        `https://kovan.infura.io/v3/${infuraKey}`
-      ),
+      provider: () => new HDWalletProvider(mnemonic, `https://kovan.infura.io/v3/${infuraKey}`),
       gas: 6986331,
       gasPrice: 5500000000
     },
     ropsten: {
       network_id: 3,
-      provider: () => new HDWalletProvider(
-        mnemonic,
-        `https://ropsten.infura.io/${infuraKey}`
-      ),
+      provider: () => new HDWalletProvider(mnemonic, `https://ropsten.infura.io/${infuraKey}`),
       gas: 6986331,
       gasPrice: 3500000000
     },
     mainnet: {
       network_id: `1`,
       provider: () => {
-        const wallet = new HDWalletProvider(
-          mnemonic,
-          `https://mainnet.infura.io/${infuraKey}`
-        )
-        const nonceTracker = new NonceTrackerSubprovider()
-        wallet.engine._providers.unshift(nonceTracker)
-        nonceTracker.setEngine(wallet.engine)
+        const wallet = new HDWalletProvider(mnemonic, `https://mainnet.infura.io/${infuraKey}`)
+        // const nonceTracker = new NonceTrackerSubprovider()
+        // wallet.engine._providers.unshift(nonceTracker)
+        // nonceTracker.setEngine(wallet.engine)
         return wallet
       },
       gas: 6986331,

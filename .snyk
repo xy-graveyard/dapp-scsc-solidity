@@ -1,12 +1,53 @@
 # Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
-version: v1.13.3
-ignore: {}
+version: v1.13.5
+# ignores vulnerabilities until expiry date; change duration by modifying expiry date
+ignore:
+  SNYK-JS-LODASH-73638:
+    - zos > truffle-config > lodash:
+        reason: Lodash is only used for testing solidity code
+        expires: '2019-06-14T19:27:07.333Z'
+  SNYK-JS-LODASH-73639:
+    - zos > truffle-config > lodash:
+        reason: Lodash not used in solidity
+        expires: '2019-06-14T19:27:07.333Z'
+  SNYK-JS-WEB3-174533:
+    - zos-lib > web3:
+        reason: >-
+          The solution is to not explicitly call wallet.load in global context,
+          which we don't do
+        expires: '2019-06-14T19:27:07.333Z'
+    - zos > web3:
+        reason: >-
+          The solution is to not explicitly call wallet.load in global context,
+          which we don't do
+        expires: '2019-06-14T19:27:07.333Z'
+    - zos > zos-lib > web3:
+        reason: >-
+          The solution is to not explicitly call wallet.load in global context,
+          which we don't do
+        expires: '2019-06-14T19:27:07.333Z'
+    - zos > truffle-config > truffle-provider > web3:
+        reason: >-
+          The solution is to not explicitly call wallet.load in global context,
+          which we don't do
+        expires: '2019-06-14T19:27:07.333Z'
+    - zos > truffle-config > truffle-provider > truffle-interface-adapter > web3:
+        reason: >-
+          The solution is to not explicitly call wallet.load in global context,
+          which we don't do
+        expires: '2019-06-14T19:27:07.333Z'
 # patches apply the minimum changes required to fix a vulnerability
 patch:
   SNYK-JS-AXIOS-174505:
     - zos-lib > axios:
         patched: '2019-05-09T02:18:36.607Z'
+      zos > axios:
+        patched: '2019-05-15T19:16:49.595Z'
     - zos > axios:
         patched: '2019-05-09T02:18:36.607Z'
+      zos > zos-lib > axios:
+        patched: '2019-05-15T19:16:49.595Z'
     - zos > zos-lib > axios:
         patched: '2019-05-09T02:18:36.607Z'
+      zos-lib > axios:
+        patched: '2019-05-15T19:16:49.595Z'
