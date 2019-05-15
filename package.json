@@ -9,7 +9,7 @@
     "build": "dapploy",
     "deploy": "dapploy -p",
     "chain": "ganache-cli",
-    "snyk-protect": "snyk protect",
+    "snyk-protect": "snyk protect --debug",
     "prepublish": "npm run snyk-protect"
   },
   "author": "Kevin Weiler",
