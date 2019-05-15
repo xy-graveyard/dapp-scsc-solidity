@@ -101,7 +101,7 @@ contract(
         bond.expirationSec.toNumber().should.be.equal(expirationDate)
         bond.owner.should.be.equal(erc20Owner)
       })
-      it.only(`should allow bonding via approveAndCall for third party`, async () => {
+      it(`should allow bonding via approveAndCall for third party`, async () => {
         const amount = 100
 
         const solidityEncoded = encodeApproveAndCall(user2, expirationDate)
