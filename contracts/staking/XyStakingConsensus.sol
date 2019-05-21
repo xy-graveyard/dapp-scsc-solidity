@@ -442,7 +442,10 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
         private 
     {
         require(stakees.length == amounts.length, "bad inputs");
+        address lastStakee = address(0);
         for (uint i = 0; i < stakees.length; i++) {
+            require(stakees[i] > lastStakee , "Stakees array must be unique and ascending");
+            lastStakee = stakees[i];
             bytes32 stakingId = stakeFrom(issuer, staker, stakees[i], amounts[i]);
             bondedStake[stakingId] = bondId;
             bondStakeIndex[stakingId] = bondStakes[bondId].length;
