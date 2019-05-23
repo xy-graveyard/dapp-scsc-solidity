@@ -314,6 +314,7 @@ contract(
         const stake = 100 // divisible by 3 stakees
         const spender = d1
         const stakees = [d2, d4, spender].sort()
+        console.log('Stakees', stakees)
         const stakers = [d3, d3, d3]
         const amounts = [33, 33, 34]
         await erc20.transfer(spender, 500, {from: erc20owner})
