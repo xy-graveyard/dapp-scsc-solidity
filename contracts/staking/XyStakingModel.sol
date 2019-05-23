@@ -198,7 +198,10 @@ contract XyStakingModel is IXyVotingData {
     }
 
     function stakeMultiple (address spender, address[] memory stakers, address[] memory stakees, uint[] memory amounts) internal {
+        address lastStakee = address(0);
         for (uint i = 0; i < stakees.length; i++) {
+            require(stakees[i] > lastStakee , "Stakees array must be unique and ascending");
+            lastStakee = stakees[i];
             stakeFrom(spender, stakers[i], stakees[i], amounts[i]);
         }
     }
@@ -300,7 +303,7 @@ contract XyStakingModel is IXyVotingData {
         data.isCooledDown = cooldown;
         data.isActivated = !cooldown;
         updateCacheOnActivate(data);
-        emit StakeEvent(stakingId, data.amount, msg.sender, data.stakee, cooldown ? StakeTransition.COOLED : StakeTransition.ACTIVATED);
+        emit StakeEvent(stakingId, data.amount, data.staker, data.stakee, cooldown ? StakeTransition.COOLED : StakeTransition.ACTIVATED);
     }
 
     /** 
