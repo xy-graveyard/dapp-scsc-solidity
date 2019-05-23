@@ -184,8 +184,10 @@ contract(
         await consensus.stakerToStakingIds(user1, 0).should.not.be.fulfilled
       })
       it(`should allow staking multiple`, async () => {
-        await bonder.stake(bondId, user1, [stakee1, user2].sort(), [amount - 10, 10], {from: user1})
-          .should.be.fulfilled
+        const stakees = [stakee1, user2].sort()
+        console.log('Staking ordered stakees', stakees)
+        await bonder.stake(bondId, user1, stakees, [amount - 10, 10], {from: user1}).should.be
+          .fulfilled
         const stakingId = await consensus.stakerToStakingIds(user1, 0)
         const stake = await consensus.stakeData(stakingId)
         stake.amount.toNumber().should.be.equal(amount - 10)
@@ -194,8 +196,10 @@ contract(
       it(`should allow sending eth and staking multiple`, async () => {
         const ethAmount = 333
         const before = await web3.eth.getBalance(user1)
+        const stakees = [stakee1, user2].sort()
+        console.log('Staking ordered stakees', stakees)
 
-        await bonder.sendEthAndStake(bondId, user1, [stakee1, user2].sort(), [amount - 10, 10], {
+        await bonder.sendEthAndStake(bondId, user1, stakees, [amount - 10, 10], {
           from: governor,
           value: ethAmount
         }).should.be.fulfilled
