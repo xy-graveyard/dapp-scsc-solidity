@@ -24,36 +24,21 @@ module.exports = {
     kovan: {
       network_id: 42,
       from: wallet,
-      provider: () => new HDWalletProvider(
-        mnemonic,
-        `https://kovan.infura.io/v3/${infuraKey}`
-      ),
+      provider: () => new HDWalletProvider(mnemonic, `https://kovan.infura.io/v3/${infuraKey}`),
       gas: 6986331,
       gasPrice: 5500000000
     },
     ropsten: {
       network_id: 3,
-      provider: () => new HDWalletProvider(
-        mnemonic,
-        `https://ropsten.infura.io/${infuraKey}`
-      ),
+      provider: () => new HDWalletProvider(mnemonic, `https://ropsten.infura.io/${infuraKey}`),
       gas: 6986331,
       gasPrice: 3500000000
     },
     mainnet: {
       network_id: `1`,
-      provider: () => {
-        const wallet = new HDWalletProvider(
-          mnemonic,
-          `https://mainnet.infura.io/${infuraKey}`
-        )
-        const nonceTracker = new NonceTrackerSubprovider()
-        wallet.engine._providers.unshift(nonceTracker)
-        nonceTracker.setEngine(wallet.engine)
-        return wallet
-      },
+      provider: () => new HDWalletProvider(mnemonic, `https://mainnet.infura.io/v3/${infuraKey}`),
       gas: 6986331,
-      gasPrice: 25000000000
+      gasPrice: 20e9
     }
   },
   solc: {

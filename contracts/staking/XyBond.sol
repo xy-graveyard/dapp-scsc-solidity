@@ -28,10 +28,10 @@ contract XyBond is GovernorRole, Initializable {
         uint8 interest;         // possibly add interest or relationship here
     }
 
-    mapping (bytes32 => Bond) public bond;
-    mapping (bytes32 => uint) public bondIndex;
-    mapping (address => bytes32[]) public ownerBonds;
-    bytes32[] public bonds;
+    mapping (bytes32 => Bond) public bond;              // bond id to bond data
+    mapping (bytes32 => uint) public bondIndex;         // bond id to bond index to owner bonds
+    mapping (address => bytes32[]) public ownerBonds;   // track ownership of bonds by id
+    bytes32[] public bonds;                             // list of bonds by id
 
     /**
         initializes upgradeable contract

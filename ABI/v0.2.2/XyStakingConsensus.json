@@ -248,24 +248,14 @@
         }
       ],
       "name": "withdrawManyStake",
-      "outputs": [
-        {
-          "name": "",
-          "type": "uint256"
-        }
-      ],
+      "outputs": [],
       "payable": false,
       "stateMutability": "nonpayable",
       "type": "function"
     },
     {
       "constant": true,
-      "inputs": [
-        {
-          "name": "stakingIds",
-          "type": "bytes32[]"
-        }
-      ],
+      "inputs": [],
       "name": "totalCooldownStake",
       "outputs": [
         {
@@ -286,12 +276,7 @@
         }
       ],
       "name": "unstake",
-      "outputs": [
-        {
-          "name": "",
-          "type": "uint256"
-        }
-      ],
+      "outputs": [],
       "payable": false,
       "stateMutability": "nonpayable",
       "type": "function"
@@ -332,12 +317,7 @@
         }
       ],
       "name": "resolveGovernanceAction",
-      "outputs": [
-        {
-          "name": "",
-          "type": "uint256"
-        }
-      ],
+      "outputs": [],
       "payable": false,
       "stateMutability": "nonpayable",
       "type": "function"
@@ -351,10 +331,6 @@
         },
         {
           "name": "",
-          "type": "uint256"
-        },
-        {
-          "name": "batchSize",
           "type": "uint256"
         }
       ],
@@ -371,16 +347,7 @@
     },
     {
       "constant": true,
-      "inputs": [
-        {
-          "name": "",
-          "type": "address"
-        },
-        {
-          "name": "",
-          "type": "uint256"
-        }
-      ],
+      "inputs": [],
       "name": "blockProducerContract",
       "outputs": [
         {
@@ -420,10 +387,6 @@
       "inputs": [
         {
           "name": "",
-          "type": "uint256"
-        },
-        {
-          "name": "amount",
           "type": "uint256"
         }
       ],
@@ -485,24 +448,14 @@
         }
       ],
       "name": "withdrawStake",
-      "outputs": [
-        {
-          "name": "",
-          "type": "uint256"
-        }
-      ],
+      "outputs": [],
       "payable": false,
       "stateMutability": "nonpayable",
       "type": "function"
     },
     {
       "constant": true,
-      "inputs": [
-        {
-          "name": "stakingId",
-          "type": "bytes32"
-        }
-      ],
+      "inputs": [],
       "name": "penaltyStake",
       "outputs": [
         {
@@ -1183,7 +1136,7 @@
     }
   },
   "schemaVersion": "3.0.8",
-  "updatedAt": "2019-05-02T01:23:44.891Z",
+  "updatedAt": "2019-05-06T18:28:42.945Z",
   "devdoc": {
     "details": "Manages the Stake for multiple clients in a decentralized consensus  system to trustlessly answer requests",
     "methods": {
@@ -1285,12 +1238,6 @@
     "methods": {
       "blockForRequest(bytes32)": {
         "notice": "Returns a block for a given request id or a undefined block"
-      },
-      "getAvailableStakeeUnstake(address)": {
-        "notice": "Get the available unstake, counting only stakes that can be withdrawn "
-      },
-      "getAvailableStakerUnstake(address)": {
-        "notice": "Get the available unstake, counting only stakes that can be withdrawn "
       },
       "numStakerStakes(address)": {
         "notice": "Public getters "
