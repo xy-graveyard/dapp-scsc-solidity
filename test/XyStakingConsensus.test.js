@@ -75,8 +75,8 @@ contract(
       return uintResp
     }
 
-    const requestPayOnDeliveries = async () => {
-      const requests = [...Array(numRequests).keys()].map(r => `0x${r + 1}`)
+    const requestPayOnDeliveries = async (starting = 0) => {
+      const requests = [...Array(numRequests).keys()].map(r => `0x${r + 1 + starting}`)
       await erc20.approve(payOnD.address, numRequests * xyoPayment, {
         from: erc20owner
       })
@@ -401,16 +401,36 @@ contract(
         await consensus.submitBlock(...submitParams).should.not.be.fulfilled
       })
 
+      it(`should not allow submitting response for an answer twice`, async () => {
+        const requests = await requestPayOnDeliveries()
+        const responses = randomBoolResponses()
+        const packedResponses = packResponse(responses)
+        const args = await createArgs(requests, packedResponses, false)
+
+        const lastBlock = await consensus.submitBlock.call(...args).should.be.fulfilled
+        await consensus.submitBlock(...args).should.be.fulfilled
+        lastBlock.toString().should.not.be.equal(`0`)
+        const newLast = await consensus.getLatestBlock.call()
+        newLast.toString().should.be.equal(lastBlock.toString())
+
+        await requestPayOnDeliveries(100) // hack to add value to contract so revert is right reason
+
+        const args2 = await createArgs(requests, packedResponses, false)
+        await consensus.submitBlock(...args2).should.not.be.fulfilled
+        const latest2 = await consensus.getLatestBlock.call()
+        newLast.toString().should.be.equal(latest2.toString())
+      })
+
       describe(`handleResponses`, async () => {
         it(`should return correct reward`, async () => {
-          const requests = await requestPayOnDeliveries(1)
+          const requests = await requestPayOnDeliveries()
           const responses = packResponse(randomBoolResponses())
           const reward = await consensus.mock_handleResponses.call(requests, responses, {})
           reward.toNumber().should.be.equal(miningEth * numRequests)
         })
 
         it(`should call callback contract and receive a IntersectResponse event`, async () => {
-          const requests = await requestPayOnDeliveries(1)
+          const requests = await requestPayOnDeliveries()
           const responses = packResponse(randomBoolResponses())
           const {tx} = await consensus.mock_handleResponses(requests, responses)
 
