@@ -260,6 +260,8 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
         for (uint i = 0; i < _requests.length; i++) {
             Request storage q = requestsById[_requests[i]];
             require (q.createdAt > 0, "Passed a request that does not exist");
+            require (q.responseBlockNumber == 0, "Response already submitted");
+
             uint numBytes = q.requestType == uint8(IXyRequester.RequestType.BOOL_CALLBACK)
                          || q.requestType == uint8(IXyRequester.RequestType.BOOL) ? 1 : 32;
 

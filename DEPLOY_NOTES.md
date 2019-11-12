@@ -14,6 +14,25 @@ Mainnet:
 0x1a024A698EEBdB86ccf3fCaF2F589839bdc066AD XyBond
 0x55296f69f40Ea6d20E478533C15A6B08B654E758 XYO
 
+V0.2.3 deploy
+
+Deployer for kovan: 0x316D5E10f4E4ad94499149c0131a44FC17EF995B
+
+Kovan:
+
+npx zos session --network kovan --from 0x316D5E10f4E4ad94499149c0131a44FC17EF995B --expires 2500
+
+npx zos bump 0.2.3
+npx zos push
+npx zos update XyStakingConsensus
+
+Mainnet:
+
+npx zos session --network mainnet --from 0x6792B02f88b32C4FE8e31cfA41ae5aF44865f930 --expires 2500
+
+npx zos push
+npx zos update XyStakingConsensus
+
 V0.2.2 deploy
 
 Deployer for kovan: 0x316D5E10f4E4ad94499149c0131a44FC17EF995B

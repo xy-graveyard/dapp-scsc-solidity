@@ -1,19 +1,17 @@
-[logo]: https://cdn.xy.company/img/brand/XY_Logo_GitHub.png
+[logo]: https://cdn.xy.company/img/brand/XYO_full_colored.png
 
-[![logo]](https://xy.company)
+[![logo]](https://xyo.network)
 
-[![Build Status](https://travis-ci.com/XYOracleNetwork/dapp-scsc-solidity.svg?branch=develop)](https://travis-ci.com/XYOracleNetwork/dapp-scsc-solidity) [![Greenkeeper badge](https://badges.greenkeeper.io/XYOracleNetwork/dapp-scsc-solidity.svg)](https://greenkeeper.io/)  [![David Badge](https://david-dm.org/xyoraclenetwork/dapp-scsc-solidity/status.svg)](https://david-dm.org/xyoraclenetwork/dapp-scsc-solidity) [![David Badge](https://david-dm.org/xyoraclenetwork/dapp-scsc-solidity/dev-status.svg)](https://david-dm.org/xyoraclenetwork/dapp-scsc-solidity) [![BCH compliance](https://bettercodehub.com/edge/badge/XYOracleNetwork/dapp-scsc-solidity?branch=master&token=02d25ea6874c74a77ffefc6157e0253305509033)](https://bettercodehub.com/results/XYOracleNetwork/dapp-scsc-solidity)
+[![Build Status](https://travis-ci.com/XYOracleNetwork/dapp-scsc-solidity.svg?branch=develop)](https://travis-ci.com/XYOracleNetwork/dapp-scsc-solidity) [![David Badge](https://david-dm.org/xyoraclenetwork/dapp-scsc-solidity/status.svg)](https://david-dm.org/xyoraclenetwork/dapp-scsc-solidity) [![David Badge](https://david-dm.org/xyoraclenetwork/dapp-scsc-solidity/dev-status.svg)](https://david-dm.org/xyoraclenetwork/dapp-scsc-solidity) [![BCH compliance](https://bettercodehub.com/edge/badge/XYOracleNetwork/dapp-scsc-solidity?branch=master&token=02d25ea6874c74a77ffefc6157e0253305509033)](https://bettercodehub.com/results/XYOracleNetwork/dapp-scsc-solidity)
 
 <h3 align="center">
   The Smart Contract Library for XYO
 </h3>
-<p align="center">Made with  ❤️  by [<b>XY - The Persistent Company</b>] (https://xy.company)</p>
 
 Table of Contents
--[Sections](#sections)
+
 - [Title](#Simple-Consensus-Smart-Contract-Dapp-Library)
-- [Short Description](#short-description)
-- [Long Description](#long-description)
+- [Description](#description)
 - [Security](#security)
 - [Install](#install)
 - [Usage](#usage)
@@ -24,20 +22,13 @@ Table of Contents
 - [License](#license)
 - [Credits](#credits)
 
-## Sections
-
 ### Simple Consensus Smart Contract Dapp Library _(dapp-scsc-solidity)_
 
+## Description
 
-
-### Short Description
-
-> A Simple Consensus Smart Contract library for all nodes in XYO
-
-### Long Description
 This package has been built to streamline the dApp build process for anyone ready to integrate XYO into their project. Especially crucial in this library are the `XyGovernance` and `XyStakingConsensus` contracts. The `XyPayOnDelivery` contract is a solid example of the execution of all nodes in XYO, and is used with our [Payable on Delivery Demo](https://developers.xyo.network/docs/en/payable-demo/). The package contains contracts that are upgradeable (with the exception of the Parameterizer) so that you can fix security vulnerabilities and introduce new features without migrating all of the data unecessarily. 
 
-### Install
+## Install
 
 **Requirements:**
 - In the command line go ahead and install using `npm`
@@ -123,9 +114,9 @@ To check out the data of the stake, select the `stakeData()` function, paste in 
 
 You will now get a returned JSON object with your stake amount, the block it was staked on, the staker, and the stakee.
 
-### API
+## API
 
-#### XyERC20Token
+### XyERC20Token
 
 `transfer` 
 - Sends a specific value of tokens from your XYO account to another
@@ -329,11 +320,12 @@ You will now get a returned JSON object with your stake amount, the block it was
 - **returns**
   - `requests.length`
 
-### Maintainers 
+## Maintainers 
+
 - Kevin Weiler
 - Phillip Lorenzo
 
-### Contributing
+## Contributing
 
 If you'd like to contribute to the SCSC as a developer or just run the project from source the directions below should help you get started.
 
@@ -407,12 +399,12 @@ Developers should conform to git flow workflow. Additionally, we should try to m
 every commit builds. Commit messages should be meaningful serve as a meta history for the
 repository. Please squash meaningless commits before submitting a pull-request.
 
-### License
+## License
 
-MIT
+See the [LICENSE](LICENSE) file for license details.
 
-### Credits
+## Credits
+
+Made with 🔥and ❄️ by [XYO](https://www.xyo.network)
 
 Package developed using [ZeppelinOS](https://zeppelinos.org/)
-
-<p align="center">Made with  ❤️  by [<b>XY - The Persistent Company</b>] (https://xy.company)</p>
