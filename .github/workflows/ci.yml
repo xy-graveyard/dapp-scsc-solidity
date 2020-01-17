@@ -13,12 +13,16 @@ jobs:
     - uses: actions/setup-node@v1
       with:
         node-version: '10.x'
+    - name: truffle set up
+      run: yarn add -g truffle
     - name: install
       run: yarn install
     - name: move node modules
       run: node_modules/.bin/ganache-cli > /dev/null & sleep 5
     - name: prep build
       run: rm -rf build
+    - name: initiate 
+      run: truffle init
     - name: compile
       run: truffle compile
     - name: migrate
