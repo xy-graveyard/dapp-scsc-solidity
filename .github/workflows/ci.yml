@@ -13,8 +13,6 @@ jobs:
     - uses: actions/setup-node@v1
       with:
         node-version: '10.x'
-    - name: truffle set up
-      run: yarn add -g truffle
     - name: install
       run: yarn install
     - name: move node modules
