@@ -13,7 +13,7 @@
   "author": "Kevin Weiler",
   "license": "MIT",
   "devDependencies": {
-    "babel-eslint": "^10.0.1",
+    "babel-eslint": "^10.0.3",
     "babel-polyfill": "^6.26.0",
     "babel-preset-es2015": "^6.24.1",
     "babel-preset-stage-2": "^6.24.1",
@@ -23,15 +23,15 @@
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
     "chai-bignumber": "^3.0.0",
-    "dotenv": "^8.0.0",
+    "dotenv": "^8.2.0",
     "ethereumjs-abi": "^0.6.6",
-    "ganache-cli": "^6.4.3",
+    "ganache-cli": "^6.8.2",
     "openzeppelin-solidity": "^2.1.3",
     "openzeppelin-test-helpers": "^0.3.2",
     "solc": "^0.5.8",
-    "solium": "^1.2.4",
-    "truffle": "5.0.7",
-    "truffle-hdwallet-provider": "^1.0.9"
+    "solium": "^1.2.5",
+    "truffle": "^5.1.9",
+    "truffle-hdwallet-provider": "^1.0.17"
   },
   "dependencies": {
     "bs58": "^4.0.1",
@@ -39,8 +39,8 @@
     "node-forge": "^0.8.4",
     "openzeppelin-eth": "^2.1.3",
     "web3-provider-engine": "^15.0.0",
-    "zos": "^2.2.3",
-    "zos-lib": "^2.2.3"
+    "zos": "^2.4.2",
+    "zos-lib": "^2.4.2"
   },
   "files": [
     "build",
