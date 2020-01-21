@@ -13,9 +13,13 @@ jobs:
     - uses: actions/setup-node@v1
       with:
         node-version: '10.x'
+    - name: setup for truffle 
+      run: |
+        mkdir ~/.npm-global
+        npm config set prefix '~/.npm-global'
+        export PATH=~/.npm-global/bin:$PATH
+        source ~/.profile
     - name: Global install truffle
-      env: 
-        NPM_CONFIG_PREFIX: ~/.npm-global
       run: | 
         sudo npm install -g truffle
         sudo npm install -g ethereumjs-testrpc
