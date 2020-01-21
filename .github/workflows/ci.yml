@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push: 
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v1
+      with:
+        node-version: '10.x'
+    - name: Truffle 
+      run: |
+          mkdir ~/.npm-global
+          npm config set prefix '~/.npm-global'
+          export PATH=~/.npm-global/bin:$PATH
+          source ~/.profile
+          npm install -g truffle
+          npm install -g ethereumjs-testrpc
+          yarn
+          node_modules/.bin/ganache-cli --gasLimit 10000000 > /dev/null & sleep 5
+          rm -rf build
+          truffle compile
+          truffle migrate 
