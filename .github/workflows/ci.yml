@@ -14,6 +14,8 @@ jobs:
       with:
         node-version: '10.x'
     - name: Global install truffle
+      env: 
+        NPM_CONFIG_PREFIX: ~/.npm-global
       run: | 
         sudo npm install -g truffle
         sudo npm install -g ethereumjs-testrpc
