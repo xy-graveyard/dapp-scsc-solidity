@@ -15,8 +15,8 @@ jobs:
         node-version: '10.x'
     - name: Global install truffle
       run: | 
-        sudo npm -g truffle
-        sudo npm install -g ethereumjs-testrpc
+         npm -g truffle
+         npm install -g ethereumjs-testrpc
     - name: install
       run: yarn install
     - name: move node modules
