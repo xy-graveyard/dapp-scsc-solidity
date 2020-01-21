@@ -13,10 +13,6 @@ jobs:
     - uses: actions/setup-node@v1
       with:
         node-version: '10.x'
-    - name: move node modules
-      run: node_modules/.bin/ganache-cli --gasLimit 10000000 > /dev/null & sleep 5
-    - name: prep build
-      run: rm -rf build
     - name: Truffle 
       run: |
           mkdir ~/.npm-global
@@ -26,6 +22,8 @@ jobs:
           npm install -g truffle
           npm install -g ethereumjs-testrpc
           yarn
+          node_modules/.bin/ganache-cli --gasLimit 10000000 > /dev/null & sleep 5
+          rm -rf build
           truffle compile
           truffle migrate 
           truffle test
