@@ -21,11 +21,9 @@ jobs:
       run: node_modules/.bin/ganache-cli > /dev/null & sleep 5
     - name: prep build
       run: rm -rf build
-    - name: initiate 
-      run: sudo truffle init
     - name: compile
-      run: sudo truffle compile
+      run: truffle compile
     - name: migrate
-      run: sudo truffle migrate --reset --network development
+      run: truffle migrate --reset --network development
     - name: test
-      run: sudo truffle test
+      run: truffle test
