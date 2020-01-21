@@ -22,10 +22,10 @@ jobs:
     - name: prep build
       run: rm -rf build
     - name: initiate 
-      run: truffle init
+      run: sudo truffle init
     - name: compile
-      run: truffle compile
+      run: sudo truffle compile
     - name: migrate
-      run: truffle migrate --reset --network development
+      run: sudo truffle migrate --reset --network development
     - name: test
-      run: truffle test
+      run: sudo truffle test
