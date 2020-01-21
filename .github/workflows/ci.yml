@@ -27,5 +27,5 @@ jobs:
           npm install -g ethereumjs-testrpc
           yarn
           truffle compile
-          truffle migrate --reset --network development
+          truffle migrate 
           truffle test
