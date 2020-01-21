@@ -15,14 +15,14 @@ jobs:
         node-version: '10.x'
     - name: setup for truffle 
       run: |
-        mkdir ~/.npm-global
-        npm config set prefix '~/.npm-global'
-        export PATH=~/.npm-global/bin:$PATH
-        source ~/.profile
+         mkdir ~/.npm-global
+         npm config set prefix '~/.npm-global'
+         export PATH=~/.npm-global/bin:$PATH
+         source ~/.profile
     - name: Global install truffle
       run: | 
-        sudo npm install -g truffle
-        sudo npm install -g ethereumjs-testrpc
+         npm install -g truffle
+         npm install -g ethereumjs-testrpc
     - name: move node modules
       run: node_modules/.bin/ganache-cli --gasLimit 10000000 > /dev/null & sleep 5
     - name: prep build
