@@ -25,6 +25,7 @@ jobs:
           source ~/.profile
           npm install -g truffle
           npm install -g ethereumjs-testrpc
+          yarn
           truffle compile
           truffle migrate --reset --network development
           truffle test
