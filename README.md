@@ -2,7 +2,8 @@
 
 [![logo]](https://xyo.network)
 
-[![Build Status](https://travis-ci.com/XYOracleNetwork/dapp-scsc-solidity.svg?branch=develop)](https://travis-ci.com/XYOracleNetwork/dapp-scsc-solidity) [![David Badge](https://david-dm.org/xyoraclenetwork/dapp-scsc-solidity/status.svg)](https://david-dm.org/xyoraclenetwork/dapp-scsc-solidity) [![David Badge](https://david-dm.org/xyoraclenetwork/dapp-scsc-solidity/dev-status.svg)](https://david-dm.org/xyoraclenetwork/dapp-scsc-solidity) [![BCH compliance](https://bettercodehub.com/edge/badge/XYOracleNetwork/dapp-scsc-solidity?branch=master&token=02d25ea6874c74a77ffefc6157e0253305509033)](https://bettercodehub.com/results/XYOracleNetwork/dapp-scsc-solidity)
+![](https://github.com/XYOracleNetwork/dapp-scsc-solidity/workflows/CI/badge.svg)
+[![BCH compliance](https://bettercodehub.com/edge/badge/XYOracleNetwork/dapp-scsc-solidity?branch=master&token=02d25ea6874c74a77ffefc6157e0253305509033)](https://bettercodehub.com/results/XYOracleNetwork/dapp-scsc-solidity)
 
 <h3 align="center">
   The Smart Contract Library for XYO
