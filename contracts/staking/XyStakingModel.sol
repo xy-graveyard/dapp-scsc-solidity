@@ -63,6 +63,16 @@ contract XyStakingModel is IXyVotingData {
         StakeTransition transition
     );
 
+    /** EVENTS */
+    event EjectEvent(
+        address beneficiary,
+        uint amount,
+        uint totalStake,
+        uint activeStake,
+        uint cooldownStake,
+        uint totalUnstake
+    );
+
     /**
     * @dev Throws if called by any account other than the owner.
     */
@@ -423,5 +433,29 @@ contract XyStakingModel is IXyVotingData {
     function isBondedStake(bytes32) internal view returns (bool) {
         // call up to parent isBondedStake
         return false;
+    }
+
+    /* 
+        Do this after pausing contracts
+        Cheapest possible way to remove stake via the cache
+        Total active stake, total cooldown stake, stakee stake are now abandoned
+    */
+    function eject(address beneficiary) public {
+        uint amount = totalStakeAndUnstake(beneficiary);
+        StakeAmounts storage amt = stakerStake[beneficiary];
+
+        uint t = amt.totalStake;
+        uint a = amt.activeStake;
+        uint c = amt.cooldownStake;
+        uint u = amt.totalUnstake;
+
+        amt.totalStake = 0;
+        amt.activeStake = 0;
+        amt.cooldownStake = 0;
+        amt.totalUnstake = 0;
+               
+        SafeERC20.transfer(xyoToken, beneficiary, amount);
+
+        emit EjectEvent(beneficiary, amount, t, a, c, u);
     }
 }
