@@ -2,8 +2,9 @@
 
 [![logo]](https://xyo.network)
 
-![](https://github.com/XYOracleNetwork/dapp-scsc-solidity/workflows/CI/badge.svg)
-[![BCH compliance](https://bettercodehub.com/edge/badge/XYOracleNetwork/dapp-scsc-solidity?branch=master&token=02d25ea6874c74a77ffefc6157e0253305509033)](https://bettercodehub.com/results/XYOracleNetwork/dapp-scsc-solidity) [![Known Vulnerabilities](https://snyk.io/test/github/XYOracleNetwork/dapp-scsc-solidity/badge.svg)](https://snyk.io/test/github/XYOracleNetwork/dapp-scsc-solidity)
+![](https://github.com/XYOracleNetwork/dapp-scsc-solidity/workflows/CI/badge.svg) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/d112d0f6ce4d4d84b7922892f60fa337)](https://www.codacy.com/gh/XYOracleNetwork/dapp-scsc-solidity?utm_source=github.com&utm_medium=referral&utm_content=XYOracleNetwork/dapp-scsc-solidity&utm_campaign=Badge_Grade)
+ [![BCH compliance](https://bettercodehub.com/edge/badge/XYOracleNetwork/dapp-scsc-solidity?branch=master&token=02d25ea6874c74a77ffefc6157e0253305509033)](https://bettercodehub.com/results/XYOracleNetwork/dapp-scsc-solidity) [![Maintainability](https://api.codeclimate.com/v1/badges/cd1eda8e5ffc09568b55/maintainability)](https://codeclimate.com/github/XYOracleNetwork/dapp-scsc-solidity/maintainability) [![Known Vulnerabilities](https://snyk.io/test/github/XYOracleNetwork/dapp-scsc-solidity/badge.svg)](https://snyk.io/test/github/XYOracleNetwork/dapp-scsc-solidity) 
+
 
 <h3 align="center">
   The Smart Contract Library for XYO
