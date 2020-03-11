@@ -28,12 +28,14 @@ const parameters = [
   params.xyProposalsEnabled,
   params.xyBlockProducerRewardPct
 ]
-
+/* FOR TESTING */
 const isMatrixDeploy = true
-const totalSupply = 10000000000
-const stakeAmt = 10000
+const totalSupply = "10000" // in ether
+const stakeAmt = "100000000000000000000" // in wei
+/* END TESTING */
+
 const bondPeriodSeconds = 14515200 // 6 months
-module.exports = async function (deployer, network, [contractsOwner, bp2]) {
+module.exports = async function(deployer, network, [contractsOwner, bp2]) {
   console.log(`I am `, contractsOwner, network)
 
   await deployer.deploy(dll)
@@ -41,7 +43,13 @@ module.exports = async function (deployer, network, [contractsOwner, bp2]) {
   await deployer.link(attrStore, PLCR)
   await deployer.link(dll, PLCR)
   const plcrVoting = await deployer.deploy(PLCR)
-  const erc20 = await deployer.deploy(XYOERC20, totalSupply, `XYO Token`, `XYO`, { from: contractsOwner })
+  const erc20 = await deployer.deploy(
+    XYOERC20,
+    totalSupply,
+    `XYO Token`,
+    `XYO`,
+    {from: contractsOwner}
+  )
   const gov = await deployer.deploy(Governance)
   const blockProducerInstance = await deployer.deploy(BlockProducer)
   const consensus = await deployer.deploy(SCSC)
@@ -51,12 +59,12 @@ module.exports = async function (deployer, network, [contractsOwner, bp2]) {
   await blockProducerInstance.initialize()
   await pOnD.initialize(consensus.address, erc20.address)
   await plcrVoting.initialize(erc20.address)
-  await gov.initialize(
+  await gov.initialize(erc20.address, plcrVoting.address, parameters)
+  await consensus.initialize(
     erc20.address,
-    plcrVoting.address,
-    parameters
+    blockProducerInstance.address,
+    gov.address
   )
-  await consensus.initialize(erc20.address, blockProducerInstance.address, gov.address)
   await bonder.initialize(erc20.address, consensus.address, bondPeriodSeconds)
 
   await gov.ownerSet(`XyBondContract`, bonder.address)
@@ -64,24 +72,35 @@ module.exports = async function (deployer, network, [contractsOwner, bp2]) {
 
   printAddress([SCSC, Governance, XYOERC20, PayOnD, BlockProducer, Bond])
 
-  await setupBP(blockProducerInstance, consensus, erc20, contractsOwner, contractsOwner)
+  await setupBP(
+    blockProducerInstance,
+    consensus,
+    erc20,
+    contractsOwner,
+    contractsOwner
+  )
 
   if (isMatrixDeploy) {
-    await erc20.approve(erc20.address, (totalSupply - stakeAmt * 2) * 1 ** 18)
+    // What was this doing:
+    // await erc20.approve(erc20.address, (totalSupply - stakeAmt * 2) * 1 ** 18)
   } else {
     await setupBP(blockProducerInstance, consensus, erc20, bp2, contractsOwner)
     await addRequest(pOnD, contractsOwner)
   }
 }
 
-const getBytes32FromIpfsHash = ipfsListing => `0x${base58
-  .decode(ipfsListing)
-  .slice(2)
-  .toString(`hex`)}`
+const getBytes32FromIpfsHash = ipfsListing =>
+  `0x${base58
+    .decode(ipfsListing)
+    .slice(2)
+    .toString(`hex`)}`
 
-const printAddress = contracts => contracts.map(contract => console.log(`${contract.contractName}: ${contract.address}`))
+const printAddress = contracts =>
+  contracts.map(contract =>
+    console.log(`${contract.contractName}: ${contract.address}`)
+  )
 
-const setupBP = async function (
+const setupBP = async function(
   stakable,
   consensus,
   erc20,
@@ -111,11 +130,11 @@ const setupBP = async function (
   const stakingId = stakingTx.logs[0].args.stakingId
   console.log(`Activating BP Stakee ${bpAddress}`)
 
-  await consensus.activateStake(stakingId, { from: bpAddress })
+  await consensus.activateStake(stakingId, {from: bpAddress})
   console.log(`Activated BP Stakee ${bpAddress} stake id: ${stakingId}`)
 }
 
-const addRequest = async function (pOnD, requesterAddress) {
+const addRequest = async function(pOnD, requesterAddress) {
   const IpfsHash = `QmZyycMiLogkpoA2C8Nz44KCvFbY6vZBAkYKUBz8hMab7Q`
   const bytesStr = getBytes32FromIpfsHash(IpfsHash)
   const tx = await pOnD.requestPayOnDelivery(
@@ -124,7 +143,7 @@ const addRequest = async function (pOnD, requesterAddress) {
     0,
     0,
     requesterAddress,
-    { from: requesterAddress }
+    {from: requesterAddress}
   )
   console.log(`Submitted Request`, tx.logs[0].args.requestId)
   return true
