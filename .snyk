@@ -1,5 +1,5 @@
 # Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
-version: v1.13.5
+version: v1.14.1
 # ignores vulnerabilities until expiry date; change duration by modifying expiry date
 ignore:
   SNYK-JS-LODASH-73638:
@@ -41,13 +41,68 @@ patch:
   SNYK-JS-AXIOS-174505:
     - zos-lib > axios:
         patched: '2019-05-09T02:18:36.607Z'
-      zos > axios:
-        patched: '2019-05-15T19:16:49.595Z'
     - zos > axios:
         patched: '2019-05-09T02:18:36.607Z'
-      zos > zos-lib > axios:
-        patched: '2019-05-15T19:16:49.595Z'
     - zos > zos-lib > axios:
         patched: '2019-05-09T02:18:36.607Z'
-      zos-lib > axios:
+    - zos > axios:
         patched: '2019-05-15T19:16:49.595Z'
+    - zos > zos-lib > axios:
+        patched: '2019-05-15T19:16:49.595Z'
+    - zos-lib > axios:
+        patched: '2019-05-15T19:16:49.595Z'
+  SNYK-JS-LODASH-567746:
+    - zos > truffle-config > lodash:
+        patched: '2020-05-01T04:34:18.800Z'
+    - web3-provider-engine > async > lodash:
+        patched: '2020-05-01T04:34:18.800Z'
+    - zos > cheerio > lodash:
+        patched: '2020-05-01T04:34:18.800Z'
+    - zos > inquirer > lodash:
+        patched: '2020-05-01T04:34:18.800Z'
+    - web3-provider-engine > ethereumjs-block > async > lodash:
+        patched: '2020-05-01T04:34:18.800Z'
+    - web3-provider-engine > ethereumjs-vm > async > lodash:
+        patched: '2020-05-01T04:34:18.800Z'
+    - web3-provider-engine > eth-json-rpc-middleware > ethereumjs-block > async > lodash:
+        patched: '2020-05-01T04:34:18.800Z'
+    - web3-provider-engine > ethereumjs-vm > async-eventemitter > async > lodash:
+        patched: '2020-05-01T04:34:18.800Z'
+    - web3-provider-engine > ethereumjs-vm > ethereumjs-block > async > lodash:
+        patched: '2020-05-01T04:34:18.800Z'
+    - web3-provider-engine > eth-json-rpc-middleware > ethereumjs-vm > async > lodash:
+        patched: '2020-05-01T04:34:18.800Z'
+    - web3-provider-engine > eth-json-rpc-middleware > json-rpc-engine > async > lodash:
+        patched: '2020-05-01T04:34:18.800Z'
+    - web3-provider-engine > eth-json-rpc-filters > json-rpc-engine > async > lodash:
+        patched: '2020-05-01T04:34:18.800Z'
+    - web3-provider-engine > eth-json-rpc-infura > json-rpc-engine > async > lodash:
+        patched: '2020-05-01T04:34:18.800Z'
+    - zos > truffle-config > truffle-provider > truffle-interface-adapter > lodash:
+        patched: '2020-05-01T04:34:18.800Z'
+    - web3-provider-engine > eth-json-rpc-filters > eth-json-rpc-middleware > ethereumjs-block > async > lodash:
+        patched: '2020-05-01T04:34:18.800Z'
+    - web3-provider-engine > eth-json-rpc-infura > eth-json-rpc-middleware > ethereumjs-block > async > lodash:
+        patched: '2020-05-01T04:34:18.800Z'
+    - web3-provider-engine > eth-json-rpc-middleware > ethereumjs-vm > async-eventemitter > async > lodash:
+        patched: '2020-05-01T04:34:18.800Z'
+    - web3-provider-engine > eth-json-rpc-middleware > ethereumjs-vm > ethereumjs-block > async > lodash:
+        patched: '2020-05-01T04:34:18.800Z'
+    - web3-provider-engine > eth-json-rpc-filters > eth-json-rpc-middleware > ethereumjs-vm > async > lodash:
+        patched: '2020-05-01T04:34:18.800Z'
+    - web3-provider-engine > eth-json-rpc-infura > eth-json-rpc-middleware > ethereumjs-vm > async > lodash:
+        patched: '2020-05-01T04:34:18.800Z'
+    - web3-provider-engine > eth-json-rpc-filters > eth-json-rpc-middleware > json-rpc-engine > async > lodash:
+        patched: '2020-05-01T04:34:18.800Z'
+    - web3-provider-engine > eth-json-rpc-infura > eth-json-rpc-middleware > json-rpc-engine > async > lodash:
+        patched: '2020-05-01T04:34:18.800Z'
+    - web3-provider-engine > eth-block-tracker > @babel/plugin-transform-runtime > @babel/helper-module-imports > @babel/types > lodash:
+        patched: '2020-05-01T04:34:18.800Z'
+    - web3-provider-engine > eth-json-rpc-filters > eth-json-rpc-middleware > ethereumjs-vm > async-eventemitter > async > lodash:
+        patched: '2020-05-01T04:34:18.800Z'
+    - web3-provider-engine > eth-json-rpc-infura > eth-json-rpc-middleware > ethereumjs-vm > async-eventemitter > async > lodash:
+        patched: '2020-05-01T04:34:18.800Z'
+    - web3-provider-engine > eth-json-rpc-filters > eth-json-rpc-middleware > ethereumjs-vm > ethereumjs-block > async > lodash:
+        patched: '2020-05-01T04:34:18.800Z'
+    - web3-provider-engine > eth-json-rpc-infura > eth-json-rpc-middleware > ethereumjs-vm > ethereumjs-block > async > lodash:
+        patched: '2020-05-01T04:34:18.800Z'
