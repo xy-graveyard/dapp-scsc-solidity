@@ -63,6 +63,16 @@ contract XyStakingModel is IXyVotingData {
         StakeTransition transition
     );
 
+    /** EVENTS */
+    event EjectEvent(
+        address beneficiary,
+        uint amount,
+        uint totalStake,
+        uint activeStake,
+        uint cooldownStake,
+        uint totalUnstake
+    );
+
     /**
     * @dev Throws if called by any account other than the owner.
     */
@@ -117,7 +127,7 @@ contract XyStakingModel is IXyVotingData {
         stakeeStake[s.stakee].totalUnstake = stakeeStake[s.stakee].totalUnstake.sub(s.amount);
         stakerStake[s.staker].totalUnstake = stakerStake[s.staker].totalUnstake.sub(s.amount);
     }  
-    function reduceStake(Stake memory s, uint quantity) internal {
+    function reduceStake(Stake storage s, uint quantity) internal {
         stakeeStake[s.stakee].totalStake = stakeeStake[s.stakee].totalStake.sub(quantity);
         stakerStake[s.staker].totalStake = stakerStake[s.staker].totalStake.sub(quantity);
         if (s.isActivated) {
@@ -424,4 +434,5 @@ contract XyStakingModel is IXyVotingData {
         // call up to parent isBondedStake
         return false;
     }
+
 }

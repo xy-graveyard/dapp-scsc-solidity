@@ -27,7 +27,7 @@ contract XyPayOnDeliveryMock is XyPayOnDelivery {
     {
       require (requestIndex[requestId] == 0, "Duplicate request submitted");
       // remainder of value is stored on this address
-      scsc.submitRequest.value(msg.value.sub(weiPayOnDelivery))(requestId, xyoBounty, msg.sender, uint8(IXyRequester.RequestType.UINT_CALLBACK));
+      // scsc.submitRequest.value(msg.value.sub(weiPayOnDelivery))(requestId, xyoBounty, msg.sender, uint8(IXyRequester.RequestType.UINT_CALLBACK));
       if (xyoPayOnDelivery > 0) {
         SafeERC20.transferFrom(xyoToken, msg.sender, address(this), xyoPayOnDelivery);
       }

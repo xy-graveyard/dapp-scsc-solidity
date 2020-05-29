@@ -33,6 +33,8 @@ contract XyBond is GovernorRole, Initializable {
     mapping (address => bytes32[]) public ownerBonds;   // track ownership of bonds by id
     bytes32[] public bonds;                             // list of bonds by id
 
+    event ReimburseBondEject(address sender, address beneficiary, uint amount);
+
     /**
         initializes upgradeable contract
         @param _token the token to stake
@@ -53,10 +55,6 @@ contract XyBond is GovernorRole, Initializable {
         super.init();
     }
 
-    /**
-        Update period a bond is governable
-        @param newPeriod the new static period we allow to revoke
-    */
     function setGovernablePeriod(uint newPeriod) 
         public 
         onlyGovernor 
@@ -136,23 +134,23 @@ contract XyBond is GovernorRole, Initializable {
         @param to who receives the withdrawl
         sender - owner of bond or governor
     */
-    function withdrawTo (bytes32 bondId, address to) 
-        public
-    {
-        Bond storage bs = bond[bondId];
-        uint withdrawAmount = bs.value;
-        require (withdrawAmount > 0, "Bond has no value");
-        bs.value = 0; // erase value of bond
-        bool isOwner = msg.sender == bs.owner;
-        require (bs.allocated == 0, "Bond must have no allocated stake");
-        require (isOwner || _governable(bs), "owner or governable can withdraw");
-        if (isOwner) {
-            require (now > bs.expirationSec, "Bond is still active");
-        }
-        SafeERC20.transfer(erc20, to, withdrawAmount);
+    // function withdrawTo (bytes32 bondId, address to) 
+    //     public
+    // {
+    //     Bond storage bs = bond[bondId];
+    //     uint withdrawAmount = bs.value;
+    //     require (withdrawAmount > 0, "Bond has no value");
+    //     bs.value = 0; // erase value of bond
+    //     bool isOwner = msg.sender == bs.owner;
+    //     require (bs.allocated == 0, "Bond must have no allocated stake");
+    //     require (isOwner || _governable(bs), "owner or governable can withdraw");
+    //     if (isOwner) {
+    //         require (now > bs.expirationSec, "Bond is still active");
+    //     }
+    //     SafeERC20.transfer(erc20, to, withdrawAmount);
 
-        emit BondWithdraw(bondId, to, withdrawAmount);
-    }
+    //     emit BondWithdraw(bondId, to, withdrawAmount);
+    // }
 
     /**
         Add node stakes associated from this bond.
@@ -194,39 +192,39 @@ contract XyBond is GovernorRole, Initializable {
         @param amounts which amounts to use for stakees
         msg.value send with some value to transfer eth to user in a single call
     */
-    function sendEthAndStake(bytes32 bondId, address payable beneficiary, address[] memory stakees, uint[] memory amounts) 
-        public
-        payable
-    {
-        if (msg.value > 0) {
-            beneficiary.transfer(msg.value);
-        }
-        stake(bondId, beneficiary, stakees, amounts);
-    }
+    // function sendEthAndStake(bytes32 bondId, address payable beneficiary, address[] memory stakees, uint[] memory amounts) 
+    //     public
+    //     payable
+    // {
+    //     if (msg.value > 0) {
+    //         beneficiary.transfer(msg.value);
+    //     }
+    //     stake(bondId, beneficiary, stakees, amounts);
+    // }
 
     /**
         Called by owner or governable to unstake bonded node-stake
         @param bondId The bond to unstake
         @param stakingId the id of the associated node-stake
     */
-    function unstake (bytes32 bondId, bytes32 stakingId) 
-        public  
-    {
-        bytes32 checkBondId = XyStakingConsensus(staking).bondedStake(stakingId);
-        require(checkBondId == bondId, "Stake needs to be bonded");
+    // function unstake (bytes32 bondId, bytes32 stakingId) 
+    //     public  
+    // {
+    //     bytes32 checkBondId = XyStakingConsensus(staking).bondedStake(stakingId);
+    //     require(checkBondId == bondId, "Stake needs to be bonded");
 
-        (uint amount,,,,,,) = XyStakingConsensus(staking).stakeData(stakingId);
-        Bond storage bs = bond[bondId];
-        require (msg.sender == bs.owner || _governable(bs), "owner or governable can unstake");
+    //     (uint amount,,,,,,) = XyStakingConsensus(staking).stakeData(stakingId);
+    //     Bond storage bs = bond[bondId];
+    //     require (msg.sender == bs.owner || _governable(bs), "owner or governable can unstake");
         
-        require(bs.allocated >= amount, "Cannot unstake over bond allocation");
-        bs.allocated = bs.allocated.sub(amount);
+    //     require(bs.allocated >= amount, "Cannot unstake over bond allocation");
+    //     bs.allocated = bs.allocated.sub(amount);
 
-        // will fail if already withdrew  
-        XyStakingConsensus(staking).unstakeBonded(bondId, stakingId);
+    //     // will fail if already withdrew  
+    //     XyStakingConsensus(staking).unstakeBonded(bondId, stakingId);
 
-        emit BondUnstake(bondId, msg.sender, stakingId, amount);
-    }
+    //     emit BondUnstake(bondId, msg.sender, stakingId, amount);
+    // }
 
     /**
         Helper to know if bond is expired
@@ -268,5 +266,43 @@ contract XyBond is GovernorRole, Initializable {
     */
     function numOwnerBonds(address owner) public view returns (uint) {
         return ownerBonds[owner].length;
+    }
+
+    function unallocatedBondStake(address beneficiary) public view returns (uint) {
+        uint num = numOwnerBonds(beneficiary);
+        uint totalAmount = 0;
+        for (uint i = 0; i < num; i++) {
+            bytes32 bondId = ownerBonds[beneficiary][i];
+            Bond storage b = bond[bondId];
+            if (b.value > 0) {
+                totalAmount += b.value.sub(b.allocated);
+            }
+        }
+        return totalAmount;
+    }
+
+    /* 
+        will kill bond value and return unallocated bond stake
+    */
+    function reimburseUnallocatedBond(address beneficiary) public {
+        uint num = numOwnerBonds(beneficiary);
+        uint totalAmount = 0;
+        for (uint i = 0; i< num; i++) {
+            bytes32 bondId = ownerBonds[beneficiary][i];
+            Bond storage b = bond[bondId];
+            if (b.value > 0) {
+                totalAmount += b.value.sub(b.allocated);
+                b.value = 0; 
+            }
+        }
+        if (totalAmount > 0) {
+            SafeERC20.transfer(erc20, beneficiary, totalAmount);
+            emit ReimburseBondEject(msg.sender, beneficiary, totalAmount);
+        }
+    }
+
+    function reimburseAndEject(address beneficiary) public {
+        reimburseUnallocatedBond(beneficiary);
+        XyStakingConsensus(staking).eject(beneficiary);
     }
 }

@@ -27,26 +27,9 @@ contract XyConsensusMock is XyStakingConsensus {
         updateCacheOnActivate(data);
       }
     }
-    function mock_handleResponses(bytes32[] memory _requests, bytes memory responses)
-        public 
-        returns (uint)
-    {
-      return handleResponses(_requests, responses);
-    }
+ 
 
-    function mock_checkSigsAndStakes(
-        bytes32 messageHash,
-        address[] memory signers,
-        bytes32[] memory sigR,
-        bytes32[] memory sigS,
-        uint8[] memory sigV
-    )   
-        view
-        public 
-        returns (uint)
-    {
-      checkSigsAndStakes(messageHash, signers, sigR, sigS, sigV);
-    }
+   
     function fake_updateCacheOnStake(uint amount, address stakee) public {
       updateCacheOnStake(fake_data(amount, stakee));
     }
