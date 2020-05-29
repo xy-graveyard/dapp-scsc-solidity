@@ -106,23 +106,7 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
         return blockChain[blockChain.length-1];
     }
 
-    /**
-        @dev Withdraw reward balance can post same params via raw
-        @param xyoBounty bounty for request
-    */
-    function withdrawRewardsRequest 
-    (
-        uint xyoBounty
-    ) 
-        public
-        payable
-        returns (bytes32)
-    {
-        bytes32 requestId = keccak256(abi.encodePacked(msg.sender, xyoBounty, block.number));
-        submitRequest(requestId, xyoBounty, msg.sender, uint8(IXyRequester.RequestType.WITHDRAW));
-        return requestId;
-    }
-
+   
     /** 
         Implements IApprovalRecipient allows approveAndCall in one transaction
     */
@@ -132,6 +116,7 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
         address,
         bytes calldata _extraData
     ) 
+        whenActive
         external 
     {
         require (msg.sender == xyoToken, "sender must be token");
@@ -152,27 +137,7 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
         }
     }
 
-    /**
-        @dev Escrow eth and xyo, making sure it covers the answer mining cost
-        Stores new request in request pool
-        @param request How to uniquely identify a request
-        @param xyoBounty bounty for request
-        @param xyoSender who to deduct the xyo from for mining cost
-        @param requestType based on the type we know which callback to call (string or bool)
-    */
-    function submitRequest
-    (
-        bytes32 request, 
-        uint xyoBounty,
-        address xyoSender, 
-        uint8 requestType
-    ) 
-        public
-        payable
-    {
-        submitRequestFrom(msg.sender, request, xyoBounty, xyoSender, requestType);
-    }
-
+   
     function submitRequestFrom
     (   
         address from,
@@ -237,140 +202,6 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
         }
 
         return tempUint;
-    }
-
-    /** 
-        @dev Calls Request interface submitResponse function for each answer.
-        Use for estimating gas of a request
-        @param _requests the requests queried
-        @param responses the response data of all the requests
-        @return The weiMining for submitting the new block
-        Will revert if the request does not exist, or the withdraw request is more htna the staker stake
-    */
-    function handleResponses
-    (
-        bytes32[] memory _requests, 
-        bytes memory responses
-    )
-        internal 
-        returns (uint)
-    {
-        uint byteOffset = 0;
-        uint weiMining = 0;
-        for (uint i = 0; i < _requests.length; i++) {
-            Request storage q = requestsById[_requests[i]];
-            require (q.createdAt > 0, "Passed a request that does not exist");
-            require (q.responseBlockNumber == 0, "Response already submitted");
-
-            uint numBytes = q.requestType == uint8(IXyRequester.RequestType.BOOL_CALLBACK)
-                         || q.requestType == uint8(IXyRequester.RequestType.BOOL) ? 1 : 32;
-
-            q.responseBlockNumber = numBlocks().add(1);
-            weiMining = weiMining.add(q.weiMining);
-
-            if (q.requestType == uint8(IXyRequester.RequestType.WITHDRAW)) {
-                uint amount = _toUintFromBytes(responses, byteOffset, numBytes);
-                require (amount <= totalStakeAndUnstake(q.requestSender), "Withdraw amount more than total staker's stake");
-                emit WithdrawClaimed(q.requestSender, amount, totalStakeAndUnstake(q.requestSender));
-                SafeERC20.transfer(xyoToken, q.requestSender, amount);
-            } else {
-                bytes memory result = new bytes(numBytes);
-                for (uint j = 0; j < numBytes; j++) {
-                    result[j] = responses[byteOffset + j];
-                }
-                if (q.requestType == uint8(IXyRequester.RequestType.BOOL_CALLBACK) 
-                    || q.requestType == uint8(IXyRequester.RequestType.UINT_CALLBACK)) {
-                    IXyRequester(q.requestSender).submitResponse(_requests[i], q.requestType, result);
-                } 
-                emit Response(_requests[i], q.responseBlockNumber, _toUintFromBytes(result, 0, numBytes), q.requestType);
-            }
-            byteOffset += numBytes;
-        }
-        
-        return weiMining;
-    }
-
-    /** 
-        @dev checks a message hash was signed by a list of signers via their sigs
-        @param messageHash The hash of the message that was signed
-        @param signers The in-order list of signers of the message
-        @param sigR R values in signatures
-        @param sigS S values in signatures
-        @param sigV V values in signatures
-    */
-    function checkSigsAndStakes
-    (
-        bytes32 messageHash,
-        address[] memory signers,
-        bytes32[] memory sigR,
-        bytes32[] memory sigS,
-        uint8[] memory sigV
-    )
-        view
-        internal 
-    {
-        bytes32 prefixedHash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", messageHash));
-        address lastStakee = address(0);
-        uint stake = 0;
-        for (uint i = 0; i < signers.length; i++) {
-            address signer = ecrecover(prefixedHash, sigV[i], sigR[i], sigS[i]);
-            require(signers[i] > lastStakee , "Signers array must be ascending");
-            lastStakee = signers[i];
-            require(signers[i] == signer, "Signature mis-match");
-            stake = stake.add(stakeeStake[lastStakee].activeStake);
-        }
-        // check sufficient stake by stakees subitted
-        require (stake > totalActiveStake.mul(govContract.get("xyStakeSuccessPct")).div(100), "Not enough stake");
-    }
-
-    function _createBlock(bytes32 previousBlock, bytes32 newBlock, bytes32 supportingData, uint stakingBlock) private {
-        Block memory b = Block(previousBlock, supportingData, stakingBlock, block.number,  msg.sender);
-        blockChain.push(newBlock);
-        blocks[newBlock] = b;
-        emit BlockCreated(newBlock, previousBlock, supportingData, block.number, msg.sender);
-    }
-
-    /**
-        Submit a new block to the consensus blockChain. Verifies stake in consensus is over 51% of the network. 
-        calls requests' callbacks with responses.  Creates new block and returns weiMining for successful creation.
-        @param previousBlock the prior block to maintain the 
-        @param stakingBlock the block number diviners get staking data for
-        @param _requests list of the request ids (minus first 2 bytes)
-        @param supportingData the hash of the supporting block data
-        @param responses byte array of responses
-        @param signers Stakees, aka diviners and must be passed in ascending order to check for dups
-        @param sigR R values in signatures
-        @param sigS S values in signatures
-        @param sigV V values in signatures
-        @return The hash of the new block
-    */
-    function submitBlock
-    (
-        bytes32 previousBlock,
-        uint stakingBlock,
-        bytes32[] memory _requests,
-        bytes32 supportingData,
-        bytes memory responses,
-        address[] memory signers,
-        bytes32[] memory sigR,
-        bytes32[] memory sigS,
-        uint8[] memory sigV
-    ) 
-        public 
-        returns (bytes32)
-    {
-        require (blockProducerContract.exists(msg.sender), "Only approved BP can submit");
-        require (previousBlock == getLatestBlock(), "Incorrect previous block");
-        require (_requests.length > 0, "No requests in block");
-        
-        bytes32 newBlock = keccak256(abi.encodePacked(previousBlock, stakingBlock, _requests, supportingData, responses));
-        uint weiMining = handleResponses(_requests, responses);
-        msg.sender.transfer(weiMining);
-
-        checkSigsAndStakes(newBlock, signers, sigR, sigS, sigV);
-        _createBlock(previousBlock, newBlock, supportingData, stakingBlock);
-
-        return newBlock;
     }
 
     /**
@@ -475,30 +306,45 @@ contract XyStakingConsensus is Initializable, XyStakingModel {
         bondedStake[stakingId] = 0;
     }
 
-    /**
-        Unstakes/withdraws to bonded stake
-        @param bondId - the bond id to ensure the correct stake
-        @param stakingId - the id of the stake to withdraw to bond contract
-    */
-    function unstakeBonded (
-        bytes32 bondId, 
-        bytes32 stakingId
-    ) 
-        external 
-    {
-        address bondContract = address(govContract.get('XyBondContract'));
-        require(msg.sender == bondContract, "only from bond contract");
-        require(bondId != 0 && bondId == bondedStake[stakingId], "Stake not bonded to this bond");
-        Stake storage data = stakeData[stakingId];
-        if (data.unstakeBlock==0) {
-            updateCacheOnUnstake(data);
-            emit StakeEvent(stakingId, data.amount, data.staker, data.stakee, StakeTransition.UNSTAKED);
-        }
-        _removeBondedStake(bondId, stakingId);
-        _withdrawStakeData(stakingId, data);
-    }
 
     function numBondStakes(bytes32 bondId) public view returns(uint) {
         return bondStakes[bondId].length;
+    }
+  
+  function totalEjectStake(address staker) public view returns (uint) {
+      uint activeAndCooldown = stakerStake[staker].activeStake + stakerStake[staker].cooldownStake;
+    
+      uint totalStake = stakerStake[staker].totalStake;
+      if (totalStake != activeAndCooldown) {
+          if (activeAndCooldown > totalStake) {
+            return activeAndCooldown + stakerStake[staker].totalUnstake;
+          }
+        
+      } 
+      return totalStakeAndUnstake(staker);
+    }
+
+    /* 
+        Done in conjunction with bonded stake
+        Complete abandonment of this smart contract's state to reimburse all tokens
+    */
+    function eject(address beneficiary) public {
+        uint amount = totalEjectStake(beneficiary);
+        StakeAmounts storage amt = stakerStake[beneficiary];
+
+        uint t = amt.totalStake;
+        uint a = amt.activeStake;
+        uint c = amt.cooldownStake;
+        uint u = amt.totalUnstake;
+
+        amt.totalStake = 0;
+        amt.activeStake = 0;
+        amt.cooldownStake = 0;
+        amt.totalUnstake = 0;
+
+        if (amount > 0) {
+            SafeERC20.transfer(xyoToken, beneficiary, amount);
+            emit EjectEvent(beneficiary, amount, t, a, c, u);
+        }
     }
 }

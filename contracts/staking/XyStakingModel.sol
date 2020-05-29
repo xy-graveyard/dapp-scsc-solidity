@@ -127,7 +127,7 @@ contract XyStakingModel is IXyVotingData {
         stakeeStake[s.stakee].totalUnstake = stakeeStake[s.stakee].totalUnstake.sub(s.amount);
         stakerStake[s.staker].totalUnstake = stakerStake[s.staker].totalUnstake.sub(s.amount);
     }  
-    function reduceStake(Stake memory s, uint quantity) internal {
+    function reduceStake(Stake storage s, uint quantity) internal {
         stakeeStake[s.stakee].totalStake = stakeeStake[s.stakee].totalStake.sub(quantity);
         stakerStake[s.staker].totalStake = stakerStake[s.staker].totalStake.sub(quantity);
         if (s.isActivated) {
@@ -435,27 +435,4 @@ contract XyStakingModel is IXyVotingData {
         return false;
     }
 
-    /* 
-        Do this after pausing contracts
-        Cheapest possible way to remove stake via the cache
-        Total active stake, total cooldown stake, stakee stake are now abandoned
-    */
-    function eject(address beneficiary) public {
-        uint amount = totalStakeAndUnstake(beneficiary);
-        StakeAmounts storage amt = stakerStake[beneficiary];
-
-        uint t = amt.totalStake;
-        uint a = amt.activeStake;
-        uint c = amt.cooldownStake;
-        uint u = amt.totalUnstake;
-
-        amt.totalStake = 0;
-        amt.activeStake = 0;
-        amt.cooldownStake = 0;
-        amt.totalUnstake = 0;
-               
-        SafeERC20.transfer(xyoToken, beneficiary, amount);
-
-        emit EjectEvent(beneficiary, amount, t, a, c, u);
-    }
 }

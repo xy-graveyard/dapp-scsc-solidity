@@ -1,7 +1,377 @@
 {
   "contracts": {
+    "XyBlockProducer": {
+      "address": "0x23c8d7EA92D5faF840445906746f1EAbd9986B86",
+      "constructorCode": "608060405234801561001057600080fd5b506109aa806100206000396000f3fe",
+      "bodyBytecodeHash": "739d5a47c28937f1cd9252c70a649c5538e7ef02f4bc6aaba38603d195ae3bf9",
+      "localBytecodeHash": "799c0a27e910109fcfd3899b002b18b54d1c4c3d3336287d58a3e1744c8a1f87",
+      "deployedBytecodeHash": "799c0a27e910109fcfd3899b002b18b54d1c4c3d3336287d58a3e1744c8a1f87",
+      "types": {
+        "t_bool": {
+          "id": "t_bool",
+          "kind": "elementary",
+          "label": "bool"
+        },
+        "t_uint256": {
+          "id": "t_uint256",
+          "kind": "elementary",
+          "label": "uint256"
+        },
+        "t_array:50<t_uint256>": {
+          "id": "t_array:50<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "50",
+          "kind": "array",
+          "label": "uint256[50]"
+        },
+        "t_struct<Roles.Role>": {
+          "id": "t_struct<Roles.Role>",
+          "kind": "struct",
+          "label": "Roles.Role",
+          "members": [
+            {
+              "label": "bearer",
+              "astId": 3846,
+              "type": "t_mapping<t_bool>",
+              "src": "152:32:10"
+            }
+          ]
+        },
+        "t_mapping<t_bool>": {
+          "id": "t_mapping<t_bool>",
+          "valueType": "t_bool",
+          "label": "mapping(key => bool)",
+          "kind": "mapping"
+        },
+        "t_address": {
+          "id": "t_address",
+          "kind": "elementary",
+          "label": "address"
+        },
+        "t_array:dyn<t_address>": {
+          "id": "t_array:dyn<t_address>",
+          "valueType": "t_address",
+          "length": "dyn",
+          "kind": "array",
+          "label": "address[]"
+        },
+        "t_mapping<t_uint256>": {
+          "id": "t_mapping<t_uint256>",
+          "valueType": "t_uint256",
+          "label": "mapping(key => uint256)",
+          "kind": "mapping"
+        }
+      },
+      "storage": [
+        {
+          "contract": "Initializable",
+          "path": "contracts/utils/Initializable.sol",
+          "label": "initialized",
+          "astId": 8378,
+          "type": "t_bool",
+          "src": "757:24:29"
+        },
+        {
+          "contract": "Initializable",
+          "path": "contracts/utils/Initializable.sol",
+          "label": "initializing",
+          "astId": 8380,
+          "type": "t_bool",
+          "src": "876:25:29"
+        },
+        {
+          "contract": "Initializable",
+          "path": "contracts/utils/Initializable.sol",
+          "label": "______gap",
+          "astId": 8429,
+          "type": "t_array:50<t_uint256>",
+          "src": "1891:29:29"
+        },
+        {
+          "contract": "GovernorRole",
+          "path": "contracts/access/GovernorRole.sol",
+          "label": "governors",
+          "astId": 3744,
+          "type": "t_struct<Roles.Role>",
+          "src": "113:28:9"
+        },
+        {
+          "contract": "XyBlockProducer",
+          "path": "contracts/XyBlockProducer.sol",
+          "label": "blockProducers",
+          "astId": 1747,
+          "type": "t_array:dyn<t_address>",
+          "src": "629:31:5"
+        },
+        {
+          "contract": "XyBlockProducer",
+          "path": "contracts/XyBlockProducer.sol",
+          "label": "blockProducerIndexes",
+          "astId": 1751,
+          "type": "t_mapping<t_uint256>",
+          "src": "757:52:5"
+        }
+      ],
+      "warnings": {
+        "hasConstructor": false,
+        "hasSelfDestruct": false,
+        "hasDelegateCall": false,
+        "hasInitialValuesInDeclarations": false,
+        "uninitializedBaseContracts": []
+      }
+    },
+    "PLCRVoting": {
+      "address": "0xdF9ef4bD1301cFA48941a66430c514c594bF7034",
+      "constructorCode": "608060405234801561001057600080fd5b506129b5806100206000396000f3fe",
+      "bodyBytecodeHash": "34a7e54c77abe5da63309cb73656f3c0371078e79338e832c5da7820a0543a45",
+      "localBytecodeHash": "9ed334991b8e8c96f6595b37f1733f5bd8130b0de7211801d19ce3d180c80f3b",
+      "deployedBytecodeHash": "cecbf3784a67c18d88e7140c67638f3f20171a85a4b320a0ae82f0ae7268755c",
+      "types": {
+        "t_bool": {
+          "id": "t_bool",
+          "kind": "elementary",
+          "label": "bool"
+        },
+        "t_uint256": {
+          "id": "t_uint256",
+          "kind": "elementary",
+          "label": "uint256"
+        },
+        "t_array:50<t_uint256>": {
+          "id": "t_array:50<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "50",
+          "kind": "array",
+          "label": "uint256[50]"
+        },
+        "t_struct<PLCRVoting.Poll>": {
+          "id": "t_struct<PLCRVoting.Poll>",
+          "kind": "struct",
+          "label": "PLCRVoting.Poll",
+          "members": [
+            {
+              "label": "commitEndDate",
+              "astId": 163,
+              "type": "t_uint256",
+              "src": "1208:18:2"
+            },
+            {
+              "label": "revealEndDate",
+              "astId": 165,
+              "type": "t_uint256",
+              "src": "1286:18:2"
+            },
+            {
+              "label": "voteQuorum",
+              "astId": 167,
+              "type": "t_uint256",
+              "src": "1364:15:2"
+            },
+            {
+              "label": "votesFor",
+              "astId": 169,
+              "type": "t_uint256",
+              "src": "1445:13:2"
+            },
+            {
+              "label": "votesAgainst",
+              "astId": 171,
+              "type": "t_uint256",
+              "src": "1512:17:2"
+            },
+            {
+              "label": "didCommit",
+              "astId": 175,
+              "type": "t_mapping<t_bool>",
+              "src": "1583:34:2"
+            },
+            {
+              "label": "didReveal",
+              "astId": 179,
+              "type": "t_mapping<t_bool>",
+              "src": "1693:34:2"
+            },
+            {
+              "label": "voteOptions",
+              "astId": 183,
+              "type": "t_mapping<t_uint256>",
+              "src": "1802:36:2"
+            }
+          ]
+        },
+        "t_mapping<t_bool>": {
+          "id": "t_mapping<t_bool>",
+          "valueType": "t_bool",
+          "label": "mapping(key => bool)",
+          "kind": "mapping"
+        },
+        "t_mapping<t_uint256>": {
+          "id": "t_mapping<t_uint256>",
+          "valueType": "t_uint256",
+          "label": "mapping(key => uint256)",
+          "kind": "mapping"
+        },
+        "t_mapping<t_struct<PLCRVoting.Poll>>": {
+          "id": "t_mapping<t_struct<PLCRVoting.Poll>>",
+          "valueType": "t_struct<PLCRVoting.Poll>",
+          "label": "mapping(key => PLCRVoting.Poll)",
+          "kind": "mapping"
+        },
+        "t_struct<DLL.Data>": {
+          "id": "t_struct<DLL.Data>",
+          "kind": "struct",
+          "label": "DLL.Data",
+          "members": [
+            {
+              "label": "dll",
+              "astId": 1432,
+              "type": "t_mapping<t_struct<DLL.Node>>",
+              "src": "154:25:4"
+            }
+          ]
+        },
+        "t_struct<DLL.Node>": {
+          "id": "t_struct<DLL.Node>",
+          "kind": "struct",
+          "label": "DLL.Node",
+          "members": [
+            {
+              "label": "next",
+              "astId": 1425,
+              "type": "t_uint256",
+              "src": "103:9:4"
+            },
+            {
+              "label": "prev",
+              "astId": 1427,
+              "type": "t_uint256",
+              "src": "118:9:4"
+            }
+          ]
+        },
+        "t_mapping<t_struct<DLL.Node>>": {
+          "id": "t_mapping<t_struct<DLL.Node>>",
+          "valueType": "t_struct<DLL.Node>",
+          "label": "mapping(key => DLL.Node)",
+          "kind": "mapping"
+        },
+        "t_mapping<t_struct<DLL.Data>>": {
+          "id": "t_mapping<t_struct<DLL.Data>>",
+          "valueType": "t_struct<DLL.Data>",
+          "label": "mapping(key => DLL.Data)",
+          "kind": "mapping"
+        },
+        "t_struct<AttributeStore.Data>": {
+          "id": "t_struct<AttributeStore.Data>",
+          "kind": "struct",
+          "label": "AttributeStore.Data",
+          "members": [
+            {
+              "label": "store",
+              "astId": 1359,
+              "type": "t_mapping<t_uint256>",
+              "src": "84:30:3"
+            }
+          ]
+        },
+        "t_address": {
+          "id": "t_address",
+          "kind": "elementary",
+          "label": "address"
+        }
+      },
+      "storage": [
+        {
+          "contract": "Initializable",
+          "path": "contracts/utils/Initializable.sol",
+          "label": "initialized",
+          "astId": 8378,
+          "type": "t_bool",
+          "src": "757:24:29"
+        },
+        {
+          "contract": "Initializable",
+          "path": "contracts/utils/Initializable.sol",
+          "label": "initializing",
+          "astId": 8380,
+          "type": "t_bool",
+          "src": "876:25:29"
+        },
+        {
+          "contract": "Initializable",
+          "path": "contracts/utils/Initializable.sol",
+          "label": "______gap",
+          "astId": 8429,
+          "type": "t_array:50<t_uint256>",
+          "src": "1891:29:29"
+        },
+        {
+          "contract": "PLCRVoting",
+          "path": "contracts/PLCR/PLCRVoting.sol",
+          "label": "pollNonce",
+          "astId": 186,
+          "type": "t_uint256",
+          "src": "1970:21:2"
+        },
+        {
+          "contract": "PLCRVoting",
+          "path": "contracts/PLCR/PLCRVoting.sol",
+          "label": "INITIAL_POLL_NONCE",
+          "astId": 188,
+          "type": "t_uint256",
+          "src": "1997:30:2"
+        },
+        {
+          "contract": "PLCRVoting",
+          "path": "contracts/PLCR/PLCRVoting.sol",
+          "label": "pollMap",
+          "astId": 192,
+          "type": "t_mapping<t_struct<PLCRVoting.Poll>>",
+          "src": "2034:36:2"
+        },
+        {
+          "contract": "PLCRVoting",
+          "path": "contracts/PLCR/PLCRVoting.sol",
+          "label": "voteTokenBalance",
+          "astId": 196,
+          "type": "t_mapping<t_uint256>",
+          "src": "2106:48:2"
+        },
+        {
+          "contract": "PLCRVoting",
+          "path": "contracts/PLCR/PLCRVoting.sol",
+          "label": "dllMap",
+          "astId": 200,
+          "type": "t_mapping<t_struct<DLL.Data>>",
+          "src": "2205:35:2"
+        },
+        {
+          "contract": "PLCRVoting",
+          "path": "contracts/PLCR/PLCRVoting.sol",
+          "label": "store",
+          "astId": 202,
+          "type": "t_struct<AttributeStore.Data>",
+          "src": "2246:25:2"
+        },
+        {
+          "contract": "PLCRVoting",
+          "path": "contracts/PLCR/PLCRVoting.sol",
+          "label": "token",
+          "astId": 204,
+          "type": "t_address",
+          "src": "2278:20:2"
+        }
+      ],
+      "warnings": {
+        "hasConstructor": false,
+        "hasSelfDestruct": false,
+        "hasDelegateCall": false,
+        "hasInitialValuesInDeclarations": false,
+        "uninitializedBaseContracts": []
+      }
+    },
     "XyGovernance": {
-      "address": "0x1EB87c1741622df7EdD360D068F192E4A5959eFb",
+      "address": "0xF79aA6B933E17ae2F91589b972b0540917cD38e5",
       "constructorCode": "608060405234801561001057600080fd5b50613a36806100206000396000f3fe",
       "bodyBytecodeHash": "e012553c3b048bfefb98645b96b2f2c9e5157e62ab90b834e14393f9d7c53c5f",
       "localBytecodeHash": "48f762b4919c23511b7195589f7d87f2aa68733393a8571f0d2ce26383856762",
@@ -221,7 +591,7 @@
           "contract": "Initializable",
           "path": "contracts/utils/Initializable.sol",
           "label": "initialized",
-          "astId": 9059,
+          "astId": 8378,
           "type": "t_bool",
           "src": "757:24:29"
         },
@@ -229,7 +599,7 @@
           "contract": "Initializable",
           "path": "contracts/utils/Initializable.sol",
           "label": "initializing",
-          "astId": 9061,
+          "astId": 8380,
           "type": "t_bool",
           "src": "876:25:29"
         },
@@ -237,7 +607,7 @@
           "contract": "Initializable",
           "path": "contracts/utils/Initializable.sol",
           "label": "______gap",
-          "astId": 9110,
+          "astId": 8429,
           "type": "t_array:50<t_uint256>",
           "src": "1891:29:29"
         },
@@ -327,181 +697,15 @@
         "hasSelfDestruct": false,
         "hasDelegateCall": false,
         "hasInitialValuesInDeclarations": false,
-        "uninitializedBaseContracts": [],
-        "storageUncheckedVars": [
-          {
-            "contract": "XyParameterizer",
-            "path": "contracts/XyParameterizer.sol",
-            "label": "challenges",
-            "astId": 2339,
-            "type": "t_mapping<t_struct<XyParameterizer.Challenge>>",
-            "src": "1955:44:7"
-          },
-          {
-            "contract": "XyParameterizer",
-            "path": "contracts/XyParameterizer.sol",
-            "label": "proposals",
-            "astId": 2343,
-            "type": "t_mapping<t_struct<XyParameterizer.ParamProposal>>",
-            "src": "2065:50:7"
-          },
-          {
-            "contract": "XyGovernance",
-            "path": "contracts/XyGovernance.sol",
-            "label": "resolutions",
-            "astId": 1951,
-            "type": "t_mapping<t_array:dyn<t_struct<XyGovernance.GovernanceAction>>>",
-            "src": "931:58:6"
-          },
-          {
-            "contract": "XyGovernance",
-            "path": "contracts/XyGovernance.sol",
-            "label": "actions",
-            "astId": 1955,
-            "type": "t_mapping<t_struct<XyGovernance.GovernanceAction>>",
-            "src": "995:52:6"
-          }
-        ],
-        "storageDiff": []
-      }
-    },
-    "XyBlockProducer": {
-      "address": "0x2e6a2E78e4901ABA6a76a65AF98A1a89A001AE34",
-      "constructorCode": "608060405234801561001057600080fd5b506109aa806100206000396000f3fe",
-      "bodyBytecodeHash": "739d5a47c28937f1cd9252c70a649c5538e7ef02f4bc6aaba38603d195ae3bf9",
-      "localBytecodeHash": "799c0a27e910109fcfd3899b002b18b54d1c4c3d3336287d58a3e1744c8a1f87",
-      "deployedBytecodeHash": "799c0a27e910109fcfd3899b002b18b54d1c4c3d3336287d58a3e1744c8a1f87",
-      "types": {
-        "t_bool": {
-          "id": "t_bool",
-          "kind": "elementary",
-          "label": "bool"
-        },
-        "t_uint256": {
-          "id": "t_uint256",
-          "kind": "elementary",
-          "label": "uint256"
-        },
-        "t_array:50<t_uint256>": {
-          "id": "t_array:50<t_uint256>",
-          "valueType": "t_uint256",
-          "length": "50",
-          "kind": "array",
-          "label": "uint256[50]"
-        },
-        "t_struct<Roles.Role>": {
-          "id": "t_struct<Roles.Role>",
-          "kind": "struct",
-          "label": "Roles.Role",
-          "members": [
-            {
-              "label": "bearer",
-              "astId": 3956,
-              "type": "t_mapping<t_bool>",
-              "src": "152:32:10"
-            }
-          ]
-        },
-        "t_mapping<t_bool>": {
-          "id": "t_mapping<t_bool>",
-          "valueType": "t_bool",
-          "label": "mapping(key => bool)",
-          "kind": "mapping"
-        },
-        "t_address": {
-          "id": "t_address",
-          "kind": "elementary",
-          "label": "address"
-        },
-        "t_array:dyn<t_address>": {
-          "id": "t_array:dyn<t_address>",
-          "valueType": "t_address",
-          "length": "dyn",
-          "kind": "array",
-          "label": "address[]"
-        },
-        "t_mapping<t_uint256>": {
-          "id": "t_mapping<t_uint256>",
-          "valueType": "t_uint256",
-          "label": "mapping(key => uint256)",
-          "kind": "mapping"
-        }
-      },
-      "storage": [
-        {
-          "contract": "Initializable",
-          "path": "contracts/utils/Initializable.sol",
-          "label": "initialized",
-          "astId": 9059,
-          "type": "t_bool",
-          "src": "757:24:29"
-        },
-        {
-          "contract": "Initializable",
-          "path": "contracts/utils/Initializable.sol",
-          "label": "initializing",
-          "astId": 9061,
-          "type": "t_bool",
-          "src": "876:25:29"
-        },
-        {
-          "contract": "Initializable",
-          "path": "contracts/utils/Initializable.sol",
-          "label": "______gap",
-          "astId": 9110,
-          "type": "t_array:50<t_uint256>",
-          "src": "1891:29:29"
-        },
-        {
-          "contract": "GovernorRole",
-          "path": "contracts/access/GovernorRole.sol",
-          "label": "governors",
-          "astId": 3854,
-          "type": "t_struct<Roles.Role>",
-          "src": "113:28:9"
-        },
-        {
-          "contract": "XyBlockProducer",
-          "path": "contracts/XyBlockProducer.sol",
-          "label": "blockProducers",
-          "astId": 1747,
-          "type": "t_array:dyn<t_address>",
-          "src": "629:31:5"
-        },
-        {
-          "contract": "XyBlockProducer",
-          "path": "contracts/XyBlockProducer.sol",
-          "label": "blockProducerIndexes",
-          "astId": 1751,
-          "type": "t_mapping<t_uint256>",
-          "src": "757:52:5"
-        }
-      ],
-      "warnings": {
-        "hasConstructor": false,
-        "hasSelfDestruct": false,
-        "hasDelegateCall": false,
-        "hasInitialValuesInDeclarations": false,
-        "uninitializedBaseContracts": [],
-        "storageUncheckedVars": [
-          {
-            "contract": "GovernorRole",
-            "path": "contracts/access/GovernorRole.sol",
-            "label": "governors",
-            "astId": 3854,
-            "type": "t_struct<Roles.Role>",
-            "src": "113:28:9"
-          }
-        ],
-        "storageDiff": []
+        "uninitializedBaseContracts": []
       }
     },
     "XyStakingConsensus": {
-      "address": "0x1318fc36c92AC49f03cED24c607e35977F5021b0",
-      "constructorCode": "608060405234801561001057600080fd5b5061568b80620000216000396000f3fe",
-      "bodyBytecodeHash": "25ff42c42b67ce13acc05ddeffbaf74902ae9a6c2dbdfb73a2b236dfee4d952e",
-      "localBytecodeHash": "3581b29406fd5a37a6daf6dd0e9260a6d2b63a3fa60b304bb009864e961627b4",
-      "deployedBytecodeHash": "3581b29406fd5a37a6daf6dd0e9260a6d2b63a3fa60b304bb009864e961627b4",
+      "address": "0x883b6E2d2fc86bAC89e301265178A0D4981c7F1A",
+      "constructorCode": "608060405234801561001057600080fd5b50614437806100206000396000f3fe",
+      "bodyBytecodeHash": "919c9c8605b8467e55061806cd6cb621ed43dea4d63a26701ea283a2b144670a",
+      "localBytecodeHash": "ae056a94abc562171a82e91f0a6acf774c184bbe4fbfb68d5866fc3409b881bd",
+      "deployedBytecodeHash": "ae056a94abc562171a82e91f0a6acf774c184bbe4fbfb68d5866fc3409b881bd",
       "types": {
         "t_bool": {
           "id": "t_bool",
@@ -532,43 +736,43 @@
           "members": [
             {
               "label": "amount",
-              "astId": 6367,
+              "astId": 5738,
               "type": "t_uint256",
               "src": "1552:11:16"
             },
             {
               "label": "stakeBlock",
-              "astId": 6369,
+              "astId": 5740,
               "type": "t_uint256",
               "src": "1608:15:16"
             },
             {
               "label": "unstakeBlock",
-              "astId": 6371,
+              "astId": 5742,
               "type": "t_uint256",
               "src": "1662:17:16"
             },
             {
               "label": "stakee",
-              "astId": 6373,
+              "astId": 5744,
               "type": "t_address",
               "src": "1733:14:16"
             },
             {
               "label": "staker",
-              "astId": 6375,
+              "astId": 5746,
               "type": "t_address",
               "src": "1783:14:16"
             },
             {
               "label": "isActivated",
-              "astId": 6377,
+              "astId": 5748,
               "type": "t_bool",
               "src": "1837:16:16"
             },
             {
               "label": "isCooledDown",
-              "astId": 6379,
+              "astId": 5750,
               "type": "t_bool",
               "src": "1918:17:16"
             }
@@ -611,25 +815,25 @@
           "members": [
             {
               "label": "totalStake",
-              "astId": 6382,
+              "astId": 5753,
               "type": "t_uint256",
               "src": "2053:15:16"
             },
             {
               "label": "activeStake",
-              "astId": 6384,
+              "astId": 5755,
               "type": "t_uint256",
               "src": "2078:16:16"
             },
             {
               "label": "cooldownStake",
-              "astId": 6386,
+              "astId": 5757,
               "type": "t_uint256",
               "src": "2104:18:16"
             },
             {
               "label": "totalUnstake",
-              "astId": 6388,
+              "astId": 5759,
               "type": "t_uint256",
               "src": "2132:17:16"
             }
@@ -648,37 +852,37 @@
           "members": [
             {
               "label": "xyoBounty",
-              "astId": 4952,
+              "astId": 4809,
               "type": "t_uint256",
               "src": "602:14:15"
             },
             {
               "label": "weiMining",
-              "astId": 4954,
+              "astId": 4811,
               "type": "t_uint256",
               "src": "626:14:15"
             },
             {
               "label": "createdAt",
-              "astId": 4956,
+              "astId": 4813,
               "type": "t_uint256",
               "src": "650:14:15"
             },
             {
               "label": "responseBlockNumber",
-              "astId": 4958,
+              "astId": 4815,
               "type": "t_uint256",
               "src": "674:24:15"
             },
             {
               "label": "requestSender",
-              "astId": 4960,
+              "astId": 4817,
               "type": "t_address",
               "src": "708:21:15"
             },
             {
               "label": "requestType",
-              "astId": 4962,
+              "astId": 4819,
               "type": "t_uint8",
               "src": "739:17:15"
             }
@@ -702,31 +906,31 @@
           "members": [
             {
               "label": "previousBlock",
-              "astId": 4941,
+              "astId": 4798,
               "type": "t_bytes32",
               "src": "435:21:15"
             },
             {
               "label": "supportingData",
-              "astId": 4943,
+              "astId": 4800,
               "type": "t_bytes32",
               "src": "466:22:15"
             },
             {
               "label": "stakingBlock",
-              "astId": 4945,
+              "astId": 4802,
               "type": "t_uint256",
               "src": "498:17:15"
             },
             {
               "label": "createdAt",
-              "astId": 4947,
+              "astId": 4804,
               "type": "t_uint256",
               "src": "525:14:15"
             },
             {
               "label": "creator",
-              "astId": 4949,
+              "astId": 4806,
               "type": "t_address",
               "src": "549:15:15"
             }
@@ -750,7 +954,7 @@
           "contract": "Initializable",
           "path": "contracts/utils/Initializable.sol",
           "label": "initialized",
-          "astId": 9059,
+          "astId": 8378,
           "type": "t_bool",
           "src": "757:24:29"
         },
@@ -758,7 +962,7 @@
           "contract": "Initializable",
           "path": "contracts/utils/Initializable.sol",
           "label": "initializing",
-          "astId": 9061,
+          "astId": 8380,
           "type": "t_bool",
           "src": "876:25:29"
         },
@@ -766,7 +970,7 @@
           "contract": "Initializable",
           "path": "contracts/utils/Initializable.sol",
           "label": "______gap",
-          "astId": 9110,
+          "astId": 8429,
           "type": "t_array:50<t_uint256>",
           "src": "1891:29:29"
         },
@@ -774,7 +978,7 @@
           "contract": "XyStakingModel",
           "path": "contracts/staking/XyStakingModel.sol",
           "label": "xyoToken",
-          "astId": 6325,
+          "astId": 5696,
           "type": "t_address",
           "src": "308:23:16"
         },
@@ -782,7 +986,7 @@
           "contract": "XyStakingModel",
           "path": "contracts/staking/XyStakingModel.sol",
           "label": "blockProducerContract",
-          "astId": 6327,
+          "astId": 5698,
           "type": "t_address",
           "src": "397:44:16"
         },
@@ -790,7 +994,7 @@
           "contract": "XyStakingModel",
           "path": "contracts/staking/XyStakingModel.sol",
           "label": "govContract",
-          "astId": 6329,
+          "astId": 5700,
           "type": "t_address",
           "src": "519:31:16"
         },
@@ -798,7 +1002,7 @@
           "contract": "XyStakingModel",
           "path": "contracts/staking/XyStakingModel.sol",
           "label": "totalActiveStake",
-          "astId": 6331,
+          "astId": 5702,
           "type": "t_uint256",
           "src": "631:28:16"
         },
@@ -806,7 +1010,7 @@
           "contract": "XyStakingModel",
           "path": "contracts/staking/XyStakingModel.sol",
           "label": "totalCooldownStake",
-          "astId": 6333,
+          "astId": 5704,
           "type": "t_uint256",
           "src": "732:30:16"
         },
@@ -814,7 +1018,7 @@
           "contract": "XyStakingModel",
           "path": "contracts/staking/XyStakingModel.sol",
           "label": "penaltyStake",
-          "astId": 6335,
+          "astId": 5706,
           "type": "t_uint256",
           "src": "830:24:16"
         },
@@ -822,7 +1026,7 @@
           "contract": "XyStakingModel",
           "path": "contracts/staking/XyStakingModel.sol",
           "label": "stakeData",
-          "astId": 6339,
+          "astId": 5710,
           "type": "t_mapping<t_struct<XyStakingModel.Stake>>",
           "src": "920:43:16"
         },
@@ -830,7 +1034,7 @@
           "contract": "XyStakingModel",
           "path": "contracts/staking/XyStakingModel.sol",
           "label": "stakeeToStakingIds",
-          "astId": 6344,
+          "astId": 5715,
           "type": "t_mapping<t_array:dyn<t_bytes32>>",
           "src": "1015:56:16"
         },
@@ -838,7 +1042,7 @@
           "contract": "XyStakingModel",
           "path": "contracts/staking/XyStakingModel.sol",
           "label": "stakerToStakingIds",
-          "astId": 6349,
+          "astId": 5720,
           "type": "t_mapping<t_array:dyn<t_bytes32>>",
           "src": "1077:56:16"
         },
@@ -846,7 +1050,7 @@
           "contract": "XyStakingModel",
           "path": "contracts/staking/XyStakingModel.sol",
           "label": "stakingStakeeIndex",
-          "astId": 6353,
+          "astId": 5724,
           "type": "t_mapping<t_uint256>",
           "src": "1203:51:16"
         },
@@ -854,7 +1058,7 @@
           "contract": "XyStakingModel",
           "path": "contracts/staking/XyStakingModel.sol",
           "label": "stakingStakerIndex",
-          "astId": 6357,
+          "astId": 5728,
           "type": "t_mapping<t_uint256>",
           "src": "1260:51:16"
         },
@@ -862,7 +1066,7 @@
           "contract": "XyStakingModel",
           "path": "contracts/staking/XyStakingModel.sol",
           "label": "stakeeStake",
-          "astId": 6361,
+          "astId": 5732,
           "type": "t_mapping<t_struct<XyStakingModel.StakeAmounts>>",
           "src": "1368:52:16"
         },
@@ -870,7 +1074,7 @@
           "contract": "XyStakingModel",
           "path": "contracts/staking/XyStakingModel.sol",
           "label": "stakerStake",
-          "astId": 6365,
+          "astId": 5736,
           "type": "t_mapping<t_struct<XyStakingModel.StakeAmounts>>",
           "src": "1426:52:16"
         },
@@ -878,7 +1082,7 @@
           "contract": "XyStakingConsensus",
           "path": "contracts/staking/XyStakingConsensus.sol",
           "label": "requestChain",
-          "astId": 4966,
+          "astId": 4823,
           "type": "t_array:dyn<t_bytes32>",
           "src": "801:29:15"
         },
@@ -886,7 +1090,7 @@
           "contract": "XyStakingConsensus",
           "path": "contracts/staking/XyStakingConsensus.sol",
           "label": "requestsById",
-          "astId": 4970,
+          "astId": 4827,
           "type": "t_mapping<t_struct<XyStakingConsensus.Request>>",
           "src": "876:47:15"
         },
@@ -894,7 +1098,7 @@
           "contract": "XyStakingConsensus",
           "path": "contracts/staking/XyStakingConsensus.sol",
           "label": "blockChain",
-          "astId": 4973,
+          "astId": 4830,
           "type": "t_array:dyn<t_bytes32>",
           "src": "960:27:15"
         },
@@ -902,7 +1106,7 @@
           "contract": "XyStakingConsensus",
           "path": "contracts/staking/XyStakingConsensus.sol",
           "label": "blocks",
-          "astId": 4977,
+          "astId": 4834,
           "type": "t_mapping<t_struct<XyStakingConsensus.Block>>",
           "src": "1030:39:15"
         },
@@ -910,7 +1114,7 @@
           "contract": "XyStakingConsensus",
           "path": "contracts/staking/XyStakingConsensus.sol",
           "label": "bondedStake",
-          "astId": 5025,
+          "astId": 4882,
           "type": "t_mapping<t_bytes32>",
           "src": "1745:47:15"
         },
@@ -918,7 +1122,7 @@
           "contract": "XyStakingConsensus",
           "path": "contracts/staking/XyStakingConsensus.sol",
           "label": "bondStakes",
-          "astId": 5030,
+          "astId": 4887,
           "type": "t_mapping<t_array:dyn<t_bytes32>>",
           "src": "1839:48:15"
         },
@@ -926,7 +1130,7 @@
           "contract": "XyStakingConsensus",
           "path": "contracts/staking/XyStakingConsensus.sol",
           "label": "bondStakeIndex",
-          "astId": 5034,
+          "astId": 4891,
           "type": "t_mapping<t_uint256>",
           "src": "1945:47:15"
         }
@@ -936,335 +1140,15 @@
         "hasSelfDestruct": false,
         "hasDelegateCall": false,
         "hasInitialValuesInDeclarations": false,
-        "uninitializedBaseContracts": [],
-        "storageUncheckedVars": [
-          {
-            "contract": "XyStakingModel",
-            "path": "contracts/staking/XyStakingModel.sol",
-            "label": "stakeData",
-            "astId": 6339,
-            "type": "t_mapping<t_struct<XyStakingModel.Stake>>",
-            "src": "920:43:16"
-          },
-          {
-            "contract": "XyStakingModel",
-            "path": "contracts/staking/XyStakingModel.sol",
-            "label": "stakeeStake",
-            "astId": 6361,
-            "type": "t_mapping<t_struct<XyStakingModel.StakeAmounts>>",
-            "src": "1368:52:16"
-          },
-          {
-            "contract": "XyStakingModel",
-            "path": "contracts/staking/XyStakingModel.sol",
-            "label": "stakerStake",
-            "astId": 6365,
-            "type": "t_mapping<t_struct<XyStakingModel.StakeAmounts>>",
-            "src": "1426:52:16"
-          },
-          {
-            "contract": "XyStakingConsensus",
-            "path": "contracts/staking/XyStakingConsensus.sol",
-            "label": "requestsById",
-            "astId": 4970,
-            "type": "t_mapping<t_struct<XyStakingConsensus.Request>>",
-            "src": "876:47:15"
-          },
-          {
-            "contract": "XyStakingConsensus",
-            "path": "contracts/staking/XyStakingConsensus.sol",
-            "label": "blocks",
-            "astId": 4977,
-            "type": "t_mapping<t_struct<XyStakingConsensus.Block>>",
-            "src": "1030:39:15"
-          }
-        ],
-        "storageDiff": []
-      }
-    },
-    "PLCRVoting": {
-      "address": "0x81aFB08D26Ba9064450aBD03bACaa2cB4d07df68",
-      "constructorCode": "608060405234801561001057600080fd5b506129b5806100206000396000f3fe",
-      "bodyBytecodeHash": "34a7e54c77abe5da63309cb73656f3c0371078e79338e832c5da7820a0543a45",
-      "localBytecodeHash": "9ed334991b8e8c96f6595b37f1733f5bd8130b0de7211801d19ce3d180c80f3b",
-      "deployedBytecodeHash": "cecbf3784a67c18d88e7140c67638f3f20171a85a4b320a0ae82f0ae7268755c",
-      "types": {
-        "t_bool": {
-          "id": "t_bool",
-          "kind": "elementary",
-          "label": "bool"
-        },
-        "t_uint256": {
-          "id": "t_uint256",
-          "kind": "elementary",
-          "label": "uint256"
-        },
-        "t_array:50<t_uint256>": {
-          "id": "t_array:50<t_uint256>",
-          "valueType": "t_uint256",
-          "length": "50",
-          "kind": "array",
-          "label": "uint256[50]"
-        },
-        "t_struct<PLCRVoting.Poll>": {
-          "id": "t_struct<PLCRVoting.Poll>",
-          "kind": "struct",
-          "label": "PLCRVoting.Poll",
-          "members": [
-            {
-              "label": "commitEndDate",
-              "astId": 163,
-              "type": "t_uint256",
-              "src": "1208:18:2"
-            },
-            {
-              "label": "revealEndDate",
-              "astId": 165,
-              "type": "t_uint256",
-              "src": "1286:18:2"
-            },
-            {
-              "label": "voteQuorum",
-              "astId": 167,
-              "type": "t_uint256",
-              "src": "1364:15:2"
-            },
-            {
-              "label": "votesFor",
-              "astId": 169,
-              "type": "t_uint256",
-              "src": "1445:13:2"
-            },
-            {
-              "label": "votesAgainst",
-              "astId": 171,
-              "type": "t_uint256",
-              "src": "1512:17:2"
-            },
-            {
-              "label": "didCommit",
-              "astId": 175,
-              "type": "t_mapping<t_bool>",
-              "src": "1583:34:2"
-            },
-            {
-              "label": "didReveal",
-              "astId": 179,
-              "type": "t_mapping<t_bool>",
-              "src": "1693:34:2"
-            },
-            {
-              "label": "voteOptions",
-              "astId": 183,
-              "type": "t_mapping<t_uint256>",
-              "src": "1802:36:2"
-            }
-          ]
-        },
-        "t_mapping<t_bool>": {
-          "id": "t_mapping<t_bool>",
-          "valueType": "t_bool",
-          "label": "mapping(key => bool)",
-          "kind": "mapping"
-        },
-        "t_mapping<t_uint256>": {
-          "id": "t_mapping<t_uint256>",
-          "valueType": "t_uint256",
-          "label": "mapping(key => uint256)",
-          "kind": "mapping"
-        },
-        "t_mapping<t_struct<PLCRVoting.Poll>>": {
-          "id": "t_mapping<t_struct<PLCRVoting.Poll>>",
-          "valueType": "t_struct<PLCRVoting.Poll>",
-          "label": "mapping(key => PLCRVoting.Poll)",
-          "kind": "mapping"
-        },
-        "t_struct<DLL.Data>": {
-          "id": "t_struct<DLL.Data>",
-          "kind": "struct",
-          "label": "DLL.Data",
-          "members": [
-            {
-              "label": "dll",
-              "astId": 1432,
-              "type": "t_mapping<t_struct<DLL.Node>>",
-              "src": "154:25:4"
-            }
-          ]
-        },
-        "t_struct<DLL.Node>": {
-          "id": "t_struct<DLL.Node>",
-          "kind": "struct",
-          "label": "DLL.Node",
-          "members": [
-            {
-              "label": "next",
-              "astId": 1425,
-              "type": "t_uint256",
-              "src": "103:9:4"
-            },
-            {
-              "label": "prev",
-              "astId": 1427,
-              "type": "t_uint256",
-              "src": "118:9:4"
-            }
-          ]
-        },
-        "t_mapping<t_struct<DLL.Node>>": {
-          "id": "t_mapping<t_struct<DLL.Node>>",
-          "valueType": "t_struct<DLL.Node>",
-          "label": "mapping(key => DLL.Node)",
-          "kind": "mapping"
-        },
-        "t_mapping<t_struct<DLL.Data>>": {
-          "id": "t_mapping<t_struct<DLL.Data>>",
-          "valueType": "t_struct<DLL.Data>",
-          "label": "mapping(key => DLL.Data)",
-          "kind": "mapping"
-        },
-        "t_struct<AttributeStore.Data>": {
-          "id": "t_struct<AttributeStore.Data>",
-          "kind": "struct",
-          "label": "AttributeStore.Data",
-          "members": [
-            {
-              "label": "store",
-              "astId": 1359,
-              "type": "t_mapping<t_uint256>",
-              "src": "84:30:3"
-            }
-          ]
-        },
-        "t_address": {
-          "id": "t_address",
-          "kind": "elementary",
-          "label": "address"
-        }
-      },
-      "storage": [
-        {
-          "contract": "Initializable",
-          "path": "contracts/utils/Initializable.sol",
-          "label": "initialized",
-          "astId": 9059,
-          "type": "t_bool",
-          "src": "757:24:29"
-        },
-        {
-          "contract": "Initializable",
-          "path": "contracts/utils/Initializable.sol",
-          "label": "initializing",
-          "astId": 9061,
-          "type": "t_bool",
-          "src": "876:25:29"
-        },
-        {
-          "contract": "Initializable",
-          "path": "contracts/utils/Initializable.sol",
-          "label": "______gap",
-          "astId": 9110,
-          "type": "t_array:50<t_uint256>",
-          "src": "1891:29:29"
-        },
-        {
-          "contract": "PLCRVoting",
-          "path": "contracts/PLCR/PLCRVoting.sol",
-          "label": "pollNonce",
-          "astId": 186,
-          "type": "t_uint256",
-          "src": "1970:21:2"
-        },
-        {
-          "contract": "PLCRVoting",
-          "path": "contracts/PLCR/PLCRVoting.sol",
-          "label": "INITIAL_POLL_NONCE",
-          "astId": 188,
-          "type": "t_uint256",
-          "src": "1997:30:2"
-        },
-        {
-          "contract": "PLCRVoting",
-          "path": "contracts/PLCR/PLCRVoting.sol",
-          "label": "pollMap",
-          "astId": 192,
-          "type": "t_mapping<t_struct<PLCRVoting.Poll>>",
-          "src": "2034:36:2"
-        },
-        {
-          "contract": "PLCRVoting",
-          "path": "contracts/PLCR/PLCRVoting.sol",
-          "label": "voteTokenBalance",
-          "astId": 196,
-          "type": "t_mapping<t_uint256>",
-          "src": "2106:48:2"
-        },
-        {
-          "contract": "PLCRVoting",
-          "path": "contracts/PLCR/PLCRVoting.sol",
-          "label": "dllMap",
-          "astId": 200,
-          "type": "t_mapping<t_struct<DLL.Data>>",
-          "src": "2205:35:2"
-        },
-        {
-          "contract": "PLCRVoting",
-          "path": "contracts/PLCR/PLCRVoting.sol",
-          "label": "store",
-          "astId": 202,
-          "type": "t_struct<AttributeStore.Data>",
-          "src": "2246:25:2"
-        },
-        {
-          "contract": "PLCRVoting",
-          "path": "contracts/PLCR/PLCRVoting.sol",
-          "label": "token",
-          "astId": 204,
-          "type": "t_address",
-          "src": "2278:20:2"
-        }
-      ],
-      "warnings": {
-        "hasConstructor": false,
-        "hasSelfDestruct": false,
-        "hasDelegateCall": false,
-        "hasInitialValuesInDeclarations": false,
-        "uninitializedBaseContracts": [],
-        "storageUncheckedVars": [
-          {
-            "contract": "PLCRVoting",
-            "path": "contracts/PLCR/PLCRVoting.sol",
-            "label": "pollMap",
-            "astId": 192,
-            "type": "t_mapping<t_struct<PLCRVoting.Poll>>",
-            "src": "2034:36:2"
-          },
-          {
-            "contract": "PLCRVoting",
-            "path": "contracts/PLCR/PLCRVoting.sol",
-            "label": "dllMap",
-            "astId": 200,
-            "type": "t_mapping<t_struct<DLL.Data>>",
-            "src": "2205:35:2"
-          },
-          {
-            "contract": "PLCRVoting",
-            "path": "contracts/PLCR/PLCRVoting.sol",
-            "label": "store",
-            "astId": 202,
-            "type": "t_struct<AttributeStore.Data>",
-            "src": "2246:25:2"
-          }
-        ],
-        "storageDiff": []
+        "uninitializedBaseContracts": []
       }
     },
     "XyBond": {
-      "address": "0x05F8dE53cA60D2a44527d4DefE383b9C57836462",
-      "constructorCode": "608060405234801561001057600080fd5b50611e14806100206000396000f3fe",
-      "bodyBytecodeHash": "09f697d2f05d22b16847b9ce05f505d948f0fdfd8adf0ce4160a8b251527c6d5",
-      "localBytecodeHash": "96af127cf08b259ba3445d7ef817b5eb83f91b37c903642bf6141c9355ffb427",
-      "deployedBytecodeHash": "96af127cf08b259ba3445d7ef817b5eb83f91b37c903642bf6141c9355ffb427",
+      "address": "0x489354253CD6FeD6a5CA24d7E9448cA7650B6234",
+      "constructorCode": "608060405234801561001057600080fd5b506117f4806100206000396000f3fe",
+      "bodyBytecodeHash": "e1d5a0e4139060cb84be9db1a27b7e2f62722ae20735eca14d76848ef9c03f1d",
+      "localBytecodeHash": "4e8cdf8a6f0207bc687e06cc0b4b0fb301ff1b1eba73bfe5ab2423b6073d293d",
+      "deployedBytecodeHash": "4e8cdf8a6f0207bc687e06cc0b4b0fb301ff1b1eba73bfe5ab2423b6073d293d",
       "types": {
         "t_struct<Roles.Role>": {
           "id": "t_struct<Roles.Role>",
@@ -1273,7 +1157,7 @@
           "members": [
             {
               "label": "bearer",
-              "astId": 3956,
+              "astId": 3846,
               "type": "t_mapping<t_bool>",
               "src": "152:32:10"
             }
@@ -1314,37 +1198,37 @@
           "members": [
             {
               "label": "value",
-              "astId": 4303,
+              "astId": 4193,
               "type": "t_uint256",
               "src": "897:10:14"
             },
             {
               "label": "expirationSec",
-              "astId": 4305,
+              "astId": 4195,
               "type": "t_uint256",
               "src": "946:18:14"
             },
             {
               "label": "creationSec",
-              "astId": 4307,
+              "astId": 4197,
               "type": "t_uint256",
               "src": "1008:16:14"
             },
             {
               "label": "allocated",
-              "astId": 4309,
+              "astId": 4199,
               "type": "t_uint256",
               "src": "1068:14:14"
             },
             {
               "label": "owner",
-              "astId": 4311,
+              "astId": 4201,
               "type": "t_address",
               "src": "1134:13:14"
             },
             {
               "label": "interest",
-              "astId": 4313,
+              "astId": 4203,
               "type": "t_uint8",
               "src": "1188:14:14"
             }
@@ -1391,7 +1275,7 @@
           "contract": "GovernorRole",
           "path": "contracts/access/GovernorRole.sol",
           "label": "governors",
-          "astId": 3854,
+          "astId": 3744,
           "type": "t_struct<Roles.Role>",
           "src": "113:28:9"
         },
@@ -1399,7 +1283,7 @@
           "contract": "Initializable",
           "path": "contracts/utils/Initializable.sol",
           "label": "initialized",
-          "astId": 9059,
+          "astId": 8378,
           "type": "t_bool",
           "src": "757:24:29"
         },
@@ -1407,7 +1291,7 @@
           "contract": "Initializable",
           "path": "contracts/utils/Initializable.sol",
           "label": "initializing",
-          "astId": 9061,
+          "astId": 8380,
           "type": "t_bool",
           "src": "876:25:29"
         },
@@ -1415,7 +1299,7 @@
           "contract": "Initializable",
           "path": "contracts/utils/Initializable.sol",
           "label": "______gap",
-          "astId": 9110,
+          "astId": 8429,
           "type": "t_array:50<t_uint256>",
           "src": "1891:29:29"
         },
@@ -1423,7 +1307,7 @@
           "contract": "XyBond",
           "path": "contracts/staking/XyBond.sol",
           "label": "erc20",
-          "astId": 4259,
+          "astId": 4149,
           "type": "t_address",
           "src": "336:20:14"
         },
@@ -1431,7 +1315,7 @@
           "contract": "XyBond",
           "path": "contracts/staking/XyBond.sol",
           "label": "staking",
-          "astId": 4261,
+          "astId": 4151,
           "type": "t_address",
           "src": "395:22:14"
         },
@@ -1439,7 +1323,7 @@
           "contract": "XyBond",
           "path": "contracts/staking/XyBond.sol",
           "label": "governablePeriod",
-          "astId": 4263,
+          "astId": 4153,
           "type": "t_uint256",
           "src": "454:28:14"
         },
@@ -1447,7 +1331,7 @@
           "contract": "XyBond",
           "path": "contracts/staking/XyBond.sol",
           "label": "bond",
-          "astId": 4318,
+          "astId": 4208,
           "type": "t_mapping<t_struct<XyBond.Bond>>",
           "src": "1269:37:14"
         },
@@ -1455,7 +1339,7 @@
           "contract": "XyBond",
           "path": "contracts/staking/XyBond.sol",
           "label": "bondIndex",
-          "astId": 4322,
+          "astId": 4212,
           "type": "t_mapping<t_uint256>",
           "src": "1349:42:14"
         },
@@ -1463,7 +1347,7 @@
           "contract": "XyBond",
           "path": "contracts/staking/XyBond.sol",
           "label": "ownerBonds",
-          "astId": 4327,
+          "astId": 4217,
           "type": "t_mapping<t_array:dyn<t_bytes32>>",
           "src": "1445:48:14"
         },
@@ -1471,7 +1355,7 @@
           "contract": "XyBond",
           "path": "contracts/staking/XyBond.sol",
           "label": "bonds",
-          "astId": 4330,
+          "astId": 4220,
           "type": "t_array:dyn<t_bytes32>",
           "src": "1535:22:14"
         }
@@ -1481,26 +1365,7 @@
         "hasSelfDestruct": false,
         "hasDelegateCall": false,
         "hasInitialValuesInDeclarations": false,
-        "uninitializedBaseContracts": [],
-        "storageUncheckedVars": [
-          {
-            "contract": "GovernorRole",
-            "path": "contracts/access/GovernorRole.sol",
-            "label": "governors",
-            "astId": 3854,
-            "type": "t_struct<Roles.Role>",
-            "src": "113:28:9"
-          },
-          {
-            "contract": "XyBond",
-            "path": "contracts/staking/XyBond.sol",
-            "label": "bond",
-            "astId": 4318,
-            "type": "t_mapping<t_struct<XyBond.Bond>>",
-            "src": "1269:37:14"
-          }
-        ],
-        "storageDiff": []
+        "uninitializedBaseContracts": []
       }
     }
   },
@@ -1538,20 +1403,20 @@
     "dapp-scsc-solidity/XyStakingConsensus": [
       {
         "address": "0x0242514106114DEaA99Fd81574142c36Edb03B6D",
-        "version": "0.2.3",
-        "implementation": "0x1318fc36c92AC49f03cED24c607e35977F5021b0"
+        "version": "0.2.5",
+        "implementation": "0x883b6E2d2fc86bAC89e301265178A0D4981c7F1A"
       }
     ],
     "dapp-scsc-solidity/XyBond": [
       {
         "address": "0x1a024A698EEBdB86ccf3fCaF2F589839bdc066AD",
-        "version": "0.2.1",
-        "implementation": "0x81391F9821660172aeF6DF728784deC5aBf46a42"
+        "version": "0.2.4",
+        "implementation": "0xC0ed0fe1898edBcADE25b9Dcef843bD15A6Ecd88"
       }
     ]
   },
   "zosversion": "2.2",
-  "version": "0.2.3",
+  "version": "0.2.5",
   "dependencies": {
     "openzeppelin-eth": {
       "package": "0x778dddf23ec1b5cb18394c6c110480caadb3b0f6",
@@ -1568,7 +1433,7 @@
     "address": "0xa87838152519c7571A64893C65E3441347D31Bf2"
   },
   "provider": {
-    "address": "0x089104D598c3934943a53F97C8508f5A84431585"
+    "address": "0x4D84e10EeED282F108Fe9e461B8D34a7F0698255"
   },
   "frozen": false
 }

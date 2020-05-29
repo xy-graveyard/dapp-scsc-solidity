@@ -46,33 +46,33 @@ contract XyPayOnDelivery is Initializable, IXyRequester {
         @param weiPayOnDelivery - the amount of eth to pay on delivery
         @param beneficiary The destination address of the funds.
     */
-    function requestPayOnDelivery(
-        bytes32 requestId, 
-        uint xyoBounty, 
-        uint xyoPayOnDelivery, 
-        uint weiPayOnDelivery, 
-        address payable beneficiary
-    ) 
-        public 
-        payable 
-    {
-        require (requestIndex[requestId] == 0, "Duplicate request submitted");
-        require (msg.value >= weiPayOnDelivery, "Not enough payment provided");
+    // function requestPayOnDelivery(
+    //     bytes32 requestId, 
+    //     uint xyoBounty, 
+    //     uint xyoPayOnDelivery, 
+    //     uint weiPayOnDelivery, 
+    //     address payable beneficiary
+    // ) 
+    //     public 
+    //     payable 
+    // {
+    //     require (requestIndex[requestId] == 0, "Duplicate request submitted");
+    //     require (msg.value >= weiPayOnDelivery, "Not enough payment provided");
         
-        uint miningGas = msg.value.sub(weiPayOnDelivery);
-        scsc.submitRequest.value(miningGas)(requestId, xyoBounty, msg.sender, uint8(IXyRequester.RequestType.BOOL_CALLBACK));
+    //     uint miningGas = msg.value.sub(weiPayOnDelivery);
+    //     scsc.submitRequest.value(miningGas)(requestId, xyoBounty, msg.sender, uint8(IXyRequester.RequestType.BOOL_CALLBACK));
         
-        if (xyoPayOnDelivery > 0) {
-            SafeERC20.transferFrom(xyoToken, msg.sender, address(this), xyoPayOnDelivery);
-        }
+    //     if (xyoPayOnDelivery > 0) {
+    //         SafeERC20.transferFrom(xyoToken, msg.sender, address(this), xyoPayOnDelivery);
+    //     }
 
-        IPFSRequest memory q = IPFSRequest(
-            requestId, weiPayOnDelivery, xyoPayOnDelivery, block.number, 0, beneficiary, msg.sender
-        );
-        requestIndex[requestId] = requests.length;
-        requests.push(q);
-        emit NewPayOnDeliveryRequest(requestId, msg.sender, weiPayOnDelivery, xyoPayOnDelivery, beneficiary);
-    }
+    //     IPFSRequest memory q = IPFSRequest(
+    //         requestId, weiPayOnDelivery, xyoPayOnDelivery, block.number, 0, beneficiary, msg.sender
+    //     );
+    //     requestIndex[requestId] = requests.length;
+    //     requests.push(q);
+    //     emit NewPayOnDeliveryRequest(requestId, msg.sender, weiPayOnDelivery, xyoPayOnDelivery, beneficiary);
+    // }
 
     /**
         @dev Called by SCSC. If intersection, transfer pay on delivery to beneficiary, delete request
