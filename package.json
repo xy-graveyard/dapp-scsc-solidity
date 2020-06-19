@@ -42,6 +42,9 @@
     "openzeppelin-eth": "^2.2.0",
     "web3-provider-engine": "^15.0.0"
   },
+  "resolutions": {
+    "minimist": "1.2.5"
+  },
   "files": [
     "build",
     "contracts",
